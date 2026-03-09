@@ -1,0 +1,4 @@
+- **Language:** Python chosen for rapid development and scientific ecosystem
+- **Scope v1.0:** Lumped-element modeling only (no BEM/FEM)
+- **Architecture:** Modular design with clear separation between parser, solver, and postprocessing
+- **Documentation-first approach:** Core docs created before any code
