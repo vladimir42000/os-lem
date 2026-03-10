@@ -1,11 +1,3 @@
-
----
-
-## tests/normalization/test_units.py
-
-```python
-# tests/normalization/test_units.py
-
 from os_lem.constants import VALIDATION_REL_TOL, VALIDATION_ABS_TOL
 from os_lem.units import parse_value
 
