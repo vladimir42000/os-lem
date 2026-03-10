@@ -53,7 +53,7 @@ def _z_baffled(ka: float) -> complex:
 def _z_pade(ka: float, *, n1: float, d1: float, d2: float) -> complex:
     x = ka
     num = 1j * (d1 - n1) * x + d2 * x * x
-    den = 2.0 - 1j * (d1 + n1) * x - d2 * x * x
+    den = 2.0 + 1j * (d1 + n1) * x - d2 * x * x
     return num / den
 
 
