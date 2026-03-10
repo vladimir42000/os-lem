@@ -1,3 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run this from the root of your os-lem repository.
+
+mkdir -p docs tests/normalization
+
+cat > README.md <<'EOF'
 # os-lem
 
 Open, scriptable loudspeaker and enclosure simulator inspired by Akabak 2.1 style LEM workflows.
@@ -22,34 +30,8 @@ The current milestone is parser correctness plus primitive formula correctness.
 
 ## Quick start
 
+```bash
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -e ".[dev]"
 pytest
-
-## Important note
-The radiator passivity test currently fails for the frozen Padé pipe-end models.
-See `docs/radiator_pade_contradiction_note.md`.
-
-## Example files
-
-Examples live under:
-
-- `examples/free_air/model.yaml`
-- `examples/closed_box/model.yaml`
-- `examples/vented_box/model.yaml`
-- `examples/line_basic/model.yaml`
-- `examples/conical_line/model.yaml`
-
-## Next implementation step
-
-Implement the first coupled lumped assembly and solve:
-
-- acoustic nodal matrix for `volume`, `duct`, and `radiator`
-- driver coupling rows / columns
-- frequency-by-frequency complex solve
-- first outputs:
-  - `input_impedance`
-  - `cone_velocity`
-  - `cone_displacement`
-  - one-radiator `spl`

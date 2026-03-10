@@ -1,7 +1,14 @@
+# tests/normalization/test_driver_canonicalization.py
+
 import math
 
-from os_lem.constants import C0, RHO0
+from os_lem.constants import C0, PARSER_REL_TOL, PARSER_ABS_TOL, RHO0
 from os_lem.driver import canonical_from_explicit, canonical_from_ts_classic, normalize_driver
+
+
+def _close_enough(a: float, b: float) -> bool:
+    """Use frozen parser tolerance."""
+    return abs(a - b) <= max(PARSER_ABS_TOL, PARSER_REL_TOL * abs(b))
 
 
 def test_ts_and_explicit_match():
@@ -42,7 +49,8 @@ def test_ts_and_explicit_match():
     drv_ex = canonical_from_explicit(ex)
 
     for key in ("Re", "Le", "Bl", "Mms", "Cms", "Rms", "Sd"):
-        assert getattr(drv_ts, key) == getattr(drv_ex, key)
+        assert _close_enough(getattr(drv_ts, key), getattr(drv_ex, key)), \
+            f"{key}: {getattr(drv_ts, key)} vs {getattr(drv_ex, key)}"
 
 
 def test_mixed_driver_consistent_values_are_accepted_with_warning():
