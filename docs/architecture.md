@@ -5,11 +5,12 @@ The software is organized as a layered system:
 
 1. input parsing
 2. model object creation
-3. solver-element expansion
-4. frequency-domain system assembly
-5. numerical solve
-6. post-processing
-7. export / plotting
+3. normalization to canonical internal representation
+4. solver-element expansion
+5. frequency-domain system assembly
+6. numerical solve
+7. post-processing
+8. export / plotting
 
 The architecture should separate:
 
@@ -25,28 +26,26 @@ This separation is essential for future growth.
 ## Layer 1 - User model
 The user writes a high-level model file describing:
 
-- driver
-- enclosure volumes
+- one driver
+- acoustic volumes
 - ducts
-- horn / line sections
-- resonators
+- 1D waveguide sections
 - radiation terminations
 - observation requests
 
 This layer should be human-readable and stable.
 
-Examples of user-level objects:
+Examples of user-level objects in frozen v1:
 - `driver`
 - `volume`
 - `duct`
-- `tapered_line`
-- `conical_section`
-- `exponential_section`
-- `side_branch`
+- `waveguide_1d`
 - `radiator`
 
-Important rule:  
-User-level objects do **not** have to match one-to-one with solver primitives.
+Important rules:
+- user-level objects do **not** have to match one-to-one with solver primitives
+- resonators and side branches are represented by topology, not by separate primitive object types
+- user-facing driver entry may be classical T/S style or explicit electromechanical style, but both normalize to one internal canonical representation
 
 ---
 
@@ -56,18 +55,39 @@ The parser converts input into a structured internal model.
 Responsibilities:
 - validate syntax
 - validate required fields
+- parse supported units and normalize to SI
 - resolve references
 - assign nodes
+- normalize driver parameters
 - expand convenience objects if necessary
 
 This layer is still symbolic / structural, not yet numerical.
 
-Example:  
-A user-defined exponential horn may become a set of smaller internal line segments.
+Examples:
+- a user-defined `ts_classic` driver becomes a normalized explicit electromechanical driver description
+- a user-defined `waveguide_1d` may become a set of smaller internal line segments
 
 ---
 
-## Layer 3 - Solver primitives
+## Layer 3 - Canonical internal representation
+Before numerical expansion, the model is normalized to a controlled internal representation.
+
+For drivers, the canonical internal form is:
+- `Re`
+- `Le`
+- `Bl`
+- `Mms`
+- `Cms`
+- `Rms`
+- `Sd`
+
+For acoustics, all user inputs are normalized to SI before numerical evaluation.
+
+This layer is important because it lets the solver work with one clean representation even if the user entered parameters in different accepted schemas.
+
+---
+
+## Layer 4 - Solver primitives
 The internal model is converted into numerical solver elements.
 
 Typical primitive categories:
@@ -84,7 +104,7 @@ These primitives are what actually contribute to the system matrix.
 
 ---
 
-## Layer 4 - Frequency-domain assembly
+## Layer 5 - Frequency-domain assembly
 For each frequency point:
 
 1. compute each primitive's complex parameters
@@ -92,14 +112,11 @@ For each frequency point:
 3. apply sources and boundary conditions
 4. solve for unknown state variables
 
-The exact unknown set will be defined later in `solver_math.md`, but it will likely include nodal or branch-domain quantities such as:
-- voltage / current
-- force / velocity
-- pressure / volume velocity
+The exact unknown set will be defined later in `solver_math.md`, but it will follow a node-based linear frequency-domain formulation with acoustic node pressures as primary acoustic unknowns and auxiliary unknowns added as needed.
 
 ---
 
-## Layer 5 - Numerical solve
+## Layer 6 - Numerical solve
 Solve the assembled complex linear system at each frequency.
 
 Requirements:
@@ -112,30 +129,31 @@ The solver layer should not know anything about plotting or GUI.
 
 ---
 
-## Layer 6 - Post-processing
+## Layer 7 - Post-processing
 Convert solved state variables into engineering outputs such as:
 - SPL
 - phase
 - impedance
 - excursion
 - cone velocity
-- port velocity
-- acoustic power estimates
+- port / element velocity
+- node pressure
 - group delay
+- line pressure / volume-velocity / particle-velocity profiles at chosen frequencies
 
-Later additions:
-- pressure distribution along a line
-- volume-velocity distribution along a line
-- derived placement diagnostics for resonators / damping
+Post-processing is also responsible for:
+- complex summation of multiple radiator contributions
+- phase unwrapping where required
+- group-delay derivation from referenced observations
 
 ---
 
-## Layer 7 - Export and plotting
+## Layer 8 - Export and plotting
 Output should be available in machine-readable and human-readable forms.
 
 Machine-readable:
 - CSV
-- JSON metadata
+- metadata / summaries
 
 Human-readable:
 - static plots
@@ -163,9 +181,11 @@ src/os_lem/
 ## Responsibilities
 
 ### `parser/`
-- load YAML / JSON
+- load YAML / JSON later if added
 - schema validation
+- units parsing and SI normalization
 - convert to internal model objects
+- driver normalization and consistency checks
 
 ### `model/`
 - definitions of user-level and internal model objects
@@ -188,15 +208,15 @@ src/os_lem/
 - SPL / phase
 - group delay
 - excursion
-- internal field reconstruction later
+- node pressure
+- internal line-profile reconstruction
 
 ### `plots/`
 - static curve generation
 - later interactive plotting hooks
 
 ### `io/`
-- reading data files
-- writing CSV / JSON outputs
+- writing CSV and metadata outputs
 - later measured-data import
 
 ---
@@ -236,3 +256,4 @@ The following are intentionally not first-class architecture targets in v1:
 - nonlinear time-domain simulation
 - advanced porous-media solvers
 - distributed structural FEM
+- measured driver import

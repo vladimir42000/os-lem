@@ -20,17 +20,13 @@ JSON support may be added later if useful.
 
 ### 1. Clear object definitions
 Each object should have:
-- an `id`
-- a `type`
+- an `id` where appropriate
+- a `type` where appropriate
 - its parameters
-- its connections / nodes where relevant
+- its explicit node connections where relevant
 
-### 2. Explicit units
-Units should be documented and consistent.
-
-Initial convention:
-- SI units internally
-- user input in SI unless stated otherwise
+### 2. Canonical internal form
+The parser may accept a small number of user-facing schemas and engineering units, but it must normalize everything to one internal SI-based representation before numerical solving.
 
 ### 3. Stable schema
 The schema should evolve carefully to avoid breaking example files.
@@ -40,9 +36,9 @@ A model definition should be distinct from simulation settings and output reques
 
 ---
 
-## Top-level file structure
+## Frozen v1 top-level structure
 
-Proposed sections:
+The v1 top-level sections are:
 
 - `meta`
 - `simulation`
@@ -62,50 +58,93 @@ meta:
   version: 1
 
 simulation:
-  f_start_hz: 10
-  f_stop_hz: 2000
+  f_start: 10 Hz
+  f_stop: 2000 Hz
   points: 500
   spacing: log
 
 driver:
   id: drv1
-  model: ts_basic
-  Re: 5.8
-  Le: 0.0004
-  Bl: 6.2
-  Mms: 0.012
-  Cms: 0.0011
-  Rms: 0.9
-  Sd: 0.013
+  model: ts_classic
+  Re: 5.8 ohm
+  Le: 0.4 mH
+  Fs: 45 Hz
+  Qes: 0.42
+  Qms: 3.8
+  Vas: 18 l
+  Sd: 132 cm2
+  node_front: front
+  node_rear: rear
 
 elements:
+  - id: front_rad
+    type: radiator
+    node: front
+    model: infinite_baffle_piston
+    area: 132 cm2
+
   - id: rear_volume
     type: volume
-    node_a: rear_chamber
-    value_m3: 0.008
+    node: rear
+    value: 8 l
 
   - id: line_1
-    type: tapered_line
-    node_a: rear_chamber
+    type: waveguide_1d
+    node_a: rear
     node_b: mouth
-    length_m: 1.45
-    area_start_m2: 0.012
-    area_end_m2: 0.032
+    length: 1.45 m
+    area_start: 120 cm2
+    area_end: 320 cm2
+    profile: conical
+    segments: 12
 
   - id: mouth_rad
     type: radiator
-    node_a: mouth
-    radiation: unflanged_piston
+    node: mouth
+    model: unflanged_piston
+    area: 320 cm2
 
 observations:
   - id: zin
     type: input_impedance
     target: drv1
 
-  - id: spl_main
+  - id: spl_driver
+    type: spl
+    target: front_rad
+    distance: 1 m
+
+  - id: spl_mouth
     type: spl
     target: mouth_rad
-    distance_m: 1.0
+    distance: 1 m
+
+  - id: spl_total
+    type: spl_sum
+    terms:
+      - target: front_rad
+        distance: 1 m
+      - target: mouth_rad
+        distance: 1 m
+
+  - id: xcone
+    type: cone_displacement
+    target: drv1
+
+  - id: p_rear
+    type: node_pressure
+    target: rear
+
+  - id: line_p_200
+    type: line_profile
+    target: line_1
+    frequency: 200 Hz
+    quantity: pressure
+    points: 100
+
+  - id: gd_total
+    type: group_delay
+    target: spl_total
 
 output:
   folder: "results/basic_tqwp"
@@ -115,15 +154,14 @@ output:
 
 ---
 
-## First supported object classes for v1
+## Driver
 
-### Driver
-Initial modes:
-- `ts_basic`
-- later `electromechanical_explicit`
-- later `measured`
+v1 supports one driver object and two accepted user-facing input modes:
 
-Required fields for initial driver mode:
+- `model: ts_classic`
+- `model: em_explicit`
+
+Both normalize internally to the same canonical explicit representation:
 - `Re`
 - `Le`
 - `Bl`
@@ -132,94 +170,282 @@ Required fields for initial driver mode:
 - `Rms`
 - `Sd`
 
-Optional later convenience input:
-- classical T/S conversion helpers
+### `model: ts_classic`
+Required fields:
+- `id`
+- `model`
+- `Re`
+- `Le`
+- `Fs`
+- `Qes`
+- `Qms`
+- `Vas`
+- `Sd`
+- `node_front`
+- `node_rear`
+
+### `model: em_explicit`
+Required fields:
+- `id`
+- `model`
+- `Re`
+- `Le`
+- `Bl`
+- `Mms`
+- `Cms`
+- `Rms`
+- `Sd`
+- `node_front`
+- `node_rear`
+
+### Mixed classical and explicit fields
+If both classical and explicit descriptions are present:
+- the parser may accept the driver with a warning if the derived and declared values agree within tolerance
+- the parser must reject the driver if they disagree beyond tolerance
+
+### Notes
+- exactly one logical driver object is supported in v1
+- measured driver import is postponed
+- all accepted inputs are normalized internally before solving
 
 ---
 
-### Acoustic elements
-Initial target set:
+## Core acoustic element types in v1
+
+The supported user-facing acoustic element types are:
+
 - `volume`
 - `duct`
-- `tapered_line`
-- `side_branch`
+- `waveguide_1d`
 - `radiator`
 
-Possible later additions:
-- `conical_section`
-- `exponential_section`
-- `acoustic_resistance`
-- `acoustic_mass`
-- `acoustic_compliance`
+`side_branch` and `resonator` are not primitive object types in v1. They are built by topology from the core elements.
 
 ---
 
 ## Connection philosophy
-Connections should be explicit.
 
-Two possible approaches exist:
+Connections are explicit and node-based.
 
-### A. Node-based
-Each element declares:
+Naming rules:
+
+### 1-port elements
+Use:
+- `node`
+
+Examples:
+- `volume`
+- `radiator`
+
+### 2-port elements
+Use:
 - `node_a`
 - `node_b`
 
-This is flexible and consistent with network solvers.
+Examples:
+- `duct`
+- `waveguide_1d`
 
-### B. Containment/path-based
-Useful for simple line definitions but less general.
+### Driver
+Use:
+- `node_front`
+- `node_rear`
 
-Initial recommendation:
-- use **node-based connections**
-
-This supports future arbitrary topologies.
+This keeps the network model explicit and general.
 
 ---
 
-## Observation requests
-The user should explicitly request outputs.
+## Element definitions
 
-Initial observation types:
+### `volume`
+Required fields:
+- `id`
+- `type: volume`
+- `node`
+- `value`
+
+### `duct`
+Required fields:
+- `id`
+- `type: duct`
+- `node_a`
+- `node_b`
+- `length`
+- `area`
+
+Optional fields:
+- `loss`
+
+### `waveguide_1d`
+Required fields:
+- `id`
+- `type: waveguide_1d`
+- `node_a`
+- `node_b`
+- `length`
+- `area_start`
+- `area_end`
+- `profile: conical`
+
+Optional fields:
+- `segments`
+- `loss`
+
+#### Definition of `profile: conical`
+In v1, `conical` means the equivalent circular radius varies linearly with axial position.
+
+Therefore:
+- radius is linear in position
+- diameter is linear in position
+- cross-sectional area is generally not linear in position
+
+Special case:
+- if `area_start == area_end`, the section is cylindrical
+
+Later profile families such as exponential, parabolic, tractrix, or Le Cléac'h may be added without changing the top-level `waveguide_1d` object type.
+
+### `radiator`
+Required fields:
+- `id`
+- `type: radiator`
+- `node`
+- `model`
+- `area`
+
+Allowed v1 radiator models:
+- `infinite_baffle_piston`
+- `unflanged_piston`
+- `flanged_piston`
+
+Radiators remain explicit separate elements rather than endpoint flags. This allows independent observation of driver, port, and line-mouth contributions.
+
+---
+
+## Observations
+
+The user explicitly requests outputs.
+
+Supported v1 observation types:
 - `input_impedance`
 - `spl`
-- `phase`
+- `spl_sum`
 - `cone_displacement`
 - `cone_velocity`
+- `element_volume_velocity`
+- `element_particle_velocity`
+- `node_pressure`
+- `line_profile`
 - `group_delay`
 
-Later:
-- `pressure_profile`
-- `velocity_profile`
+### Important conventions
+- `phase` is not a separate observation type
+- phase is exported automatically for complex-valued observations where applicable
+- `group_delay` references another named complex observation
+
+### `spl`
+Observe the contribution of one radiator.
+
+Typical fields:
+- `id`
+- `type: spl`
+- `target`
+- `distance`
+- optional `delay`
+
+### `spl_sum`
+Observe the complex sum of multiple radiator contributions.
+
+Required fields:
+- `id`
+- `type: spl_sum`
+- `terms`
+
+Each term references a radiator contribution, typically with its own `distance` and optional `delay`.
+
+This is important because driver and port must be observable independently and also combined with phase interaction.
+
+### `node_pressure`
+Observe pressure at a named acoustic node.
+
+Typical fields:
+- `id`
+- `type: node_pressure`
+- `target`
+
+### `line_profile`
+Observe a sampled distribution along one line object at one chosen frequency.
+
+Required fields:
+- `id`
+- `type: line_profile`
+- `target`
+- `frequency`
+- `quantity`
+- `points`
+
+Allowed v1 quantities:
+- `pressure`
+- `volume_velocity`
+- `particle_velocity`
+
+This observation exists specifically to support line understanding and resonator-placement work.
+
+### `group_delay`
+Observe group delay derived from another named complex observation.
+
+Required fields:
+- `id`
+- `type: group_delay`
+- `target`
+
+Group delay is computed from the unwrapped phase of the referenced observation using numerical differentiation with respect to frequency.
 
 ---
 
-## Output control
-The user should be able to request:
-- CSV export
-- plot export
-- frequency-response metadata
+## Units
 
-Later:
-- JSON structured result bundles
-- GUI project save files
+### Internal rule
+The solver kernel uses SI internally.
+
+### User-facing v1 unit support
+The parser may accept a small controlled whitelist of engineering units and normalize them to SI.
+
+Recommended v1 whitelist:
+- length: `m`, `cm`, `mm`
+- area: `m2`, `cm2`
+- volume: `m3`, `l`
+- frequency: `Hz`
+- time: `s`, `ms`
+- inductance: `H`, `mH`
+- resistance: `ohm`
+
+Dimensionless quantities such as `Qes` and `Qms` remain unitless.
+
+Examples:
+- `Sd: 132 cm2`
+- `Vas: 18 l`
+- `distance: 100 cm`
+- `delay: 0.6 ms`
+
+This is a convenience for input only. Internally everything is normalized before solving.
 
 ---
 
 ## Validation requirements for the input format
-Before freezing the schema, it must be tested on:
+Before implementation is considered stable, the schema must be exercised on at least:
+- free-air driver
 - sealed box
 - vented box
-- simple TL
-- tapered TQWP
-- side-branch resonator example
+- simple straight line
+- tapered TQWP / conical line case
+- resonator example built from core elements
 
 ---
 
-## Open questions
-These will be resolved later and logged in `decision_log.md`:
+## v1 strictness rules
+- missing required fields are hard errors
+- unknown fields are hard errors
+- unsupported element or observation types are hard errors
+- contradictory mixed driver data beyond tolerance is a hard error
 
-1. exact driver schema for v1
-2. whether `tapered_line` is a true primitive or always expanded internally
-3. whether radiation models are object types or options on endpoints
-4. naming conventions for nodes and observations
-5. whether optional units syntax should be supported later
+These strict rules are intentional in v1 to make validation easier and avoid silent mistakes.
