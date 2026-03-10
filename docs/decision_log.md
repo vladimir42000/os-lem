@@ -169,3 +169,144 @@ Format:
 **Decision:** Ambient medium customization is deferred; v1 uses default air constants.
 **Status:** accepted
 **Reason:** This keeps the first solver contract smaller while preserving future extensibility.
+
+## 2026-03-10
+**Decision:** Freeze the v1 harmonic convention to \(e^{j\omega t}\).
+**Status:** accepted
+**Reason:** All impedances, coupling equations, phase, and group-delay definitions must share one sign convention.
+
+## 2026-03-10
+**Decision:** The v1 unknown vector is acoustic node pressures plus driver current and diaphragm velocity.
+**Status:** accepted
+**Reason:** This keeps acoustics node-based while making the single-driver electromechanical coupling explicit and easy to validate.
+
+## 2026-03-10
+**Decision:** In v1, `volume` is a one-node shunt acoustic compliance, `duct` is a lumped two-node acoustic inertance, and `waveguide_1d` is internally expanded into segmented uniform lossless line sections.
+**Status:** accepted
+**Reason:** These definitions are simple, implementable, and sufficient for the first validated solver kernel.
+
+## 2026-03-10
+**Decision:** `spl_sum` is defined as a complex pressure sum before dB conversion.
+**Status:** accepted
+**Reason:** Summing dB values is physically wrong and would make driver-port or multi-radiator interference impossible to represent correctly.
+
+## 2026-03-10
+**Decision:** `line_profile` is a first-class v1 validation target and must be reconstructed from the solved internal line states.
+**Status:** accepted
+**Reason:** Internal pressure and velocity inspection is one of the main motivations for the project and must not remain an undefined post-processing detail.
+
+## 2026-03-10
+**Decision:** The exact formula library for the supported radiator models is intentionally left open until explicitly pinned by validation-oriented review, but the solver contract already requires each radiator to provide both a one-port boundary impedance and an observation transfer relation.
+**Status:** accepted
+**Reason:** The implementation interface must be fixed now, while the exact radiation formulas still deserve adversarial review before coding.
+
+## 2026-03-10
+**Decision:** The v1 validation strategy is layered: parser and normalization first, primitive physics second, integrated reference models third, observations fourth, and numerical robustness throughout.
+**Status:** accepted
+**Reason:** This reduces the risk of debugging full examples while basic schema, sign, or normalization mistakes are still hidden underneath.
+
+## 2026-03-10
+**Decision:** At least one official `waveguide_1d` validation case must include a segment-refinement convergence study.
+**Status:** accepted
+**Reason:** The v1 conical line model relies on internal segmentation, so convergence under refinement is a release-critical correctness check.
+
+## 2026-03-10
+**Decision:** All acoustic node pressures are gauge pressures relative to ambient.
+**Status:** accepted
+**Reason:** This removes ambiguity in the nodal state definition and in reference-boundary interpretation.
+
+## 2026-03-10
+**Decision:** The exported sign convention for ordered element volume velocity is positive from `node_a` to `node_b`.
+**Status:** accepted
+**Reason:** This prevents observation-level ambiguity and forces consistent reporting across implementations.
+
+## 2026-03-10
+**Decision:** `waveguide_1d` endpoint flow and particle-velocity observations require explicit endpoint selection via `location: a | b`.
+**Status:** accepted
+**Reason:** A distributed two-port does not have a single unique endpoint flow quantity, so the observation API must state which local endpoint quantity is meant.
+
+## 2026-03-10
+**Decision:** `spl` is frozen in v1 as an on-axis far-field radiator observation with explicit distance input.
+**Status:** accepted
+**Reason:** This removes hidden default-angle ambiguity and keeps the first observation contract implementable.
+
+## 2026-03-10
+**Decision:** The default v1 drive convention is a real positive 2.83 V RMS source unless explicitly overridden.
+**Status:** accepted
+**Reason:** Example reproducibility requires a frozen source convention.
+
+## 2026-03-10
+**Decision:** The canonical-driver parser consistency check uses relative tolerance 5e-3 and absolute tolerance 1e-12 SI.
+**Status:** accepted
+**Reason:** Parser acceptance behavior must be reproducible and tolerant of normal engineering rounding without masking real inconsistency.
+
+## 2026-03-10
+**Decision:** Every acoustically connected component must have at least one valid shunt path to the pressure reference.
+**Status:** accepted
+**Reason:** This avoids floating acoustic subnetworks and singular matrix assembly.
+
+## 2026-03-10
+**Decision:** The coupled system matrix must be treated as a general complex matrix; no symmetry or Hermitian assumptions are allowed.
+**Status:** accepted
+**Reason:** The pressure-current-velocity block formulation is not guaranteed to preserve symmetry, and implementation must not accidentally choose the wrong solver class.
+
+## 2026-03-10
+**Decision:** Group delay uses a frozen discrete stencil: centered difference for interior points and one-sided difference at the sweep endpoints.
+**Status:** accepted
+**Reason:** Group-delay output must be numerically reproducible across implementations.
+
+## 2026-03-10
+**Decision:** The exact v1 radiator formulas are frozen in `docs/radiator_models.md`.
+**Status:** accepted
+**Reason:** Radiator behavior was the largest remaining correctness gap after the initial spec pass and had to be pinned before implementation.
+
+## 2026-03-10
+**Decision:** Freeze v1 reference-air constants to rho0 = 1.2041 kg/m^3 and c0 = 343.2 m/s.
+**Status:** accepted
+**Reason:** Numerical validation and reproducibility require fixed medium constants.
+
+## 2026-03-10
+**Decision:** Acoustic node identity is name-based, and multiple elements may connect the same node pair as parallel branches.
+**Status:** accepted
+**Reason:** This removes topology ambiguity and makes parallel-path assembly explicit.
+
+## 2026-03-10
+**Decision:** Acoustic nodes are ordered by first appearance after parser normalization, and elements are assembled in normalized input-file order.
+**Status:** accepted
+**Reason:** Deterministic ordering is required for reproducible assembly and debugging.
+
+## 2026-03-10
+**Decision:** There is no special user-declared ground node in v1; shunt elements connect implicitly to the pressure reference.
+**Status:** accepted
+**Reason:** The solver uses an implicit acoustic reference and should not overload ordinary node names with hidden behavior.
+
+## 2026-03-10
+**Decision:** Positive diaphragm velocity means motion toward the front side.
+**Status:** accepted
+**Reason:** The driver sign convention must be physically interpretable as well as algebraically frozen.
+
+## 2026-03-10
+**Decision:** Machine-readable complex observations export in Cartesian form by default.
+**Status:** accepted
+**Reason:** Cartesian export is unambiguous and avoids phase-wrap ambiguity in downstream tools.
+
+## 2026-03-10
+**Decision:** Exact DC is forbidden in the v1 solver; only strictly positive frequencies are valid.
+**Status:** accepted
+**Reason:** The frozen formulation contains 1/(j omega) terms and is not a DC formulation.
+
+## 2026-03-10
+**Decision:** The frozen default validation comparison rule for complex values uses rel_tol = 1e-6 and abs_tol = 1e-12.
+**Status:** accepted
+**Reason:** Validation outcomes must be reproducible across implementations.
+
+## 2026-03-10
+**Decision:** The frozen v1 segmentation rule for conical waveguide_1d elements uses midpoint area per subsegment.
+**Status:** accepted
+**Reason:** This removes the last remaining discretization ambiguity for the v1 line model.
+
+## 2026-03-10
+**Decision:** No undocumented damping or loss regularization may be injected to rescue singular or ill-conditioned models.
+**Status:** accepted
+**Reason:** Numerical failure must be reported honestly rather than hidden behind untracked physics changes.
+
