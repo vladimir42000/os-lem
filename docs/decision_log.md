@@ -53,7 +53,7 @@ to:
 `waveguide_1d` is not assembled yet in the current phase.
 
 ### Consequence
-Any attempt to assemble `waveguide_1d` during the current Phase 1 patch series
+Any attempt to assemble `waveguide_1d` during the current Phase 1/2 patch series
 should fail explicitly rather than silently behave approximately.
 
 ---
@@ -82,11 +82,11 @@ than replacing it.
 
 ---
 
-## D-0007 — current phase boundary
+## D-0007 — Phase 1 scope boundary
 **Status:** accepted
 
-The current active phase is:
-**Phase 1 — first coupled one-frequency solver**
+Phase 1 scope was:
+**first coupled one-frequency solver**
 
 ### In scope
 - minimal coupled solve
@@ -110,5 +110,40 @@ Chat threads are working spaces. The repository documentation should carry the
 persistent operational state of the project.
 
 ### Consequence
-`docs/status.md`, `docs/roadmap.md`, and `docs/decision_log.md` should be kept
-aligned with meaningful project checkpoints.
+`docs/status.md`, `docs/roadmap.md`, `docs/decision_log.md`, and
+`docs/development_policy.md` should be kept aligned with meaningful project
+checkpoints.
+
+---
+
+## D-0009 — first coupled one-frequency solve is now frozen as a milestone
+**Status:** accepted
+
+The first electromechano-acoustic coupled one-frequency solve is implemented and
+covered by focused tests.
+
+Milestone tag:
+`phase1-first-coupled-solve`
+
+### Consequence
+Phase 2 should extend this solver path rather than replacing it with a new
+architecture.
+
+---
+
+## D-0010 — Phase 2 begins with sweep and first observables
+**Status:** accepted
+
+The next active phase is:
+**Phase 2 — sweep and first observables**
+
+### In scope
+- sweep helper over the current coupled one-frequency solve
+- first output extraction
+- focused tests for sweep/output behavior
+
+### Out of scope
+- waveguide assembly
+- multi-driver support
+- broad refactor
+- speculative topology expansion

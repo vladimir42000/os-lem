@@ -35,7 +35,7 @@ Recover a clean, testable baseline and freeze the first validated primitive set.
 ---
 
 ## Phase 1 — first coupled one-frequency solver
-**Status:** in progress
+**Status:** completed
 
 ### Goal
 Build the first minimal electromechano-acoustic coupled solver for one driver at
@@ -67,10 +67,13 @@ one frequency point.
 - tests cover assembly, matrix build, and coupled solve
 - stable checkpoint committed and tagged
 
+### Result
+Completed at milestone tag: `phase1-first-coupled-solve`
+
 ---
 
 ## Phase 2 — sweep and first observables
-**Status:** planned
+**Status:** in progress
 
 ### Goal
 Extend the one-frequency solver into a frequency sweep and expose the first
