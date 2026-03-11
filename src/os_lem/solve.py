@@ -47,6 +47,26 @@ class SolvedFrequencyPoint:
     solution_vector: np.ndarray
 
 
+@dataclass(slots=True, frozen=True)
+class SolvedFrequencySweep:
+    """Solved state arrays over a frequency sweep."""
+
+    frequency_hz: np.ndarray
+    omega_rad_s: np.ndarray
+    node_order: tuple[str, ...]
+    pressures: np.ndarray
+    coil_current: np.ndarray
+    cone_velocity: np.ndarray
+    cone_displacement: np.ndarray
+    source_voltage_rms: float
+
+    @property
+    def input_impedance(self) -> np.ndarray:
+        """Electrical input impedance V / I over the sweep."""
+
+        return self.source_voltage_rms / self.coil_current
+
+
 def build_acoustic_matrix(system: AssembledSystem, frequency_hz: float) -> AcousticMatrixBuild:
     """Build the acoustic nodal admittance matrix for one frequency.
 
@@ -210,4 +230,39 @@ def solve_frequency_point(
         cone_velocity=cone_velocity,
         cone_displacement=cone_displacement,
         solution_vector=x,
+    )
+
+
+def solve_frequency_sweep(
+    model: NormalizedModel,
+    system: AssembledSystem,
+    frequencies_hz: np.ndarray | list[float] | tuple[float, ...],
+) -> SolvedFrequencySweep:
+    """Solve the current coupled model over a 1D frequency sweep."""
+
+    frequency_hz = np.asarray(frequencies_hz, dtype=np.float64)
+    if frequency_hz.ndim != 1:
+        raise ValueError("frequencies_hz must be a 1D sequence")
+    if frequency_hz.size == 0:
+        raise ValueError("frequencies_hz must not be empty")
+    if np.any(frequency_hz <= 0.0):
+        raise ValueError("all frequencies_hz values must be > 0")
+
+    points = [solve_frequency_point(model, system, float(f)) for f in frequency_hz]
+
+    pressures = np.stack([point.pressures for point in points], axis=0)
+    coil_current = np.array([point.coil_current for point in points], dtype=np.complex128)
+    cone_velocity = np.array([point.cone_velocity for point in points], dtype=np.complex128)
+    cone_displacement = np.array([point.cone_displacement for point in points], dtype=np.complex128)
+    omega_rad_s = np.array([point.omega_rad_s for point in points], dtype=np.float64)
+
+    return SolvedFrequencySweep(
+        frequency_hz=frequency_hz.copy(),
+        omega_rad_s=omega_rad_s,
+        node_order=points[0].node_order,
+        pressures=pressures,
+        coil_current=coil_current,
+        cone_velocity=cone_velocity,
+        cone_displacement=cone_displacement,
+        source_voltage_rms=model.driver.source_voltage_rms,
     )
