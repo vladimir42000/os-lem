@@ -1,142 +1,142 @@
-# Roadmap
+# os-lem roadmap
 
-## v0.1 - Project foundation
-Goal: establish the project structure and technical direction.
+## Project intent
 
-Deliverables:
-- repository structure
-- documentation skeleton
-- frozen input-file philosophy
-- solver architecture draft
-- validation-plan draft
+`os-lem` is an open, scriptable lumped-element loudspeaker / enclosure simulator
+with a development style inspired by Akabak 2.1-era workflows, but with a clean,
+testable, modern Python implementation.
 
-## v0.2 - Minimal solver kernel
-Goal: solve simple linear frequency-domain electromechanical-acoustic networks.
+The roadmap is phase-based. Each phase has a clear goal, scope boundary, and
+completion criterion.
 
-Deliverables:
-- complex frequency sweep engine
-- driver normalization (`ts_classic` and `em_explicit` to one canonical form)
-- basic acoustic compliance / mass / resistance primitives internally
-- node-based assembly
-- electrical impedance output
-- basic single-radiator SPL output
+---
 
-## v0.3 - First usable enclosure models
-Goal: simulate the first practical box alignments.
+## Phase 0 — recovery and primitive stabilization
+**Status:** completed
 
-Deliverables:
-- sealed-box support
-- vented-box support
-- `volume`, `duct`, and `radiator` support
-- first radiator models:
-  - `infinite_baffle_piston`
-  - `unflanged_piston`
-  - `flanged_piston`
-- plots:
-  - impedance
-  - SPL
-  - phase
+### Goal
+Recover a clean, testable baseline and freeze the first validated primitive set.
+
+### Included
+- repository repair
+- parser / normalization scaffold
+- frozen v1 input subset
+- primitive formulas and tests for:
+  - volume
+  - duct
+  - waveguide_1d
+  - radiator
+
+### Exit criteria
+- stable baseline recovered
+- repaired tests passing
+- primitive behavior frozen sufficiently for coupled development
+
+---
+
+## Phase 1 — first coupled one-frequency solver
+**Status:** in progress
+
+### Goal
+Build the first minimal electromechano-acoustic coupled solver for one driver at
+one frequency point.
+
+### Included
+- deterministic topology assembly
+- acoustic nodal matrix assembly for:
+  - volume
+  - duct
+  - radiator
+- driver electrical + mechanical coupling
+- one-frequency complex solve
+- first solved internal state:
+  - node pressures
+  - voice-coil current
+  - cone velocity
   - cone displacement
-  - group delay
 
-## v0.4 - Waveguide / TQWP support
-Goal: support 1D line-based enclosures.
+### Excluded
+- frequency sweep helper
+- observation framework expansion
+- waveguide assembly
+- broad architecture refactor
+- multi-driver support
 
-Deliverables:
-- `waveguide_1d` support
-- `profile: conical`
-- internal segmentation support
-- examples:
-  - straight cylindrical line
-  - conical TQWP
-  - resonator-assisted line built by topology
-
-## v0.5 - Field inspection and summation
-Goal: make the solver more useful for resonator placement and source-combination work.
-
-Deliverables:
-- separate driver / port / mouth SPL observation
-- complex SPL summation
-- node-pressure output
-- line-profile output at chosen frequency:
-  - pressure
-  - volume velocity
-  - particle velocity
-- export of sampled field data
-
-## v0.6 - High-level geometry growth
-Goal: improve user input while keeping solver internals simple.
-
-Deliverables:
-- additional `waveguide_1d` profile families, possibly:
-  - exponential
-  - parabolic
-  - tractrix
-  - Le Cléac'h
-- automatic internal segmentation controls
-- more examples and reference validations
-
-## v0.7 - Optimization interface
-Goal: enable automated search of parameters.
-
-Deliverables:
-- parameter sweep framework
-- objective-function framework
-- hooks for SciPy optimization
-- support for batch runs and machine-readable result export
-
-## v0.8 - Measured driver support
-Goal: move beyond idealized parametric drivers.
-
-Deliverables:
-- import complex impedance data
-- import infinite-baffle SPL / phase data
-- define hybrid measured/parametric driver modes
-- validation on real measured drivers
-
-## v0.9 - Interactive desktop interface
-Goal: provide real-time engineering workflow.
-
-Deliverables:
-- GUI shell
-- live parameter editing
-- live curve refresh
-- comparison overlays
-- saved projects
-
-## v1.0 - Stable engineering release
-Goal: dependable open tool for Akabak-2.1-style command-line simulation.
-
-Deliverables:
-- stable CLI
-- documented input format
-- validated examples
-- regression test suite
-- reproducible output files
-- installation instructions
+### Exit criteria
+- one-frequency coupled solve works
+- tests cover assembly, matrix build, and coupled solve
+- stable checkpoint committed and tagged
 
 ---
 
-## Deferred / research topics
-These are intentionally postponed until the kernel is strong:
+## Phase 2 — sweep and first observables
+**Status:** planned
 
-- detailed porous stuffing / fibrous fill physics
-- finite-baffle diffraction improvements
-- mutual radiation refinement
-- structural coupling
-- nonlinear behavior
-- BEM / 3D acoustics
-- crossover library expansion
-- machine-learning surrogate models
+### Goal
+Extend the one-frequency solver into a frequency sweep and expose the first
+user-relevant outputs.
+
+### Planned outputs
+- input impedance
+- cone velocity
+- cone displacement
+- one-radiator SPL
+
+### Exit criteria
+- frequency sweep implemented
+- outputs available from solved sweep
+- first frozen numerical reference tests added
 
 ---
 
-## Guiding principle
-At every stage, we prefer:
+## Phase 3 — validation cases
+**Status:** planned
 
-- small validated steps
-- working examples
-- test coverage
-- reproducible reference comparisons
+### Goal
+Validate the first solver path against known analytical or trusted reference
+cases.
 
-over ambitious but unverified feature growth.
+### Candidate cases
+- sealed-box-like topology
+- simple vented-box-like topology
+- low-frequency asymptotic checks
+- sensitivity / sanity checks on element parameters
+
+### Exit criteria
+- reference validation cases documented
+- acceptable agreement established for supported scope
+
+---
+
+## Phase 4 — extended acoustic topology support
+**Status:** planned
+
+### Goal
+Broaden assembled topology support beyond the initial Session 6 subset.
+
+### Planned candidates
+- `waveguide_1d` assembly
+- richer topologies
+- additional element interoperability constraints
+
+### Exit criteria
+- first extended topology path implemented and tested
+- no regression of earlier phases
+
+---
+
+## Phase 5 — user-facing maturation
+**Status:** planned
+
+### Goal
+Improve usability, examples, and result inspection.
+
+### Possible items
+- richer examples
+- clearer result objects
+- plotting helpers
+- better reporting / documentation
+
+### Exit criteria
+- examples align with implemented scope
+- docs match actual solver capability
