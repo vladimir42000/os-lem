@@ -1,4 +1,4 @@
-"""Minimal frequency-domain acoustic matrix build for Session 6 Patch 2."""
+"""Frequency-domain acoustic and first coupled solve utilities for Session 6."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from .assemble import AssembledSystem
 from .elements.duct import duct_admittance
 from .elements.radiator import radiator_impedance
 from .elements.volume import volume_admittance
-from .model import DuctElement, RadiatorElement, VolumeElement
+from .model import DuctElement, NormalizedModel, RadiatorElement, VolumeElement
 
 
 @dataclass(slots=True, frozen=True)
@@ -20,6 +20,31 @@ class AcousticMatrixBuild:
     frequency_hz: float
     omega_rad_s: float
     Yaa: np.ndarray
+
+
+@dataclass(slots=True, frozen=True)
+class CoupledSystemBuild:
+    """Full first coupled linear system for one frequency."""
+
+    frequency_hz: float
+    omega_rad_s: float
+    A: np.ndarray
+    b: np.ndarray
+    acoustic_matrix: np.ndarray
+
+
+@dataclass(slots=True, frozen=True)
+class SolvedFrequencyPoint:
+    """Solved first coupled state for one frequency."""
+
+    frequency_hz: float
+    omega_rad_s: float
+    node_order: tuple[str, ...]
+    pressures: np.ndarray
+    coil_current: complex
+    cone_velocity: complex
+    cone_displacement: complex
+    solution_vector: np.ndarray
 
 
 def build_acoustic_matrix(system: AssembledSystem, frequency_hz: float) -> AcousticMatrixBuild:
@@ -76,4 +101,113 @@ def build_acoustic_matrix(system: AssembledSystem, frequency_hz: float) -> Acous
         frequency_hz=frequency_hz,
         omega_rad_s=omega,
         Yaa=Yaa,
+    )
+
+
+def _electrical_impedance(model: NormalizedModel, omega: float) -> complex:
+    driver = model.driver
+    return complex(driver.Re, omega * driver.Le)
+
+
+def _mechanical_impedance(model: NormalizedModel, omega: float) -> complex:
+    driver = model.driver
+    return complex(driver.Rms, omega * driver.Mms - 1.0 / (omega * driver.Cms))
+
+
+def build_coupled_system(
+    model: NormalizedModel,
+    system: AssembledSystem,
+    frequency_hz: float,
+) -> CoupledSystemBuild:
+    """Build the first coupled electromechano-acoustic linear system.
+
+    Unknown vector ordering:
+        [p_0, p_1, ..., p_(N-1), i_vc, u_cone]
+
+    where:
+    - p_k are acoustic node pressures
+    - i_vc is voice-coil current
+    - u_cone is cone velocity
+
+    This is the minimal Phase 1 coupled model.
+    """
+
+    acoustic = build_acoustic_matrix(system, frequency_hz)
+    omega = acoustic.omega_rad_s
+    Yaa = acoustic.Yaa
+    n = Yaa.shape[0]
+
+    driver = model.driver
+    A = np.zeros((n + 2, n + 2), dtype=np.complex128)
+    b = np.zeros(n + 2, dtype=np.complex128)
+
+    # Acoustic block.
+    A[:n, :n] = Yaa
+
+    # Cone velocity coupling into acoustic nodes.
+    #
+    # Convention used here:
+    # - positive cone velocity injects +Sd volume velocity into the front node
+    # - positive cone velocity injects -Sd volume velocity into the rear node
+    #
+    # With acoustic equations written as A x = b, this becomes:
+    #   Yaa p + c*u = 0
+    # where c has:
+    #   c_front = -Sd
+    #   c_rear  = +Sd
+    cone_col = n + 1
+    A[system.driver_front_index, cone_col] += -driver.Sd
+    A[system.driver_rear_index, cone_col] += +driver.Sd
+
+    # Electrical equation:
+    #   Ze * i + Bl * u = Vs
+    row_e = n
+    col_i = n
+    col_u = n + 1
+    A[row_e, col_i] = _electrical_impedance(model, omega)
+    A[row_e, col_u] = driver.Bl
+    b[row_e] = driver.source_voltage_rms
+
+    # Mechanical equation:
+    #   Bl * i + Zm * u - Sd * p_front + Sd * p_rear = 0
+    row_m = n + 1
+    A[row_m, system.driver_front_index] = -driver.Sd
+    A[row_m, system.driver_rear_index] = +driver.Sd
+    A[row_m, col_i] = driver.Bl
+    A[row_m, col_u] = _mechanical_impedance(model, omega)
+
+    return CoupledSystemBuild(
+        frequency_hz=frequency_hz,
+        omega_rad_s=omega,
+        A=A,
+        b=b,
+        acoustic_matrix=Yaa.copy(),
+    )
+
+
+def solve_frequency_point(
+    model: NormalizedModel,
+    system: AssembledSystem,
+    frequency_hz: float,
+) -> SolvedFrequencyPoint:
+    """Solve the first coupled one-frequency system."""
+
+    built = build_coupled_system(model, system, frequency_hz)
+    x = np.linalg.solve(built.A, built.b)
+
+    n = len(system.node_order)
+    pressures = x[:n].copy()
+    coil_current = complex(x[n])
+    cone_velocity = complex(x[n + 1])
+    cone_displacement = cone_velocity / (1j * built.omega_rad_s)
+
+    return SolvedFrequencyPoint(
+        frequency_hz=frequency_hz,
+        omega_rad_s=built.omega_rad_s,
+        node_order=system.node_order,
+        pressures=pressures,
+        coil_current=coil_current,
+        cone_velocity=cone_velocity,
+        cone_displacement=cone_displacement,
+        solution_vector=x,
     )
