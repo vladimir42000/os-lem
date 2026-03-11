@@ -6,7 +6,7 @@
 - Stable baseline commit: `b31df3d`
 - Stable baseline tag: `baseline-session5-recovered`
 - Current phase milestone tag: `phase1-first-coupled-solve`
-- Current test status: `39 passed`
+- Current test status: `49 passed`
 - Active phase: **Phase 2 — sweep and first observables**
 - Most recent completed milestone: **Phase 1 — first coupled one-frequency solver**
 
@@ -41,6 +41,17 @@
   - voice-coil current
   - cone velocity
   - cone displacement
+- first sweep helper over the one-frequency coupled solve
+- first sweep result container returning arrays for:
+  - node pressures
+  - voice-coil current
+  - cone velocity
+  - cone displacement
+  - input impedance
+- first one-radiator observation helpers returning:
+  - complex far-field pressure
+  - SPL in dB
+
 
 ## Current scope boundary
 
@@ -64,15 +75,15 @@
 
 ## Immediate next step
 
-Implement Phase 2:
-- frequency sweep helper over the coupled one-frequency solve
-- first output extraction
-- focused tests for sweep shape, finiteness, and basic invariants
+Continue Phase 2 with the next small patch:
+- add frozen numerical reference checks for first output values
+- decide whether a minimal export/observation layer is needed now or later
+- keep docs aligned with exact implemented scope
 
 ## Known limitations
 
 - `waveguide_1d` exists as an evaluated primitive but is not yet assembled
-- no sweep/output pipeline yet beyond one-frequency solve
+- no general output/export pipeline yet beyond direct helper functions
 - no broader validation yet against external reference cases
 - current coupled solver scope is intentionally minimal
 

@@ -147,3 +147,26 @@ The next active phase is:
 - multi-driver support
 - broad refactor
 - speculative topology expansion
+
+
+## D-0011 — Phase 2 sweep reuses the frozen one-frequency solve
+**Status:** accepted
+
+The first Phase 2 sweep helper is implemented by repeatedly calling the
+existing one-frequency coupled solve and stacking results into sweep arrays.
+
+### Consequence
+Phase 2 extends the already tested Phase 1 path directly and avoids a
+separate sweep-specific solve architecture at this stage.
+
+
+## D-0012 — First radiator SPL follows the frozen radiator contract
+**Status:** accepted
+
+The first one-radiator SPL helper computes radiator branch flow from solved
+radiator node pressure and radiator impedance, then applies the frozen
+far-field transfer relation before converting to dB.
+
+### Consequence
+Early Phase 2 SPL behavior is explicitly tied to the current radiator model
+contract and should not be changed casually.

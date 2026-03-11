@@ -85,6 +85,14 @@ user-relevant outputs.
 - cone displacement
 - one-radiator SPL
 
+### Current progress
+- frequency sweep helper implemented
+- first solved-sweep outputs available:
+  - input impedance
+  - cone velocity
+  - cone displacement
+  - one-radiator SPL
+
 ### Exit criteria
 - frequency sweep implemented
 - outputs available from solved sweep
