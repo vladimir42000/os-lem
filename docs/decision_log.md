@@ -170,3 +170,60 @@ far-field transfer relation before converting to dB.
 ### Consequence
 Early Phase 2 SPL behavior is explicitly tied to the current radiator model
 contract and should not be changed casually.
+
+---
+
+## D-0013 — Phase 3 is validation-first, not feature-expansion-first
+**Status:** accepted
+
+The next active phase is:
+**Phase 3 — validation of the current solver path**
+
+### In scope
+- validation of the already implemented assembled subset:
+  - `volume`
+  - `duct`
+  - `radiator`
+- internal physics sanity checks
+- limited external comparison for simple overlapping cases
+- documentation alignment with actual solver capability
+
+### Out of scope
+- `waveguide_1d` assembly
+- multi-driver support
+- broad refactor
+- speculative capability growth
+
+### Consequence
+Phase 3 should increase trust in the current narrow solver path rather than
+expand topology support.
+
+---
+
+## D-0014 — External comparison in Phase 3 is limited to overlapping simple cases
+**Status:** accepted
+
+External comparison is useful in Phase 3, but only where the current solver
+scope clearly overlaps with the reference tool scope.
+
+### Consequence
+Acceptable Phase 3 external comparisons include simple cases such as:
+- free-air-like sanity checks
+- sealed-box-like cases
+- simple vented-box-like cases
+
+Phase 3 should not claim agreement for unsupported line / horn / broader
+waveguide topologies.
+
+---
+
+## D-0015 — Phase 4 begins with `waveguide_1d` assembly
+**Status:** accepted
+
+Once the current narrow solver path is validated, the next topology expansion
+step should begin with `waveguide_1d` assembly.
+
+### Consequence
+`waveguide_1d` assembly is intentionally postponed until after Phase 3, so new
+topology complexity is not stacked on top of an insufficiently validated core.
+

@@ -73,49 +73,76 @@ Completed at milestone tag: `phase1-first-coupled-solve`
 ---
 
 ## Phase 2 — sweep and first observables
-**Status:** in progress
+**Status:** completed
 
 ### Goal
 Extend the one-frequency solver into a frequency sweep and expose the first
 user-relevant outputs.
 
-### Planned outputs
+### Delivered outputs
 - input impedance
 - cone velocity
 - cone displacement
+- one-radiator far-field pressure
 - one-radiator SPL
 
-### Current progress
+### Delivered work
 - frequency sweep helper implemented
-- first solved-sweep outputs available:
-  - input impedance
-  - cone velocity
-  - cone displacement
-  - one-radiator SPL
+- solved sweep result container implemented
+- first output helpers implemented
+- frozen numerical reference tests added for the first outputs
 
 ### Exit criteria
 - frequency sweep implemented
 - outputs available from solved sweep
 - first frozen numerical reference tests added
 
+### Result
+Phase 2 completed on the current branch state now handed into Phase 3.
+
 ---
 
-## Phase 3 — validation cases
-**Status:** planned
+## Phase 3 — validation of the current solver path
+**Status:** in progress
 
 ### Goal
-Validate the first solver path against known analytical or trusted reference
-cases.
+Validate the already implemented solver path for the current supported assembled
+subset before any topology expansion.
 
-### Candidate cases
+### Supported scope for validation
+- `volume`
+- `duct`
+- `radiator`
+
+### Validation basis
+Phase 3 uses two validation layers:
+
+1. mandatory internal physics sanity checks
+2. limited external comparison for simple cases that truly overlap the current supported scope
+
+### Candidate validation cases
+- free-air-like sanity behavior
 - sealed-box-like topology
 - simple vented-box-like topology
 - low-frequency asymptotic checks
-- sensitivity / sanity checks on element parameters
+- parameter sensitivity / monotonicity checks:
+  - rear volume
+  - duct length
+  - duct area
+- one-radiator observation sanity checks
+
+### Explicitly excluded from Phase 3
+- `waveguide_1d` assembly
+- multi-driver support
+- broad refactors
+- Hornresp-style validation for unsupported line / horn topologies
+- parity claims beyond shared simple cases
 
 ### Exit criteria
-- reference validation cases documented
-- acceptable agreement established for supported scope
+- Phase 3 validation cases are documented and implemented for the supported subset
+- internal behavior is physically coherent on the selected simple cases
+- limited external comparison is recorded for overlapping simple cases
+- documentation clearly states what is validated and what remains unsupported
 
 ---
 
@@ -123,16 +150,19 @@ cases.
 **Status:** planned
 
 ### Goal
-Broaden assembled topology support beyond the initial Session 6 subset.
+Broaden assembled topology support beyond the initial validated subset.
 
-### Planned candidates
+### Planned first step
 - `waveguide_1d` assembly
+
+### Planned candidates after that
 - richer topologies
 - additional element interoperability constraints
+- broader observation needs created by the extended topology path
 
 ### Exit criteria
 - first extended topology path implemented and tested
-- no regression of earlier phases
+- no regression of earlier validated phases
 
 ---
 
