@@ -43,10 +43,19 @@ This does **not** freeze a claim of universal Hornresp parity. It freezes a narr
 
 Resume controlled feature development in Phase 5.
 
-Recommended next step:
+Agreed next patch:
 1. keep the corrected solver baseline fixed
-2. choose one bounded topology-expansion patch
-3. likely first target: `waveguide_1d` assembly planning or first implementation patch
+2. freeze the exact boundary of the first `waveguide_1d` Phase 5 patch in docs
+3. do not start implementation until that boundary is recorded consistently
+
+Frozen interpretation of the next implementation slice after this planning patch:
+- add the first assembled `waveguide_1d` path to the acoustic matrix
+- preserve the current `volume` / `duct` / `radiator` solver behavior unchanged
+- defer `line_profile`
+- defer waveguide-specific flow / particle-velocity exports
+- defer losses
+- defer multi-driver support
+- defer broad external parity claims
 
 ## Explicitly out of scope right now
 

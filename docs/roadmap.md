@@ -153,14 +153,25 @@ diagnostic cycle that identified and corrected one real implementation bug.
 ### Goal
 Resume topology growth after the Phase 4 corrective checkpoint.
 
-### Planned first step
-- `waveguide_1d` assembly
+### Planned first steps
+1. planning freeze for the first bounded `waveguide_1d` patch
+2. minimal implementation slice for assembled `waveguide_1d`
 
-### Possible items
-- first assembled `waveguide_1d` path
-- focused tests for assembled line behavior
+### Frozen boundary for the first implementation slice
+In scope:
+- first assembled `waveguide_1d` contribution in the acoustic matrix
+- use of the already frozen conical-guide internal segmentation contract
+- focused tests for assembled line participation
 - preservation of the already validated `volume` / `duct` / `radiator` path
-- limited examples that match the implemented scope
+
+Out of scope for that first implementation slice:
+- `line_profile`
+- waveguide-specific post-processing outputs
+- distributed losses
+- multi-driver support
+- broad example expansion
+- broad solver refactor
+- broad external parity claims
 
 ### Exit criteria
 - first extended topology path implemented and tested

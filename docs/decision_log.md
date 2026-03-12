@@ -282,3 +282,32 @@ sign convention and are superseded.
 The corrected solver is now the accepted baseline for subsequent development
 and future regressions must be judged against the corrected sign convention,
 not against the older frozen-reference outputs.
+
+
+---
+
+## D-0018 — Phase 5 begins with a planning freeze for minimal `waveguide_1d` assembly
+**Status:** accepted
+
+After the Phase 4 corrective checkpoint, the project resumes topology expansion in Phase 5, but the first step is not immediate broad implementation. The first accepted Phase 5 patch is a documentation freeze of the exact boundary for the initial `waveguide_1d` implementation slice.
+
+### Consequence
+The next implementation patch after this planning freeze must remain narrow.
+
+### Frozen in scope for the first implementation slice
+- first assembled `waveguide_1d` participation in the acoustic nodal matrix
+- reuse of the frozen conical-guide internal segmentation contract
+- preservation of the corrected `volume` / `duct` / `radiator` solver path
+- focused non-regression and line-assembly tests
+
+### Frozen out of scope for the first implementation slice
+- `line_profile`
+- waveguide-specific endpoint flow export
+- waveguide-specific particle-velocity export
+- distributed losses
+- multi-driver support
+- broad architecture refactor
+- broad external parity claims
+
+### Rationale
+This keeps Phase 5 aligned with the repository discipline of one patch, one purpose, while allowing external comparison to continue later as a bounded validation stream rather than an implementation blocker.

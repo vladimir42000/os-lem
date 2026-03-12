@@ -38,12 +38,21 @@ Not frozen as a broad claim:
 
 ## Recommended next patch target
 
-Resume bounded topology expansion.
+Resume bounded topology expansion, but do it in two controlled steps.
 
-Recommended order:
+Agreed immediate next patch:
 1. keep the corrected solver baseline fixed
-2. choose one single topology-expansion patch
-3. likely first target: `waveguide_1d` assembly planning or first implementation step
+2. freeze the exact boundary of the first Phase 5 `waveguide_1d` patch in docs
+3. do not begin `waveguide_1d` code changes until the boundary is recorded consistently
+
+Agreed next implementation patch after that:
+- first minimal assembled `waveguide_1d` path in the acoustic matrix
+- preserve current `volume` / `duct` / `radiator` behavior unchanged
+- no `line_profile`
+- no waveguide-specific post-processing outputs
+- no losses
+- no multi-driver support
+- no broad refactor
 
 ## Cautions for the next session
 
