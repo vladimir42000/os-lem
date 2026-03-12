@@ -311,3 +311,23 @@ The next implementation patch after this planning freeze must remain narrow.
 
 ### Rationale
 This keeps Phase 5 aligned with the repository discipline of one patch, one purpose, while allowing external comparison to continue later as a bounded validation stream rather than an implementation blocker.
+
+---
+
+## D-0019 — Minimal `waveguide_1d` assembly is now part of the Phase 5 baseline
+**Status:** accepted
+
+The first bounded Phase 5 implementation patch is now complete. `waveguide_1d`
+is no longer parser-only / primitive-only; it now assembles into the acoustic
+matrix as a reduced two-port branch contribution and participates in the normal
+coupled solve path.
+
+### Consequence
+The current assembled subset now includes:
+- `volume`
+- `duct`
+- `radiator`
+- minimal assembled `waveguide_1d`
+
+Future Phase 5 patches should build on this baseline rather than re-opening
+whether `waveguide_1d` belongs in the assembled solver path.

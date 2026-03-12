@@ -145,7 +145,7 @@ diagnostic cycle that identified and corrected one real implementation bug.
 - corrected baseline re-frozen with passing tests
 - project ready to resume bounded topology expansion
 
-
+---
 
 ## Phase 5 — extended acoustic topology support
 **Status:** current
@@ -153,32 +153,37 @@ diagnostic cycle that identified and corrected one real implementation bug.
 ### Goal
 Resume topology growth after the Phase 4 corrective checkpoint.
 
-### Planned first steps
-1. planning freeze for the first bounded `waveguide_1d` patch
-2. minimal implementation slice for assembled `waveguide_1d`
+### First delivered step
+- minimal assembled `waveguide_1d`
 
-### Frozen boundary for the first implementation slice
-In scope:
-- first assembled `waveguide_1d` contribution in the acoustic matrix
-- use of the already frozen conical-guide internal segmentation contract
-- focused tests for assembled line participation
-- preservation of the already validated `volume` / `duct` / `radiator` path
+### Delivered so far
+- `waveguide_1d` now assembles as a topology-resolved branch element
+- the acoustic matrix accepts reduced two-port `waveguide_1d` stamping
+- focused assembly and solve tests were added for the first minimal waveguide path
+- the existing `volume` / `duct` / `radiator` solver path remains green
+- repository suite is green at `56 passed`
 
-Out of scope for that first implementation slice:
+### Remaining likely items inside Phase 5
+- stronger internal validation for `waveguide_1d`
+- cylindrical-degeneration and segmentation-refinement checks
+- first waveguide-specific exported observables
+- later `line_profile`
+- limited external overlap checks once internal waveguide confidence is stronger
+
+### Explicitly not yet delivered in Phase 5
 - `line_profile`
-- waveguide-specific post-processing outputs
+- waveguide-specific endpoint-flow export
+- waveguide-specific particle-velocity export
 - distributed losses
-- multi-driver support
-- broad example expansion
-- broad solver refactor
 - broad external parity claims
 
 ### Exit criteria
 - first extended topology path implemented and tested
+- at least one bounded follow-up validation or observability step completed
 - no regression of earlier validated phases
 - docs updated to reflect the new assembled capability
 
-
+---
 
 ## Phase 6 — user-facing maturation
 **Status:** planned

@@ -2,11 +2,11 @@
 
 ## Current development status
 
-- Active branch: `feature/session6-first-coupled-assembly`
+- Active branch: `feature/p5-patch02-minimal-waveguide-assembly`
 - Current known good commit: **to be filled after commit**
-- Current known test status: `54 passed`
-- Current phase state: **Phase 4 closed at corrective checkpoint**
-- Next active phase: **Phase 5 — extended acoustic topology support**
+- Current known test status: `56 passed`
+- Current phase state: **Phase 5 active**
+- Previous phase checkpoint: **Phase 4 closed at corrective checkpoint**
 
 ## Current validated implemented subset
 
@@ -15,8 +15,10 @@ The currently assembled and validated subset is:
 - `volume`
 - `duct`
 - `radiator`
+- minimal assembled `waveguide_1d`
 
-`waveguide_1d` exists as a primitive / evaluated element but is not yet assembled in the current solver path.
+`waveguide_1d` is now assembled as a reduced two-port branch contribution in the
+current solver path.
 
 ## What Phase 4 delivered
 
@@ -27,35 +29,42 @@ Session 4 closed with a narrow corrective checkpoint:
 - frozen numerical reference outputs were refreshed to the corrected solver
 - Phase 3 validation tests were updated so they remain meaningful under the corrected solver baseline
 - a real vented-box comparison artifact improved confidence in the corrected behavior
-- no topology expansion was performed
+- no topology expansion was performed during Phase 4
+
+## What Phase 5 has delivered so far
+
+The first bounded Phase 5 implementation patch is now complete:
+
+- `waveguide_1d` now assembles as a branch element
+- the acoustic matrix now accepts `waveguide_1d` as a reduced two-port branch stamp
+- a minimal coupled solve with `waveguide_1d` is covered by focused tests
+- the full repository suite is green at `56 passed`
 
 ## Current project interpretation
 
-The corrected solver baseline is now the accepted development baseline.
+The corrected solver baseline from Phase 4 remains the accepted development baseline.
 
 This does **not** freeze a claim of universal Hornresp parity. It freezes a narrower conclusion:
 
 - Session 4 successfully identified and corrected one real implementation bug
-- the repository is green again on the corrected baseline
-- future work should proceed from the corrected solver, not from the pre-fix frozen references
+- Phase 5 has now resumed bounded topology expansion on top of that corrected baseline
+- future work should proceed from the corrected solver and current green test suite
 
 ## Immediate next objective
 
-Resume controlled feature development in Phase 5.
+Continue controlled feature development in Phase 5.
 
-Agreed next patch:
-1. keep the corrected solver baseline fixed
-2. freeze the exact boundary of the first `waveguide_1d` Phase 5 patch in docs
-3. do not start implementation until that boundary is recorded consistently
+Recommended next step:
+1. keep the corrected solver baseline and minimal `waveguide_1d` assembly fixed
+2. choose one bounded follow-up waveguide patch
+3. likely first target: waveguide validation strengthening or first minimal waveguide-specific observability step
 
-Frozen interpretation of the next implementation slice after this planning patch:
-- add the first assembled `waveguide_1d` path to the acoustic matrix
-- preserve the current `volume` / `duct` / `radiator` solver behavior unchanged
-- defer `line_profile`
-- defer waveguide-specific flow / particle-velocity exports
-- defer losses
-- defer multi-driver support
-- defer broad external parity claims
+Still deferred:
+- `line_profile`
+- waveguide-specific endpoint flow export
+- waveguide-specific particle-velocity export
+- distributed losses
+- broad external parity claims
 
 ## Explicitly out of scope right now
 
