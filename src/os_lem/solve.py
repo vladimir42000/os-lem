@@ -11,7 +11,14 @@ from .constants import C0, P_REF, RHO0
 from .elements.duct import duct_admittance
 from .elements.radiator import radiator_impedance
 from .elements.volume import volume_admittance
-from .model import DuctElement, NormalizedModel, RadiatorElement, VolumeElement
+from .elements.waveguide_1d import segment_midpoint_areas, uniform_segment_admittance
+from .model import (
+    DuctElement,
+    NormalizedModel,
+    RadiatorElement,
+    VolumeElement,
+    Waveguide1DElement,
+)
 
 
 @dataclass(slots=True, frozen=True)
@@ -68,6 +75,47 @@ class SolvedFrequencySweep:
         return self.source_voltage_rms / self.coil_current
 
 
+def _waveguide_equivalent_admittance_matrix(
+    omega: float,
+    payload: Waveguide1DElement,
+) -> np.ndarray:
+    """Return the reduced 2x2 nodal admittance of a segmented waveguide_1d."""
+
+    areas = segment_midpoint_areas(
+        payload.length_m,
+        payload.area_start_m2,
+        payload.area_end_m2,
+        payload.segments,
+    )
+    dx = payload.length_m / payload.segments
+
+    n_nodes = payload.segments + 1
+    Y_full = np.zeros((n_nodes, n_nodes), dtype=np.complex128)
+
+    for seg_idx, area_m2 in enumerate(areas):
+        Y_seg = uniform_segment_admittance(omega, dx, float(area_m2))
+        i = seg_idx
+        j = seg_idx + 1
+
+        Y_full[i, i] += Y_seg[0, 0]
+        Y_full[i, j] += Y_seg[0, 1]
+        Y_full[j, i] += Y_seg[1, 0]
+        Y_full[j, j] += Y_seg[1, 1]
+
+    if n_nodes == 2:
+        return Y_full
+
+    end_idx = np.array([0, n_nodes - 1], dtype=int)
+    internal_idx = np.arange(1, n_nodes - 1, dtype=int)
+
+    Y_ee = Y_full[np.ix_(end_idx, end_idx)]
+    Y_ei = Y_full[np.ix_(end_idx, internal_idx)]
+    Y_ie = Y_full[np.ix_(internal_idx, end_idx)]
+    Y_ii = Y_full[np.ix_(internal_idx, internal_idx)]
+
+    return Y_ee - Y_ei @ np.linalg.solve(Y_ii, Y_ie)
+
+
 def build_acoustic_matrix(system: AssembledSystem, frequency_hz: float) -> AcousticMatrixBuild:
     """Build the acoustic nodal admittance matrix for one frequency.
 
@@ -75,6 +123,7 @@ def build_acoustic_matrix(system: AssembledSystem, frequency_hz: float) -> Acous
     - volume: shunt admittance to reference
     - radiator: shunt admittance to reference
     - duct: branch admittance between two acoustic nodes
+    - waveguide_1d: reduced 2-port branch admittance between two acoustic nodes
     """
 
     if frequency_hz <= 0.0:
@@ -102,21 +151,32 @@ def build_acoustic_matrix(system: AssembledSystem, frequency_hz: float) -> Acous
             raise RuntimeError(f"unsupported shunt element kind {element.kind!r}")
 
     for element in system.branch_elements:
-        if element.kind != "duct":
-            raise RuntimeError(f"unsupported branch element kind {element.kind!r}")
-
-        payload = element.payload
-        assert isinstance(payload, DuctElement)
-        y = duct_admittance(omega, payload.length_m, payload.area_m2)
-
         i = element.node_a
         j = element.node_b
         assert j is not None
 
-        Yaa[i, i] += y
-        Yaa[j, j] += y
-        Yaa[i, j] -= y
-        Yaa[j, i] -= y
+        if element.kind == "duct":
+            payload = element.payload
+            assert isinstance(payload, DuctElement)
+            y = duct_admittance(omega, payload.length_m, payload.area_m2)
+
+            Yaa[i, i] += y
+            Yaa[j, j] += y
+            Yaa[i, j] -= y
+            Yaa[j, i] -= y
+
+        elif element.kind == "waveguide_1d":
+            payload = element.payload
+            assert isinstance(payload, Waveguide1DElement)
+            Y_branch = _waveguide_equivalent_admittance_matrix(omega, payload)
+
+            Yaa[i, i] += Y_branch[0, 0]
+            Yaa[i, j] += Y_branch[0, 1]
+            Yaa[j, i] += Y_branch[1, 0]
+            Yaa[j, j] += Y_branch[1, 1]
+
+        else:
+            raise RuntimeError(f"unsupported branch element kind {element.kind!r}")
 
     return AcousticMatrixBuild(
         frequency_hz=frequency_hz,

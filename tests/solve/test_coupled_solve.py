@@ -9,6 +9,7 @@ from os_lem.model import (
     NormalizedModel,
     RadiatorElement,
     VolumeElement,
+    Waveguide1DElement,
 )
 from os_lem.solve import build_coupled_system, solve_frequency_point
 
@@ -40,6 +41,31 @@ def _minimal_vented_like_model() -> NormalizedModel:
         ],
         radiators=[
             RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.01),
+        ],
+        node_order=["front", "rear", "port"],
+    )
+
+
+def _minimal_waveguide_model() -> NormalizedModel:
+    return NormalizedModel(
+        driver=_driver(),
+        volumes=[
+            VolumeElement(id="rear_vol", node="rear", value_m3=0.02),
+        ],
+        waveguides=[
+            Waveguide1DElement(
+                id="wg1",
+                node_a="front",
+                node_b="port",
+                length_m=0.4,
+                area_start_m2=0.01,
+                area_end_m2=0.02,
+                profile="conical",
+                segments=8,
+            ),
+        ],
+        radiators=[
+            RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.02),
         ],
         node_order=["front", "rear", "port"],
     )
@@ -86,6 +112,26 @@ def test_solve_frequency_point_returns_finite_complex_outputs() -> None:
     assert isinstance(solved.cone_velocity, complex)
     assert isinstance(solved.cone_displacement, complex)
 
+    assert np.all(np.isfinite(solved.pressures.real))
+    assert np.all(np.isfinite(solved.pressures.imag))
+    assert np.isfinite(solved.coil_current.real)
+    assert np.isfinite(solved.coil_current.imag)
+    assert np.isfinite(solved.cone_velocity.real)
+    assert np.isfinite(solved.cone_velocity.imag)
+    assert np.isfinite(solved.cone_displacement.real)
+    assert np.isfinite(solved.cone_displacement.imag)
+
+
+def test_solve_frequency_point_supports_minimal_waveguide_model() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    solved = solve_frequency_point(model, system, 100.0)
+
+    assert solved.frequency_hz == 100.0
+    assert solved.node_order == ("front", "rear", "port")
+    assert solved.pressures.shape == (3,)
+    assert solved.solution_vector.shape == (5,)
     assert np.all(np.isfinite(solved.pressures.real))
     assert np.all(np.isfinite(solved.pressures.imag))
     assert np.isfinite(solved.coil_current.real)

@@ -10,11 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from .errors import NotImplementedKernelError, ValidationError
+from .errors import ValidationError
 from .model import NormalizedModel
 
 
-ElementKind = Literal["volume", "duct", "radiator"]
+ElementKind = Literal["volume", "duct", "radiator", "waveguide_1d"]
 
 
 @dataclass(slots=True, frozen=True)
@@ -58,16 +58,8 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
     - volumes (shunt to reference)
     - radiators (shunt to reference)
     - ducts (series/branch between two acoustic nodes)
-
-    Not yet supported in assembly:
-    - waveguide_1d
+    - waveguide_1d (two-node branch element)
     """
-
-    if model.waveguides:
-        raise NotImplementedKernelError(
-            "Session 6 Patch 1 assembly supports volumes, ducts, and radiators only; "
-            "waveguide_1d is not assembled yet."
-        )
 
     node_order = tuple(model.node_order)
     node_index = {node: i for i, node in enumerate(node_order)}
@@ -117,6 +109,21 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
                 node_a=_require_known_node(duct.node_a, node_index, context=f"duct {duct.id}.node_a"),
                 node_b=_require_known_node(duct.node_b, node_index, context=f"duct {duct.id}.node_b"),
                 payload=duct,
+            )
+        )
+
+    for waveguide in model.waveguides:
+        branch_elements.append(
+            AssembledElement(
+                id=waveguide.id,
+                kind="waveguide_1d",
+                node_a=_require_known_node(
+                    waveguide.node_a, node_index, context=f"waveguide_1d {waveguide.id}.node_a"
+                ),
+                node_b=_require_known_node(
+                    waveguide.node_b, node_index, context=f"waveguide_1d {waveguide.id}.node_b"
+                ),
+                payload=waveguide,
             )
         )
 

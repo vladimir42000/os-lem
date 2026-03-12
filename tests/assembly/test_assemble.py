@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from os_lem.assemble import assemble_system
-from os_lem.errors import NotImplementedKernelError, ValidationError
+from os_lem.errors import ValidationError
 from os_lem.model import (
     Driver,
     DuctElement,
@@ -89,7 +89,7 @@ def test_assemble_system_rejects_duplicate_node_order_entries() -> None:
         assemble_system(model)
 
 
-def test_assemble_system_rejects_waveguides_for_this_patch() -> None:
+def test_assemble_system_collects_waveguide_as_branch_element() -> None:
     model = NormalizedModel(
         driver=_driver(),
         waveguides=[
@@ -107,5 +107,9 @@ def test_assemble_system_rejects_waveguides_for_this_patch() -> None:
         node_order=["front", "rear", "port"],
     )
 
-    with pytest.raises(NotImplementedKernelError, match="waveguide_1d"):
-        assemble_system(model)
+    assembled = assemble_system(model)
+
+    assert [element.id for element in assembled.branch_elements] == ["wg1"]
+    assert [element.kind for element in assembled.branch_elements] == ["waveguide_1d"]
+    assert assembled.branch_elements[0].node_a == 0
+    assert assembled.branch_elements[0].node_b == 2
