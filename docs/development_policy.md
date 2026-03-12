@@ -181,3 +181,20 @@ When in doubt:
 - commit clean checkpoints
 - document decisions
 - keep `main` stable
+
+---
+
+## Session startup rule
+
+Each new session must begin by reading:
+
+- `docs/status.md`
+- `docs/decision_log.md`
+- `docs/session_handover.md`
+
+Then inspect:
+- `git status`
+- current branch
+- recent commits
+
+No implementation should begin before the next patch objective is frozen.

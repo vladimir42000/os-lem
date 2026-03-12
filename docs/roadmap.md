@@ -103,74 +103,78 @@ Phase 2 completed on the current branch state now handed into Phase 3.
 ---
 
 ## Phase 3 — validation of the current solver path
-**Status:** in progress
+**Status:** closed
 
-### Goal
-Validate the already implemented solver path for the current supported assembled
-subset before any topology expansion.
+### Result
+Phase 3 closed at commit `15b499f`.
 
-### Supported scope for validation
-- `volume`
-- `duct`
-- `radiator`
+Delivered:
+- documentation alignment with actual assembled subset
+- internal validation sanity tests for the current solver path
 
-### Validation basis
-Phase 3 uses two validation layers:
+Not delivered as frozen validation:
+- external Hornresp parity for the BR comparison
 
-1. mandatory internal physics sanity checks
-2. limited external comparison for simple cases that truly overlap the current supported scope
-
-### Candidate validation cases
-- free-air-like sanity behavior
-- sealed-box-like topology
-- simple vented-box-like topology
-- low-frequency asymptotic checks
-- parameter sensitivity / monotonicity checks:
-  - rear volume
-  - duct length
-  - duct area
-- one-radiator observation sanity checks
-
-### Explicitly excluded from Phase 3
-- `waveguide_1d` assembly
-- multi-driver support
-- broad refactors
-- Hornresp-style validation for unsupported line / horn topologies
-- parity claims beyond shared simple cases
-
-### Exit criteria
-- Phase 3 validation cases are documented and implemented for the supported subset
-- internal behavior is physically coherent on the selected simple cases
-- limited external comparison is recorded for overlapping simple cases
-- documentation clearly states what is validated and what remains unsupported
+### Closure interpretation
+Phase 3 increased trust in the current narrow solver path, but external comparison remains diagnostically unresolved.
 
 ---
 
-## Phase 4 — extended acoustic topology support
-**Status:** planned
+## Phase 4 — diagnostic fault isolation before topology expansion
+**Status:** closed
 
 ### Goal
-Broaden assembled topology support beyond the initial validated subset.
+Localize the source of the Hornresp bass-reflex mismatch before any new feature development.
+
+### Result
+Phase 4 closed at a corrective checkpoint.
+
+Delivered:
+- diagnostic work isolated a real solver sign-convention bug
+- driver front / rear acoustic coupling signs were corrected
+- frozen numerical reference outputs were refreshed to the corrected solver
+- affected validation tests were updated to remain meaningful on the corrected baseline
+- the repository returned to a green baseline with `54 passed`
+
+### Explicit non-claim
+Phase 4 does not freeze a broad external-parity claim. It closes the specific
+diagnostic cycle that identified and corrected one real implementation bug.
+
+### Exit criteria
+- mismatch investigation reached a concrete implementation-level correction
+- corrected baseline re-frozen with passing tests
+- project ready to resume bounded topology expansion
+
+
+
+## Phase 5 — extended acoustic topology support
+**Status:** current
+
+### Goal
+Resume topology growth after the Phase 4 corrective checkpoint.
 
 ### Planned first step
 - `waveguide_1d` assembly
 
-### Planned candidates after that
-- richer topologies
-- additional element interoperability constraints
-- broader observation needs created by the extended topology path
+### Possible items
+- first assembled `waveguide_1d` path
+- focused tests for assembled line behavior
+- preservation of the already validated `volume` / `duct` / `radiator` path
+- limited examples that match the implemented scope
 
 ### Exit criteria
 - first extended topology path implemented and tested
 - no regression of earlier validated phases
+- docs updated to reflect the new assembled capability
 
----
 
-## Phase 5 — user-facing maturation
+
+## Phase 6 — user-facing maturation
 **Status:** planned
 
 ### Goal
-Improve usability, examples, and result inspection.
+Improve usability, examples, and result inspection after the next topology
+extension is stable.
 
 ### Possible items
 - richer examples

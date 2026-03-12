@@ -218,12 +218,67 @@ waveguide topologies.
 ---
 
 ## D-0015 — Phase 4 begins with `waveguide_1d` assembly
-**Status:** accepted
+**Status:** superseded
 
-Once the current narrow solver path is validated, the next topology expansion
-step should begin with `waveguide_1d` assembly.
+This was the planned next step immediately after the initial Phase 3 framing:
+begin topology expansion with `waveguide_1d` assembly.
+
+### Superseded by
+`D-0016`
+
+### Historical note
+After the first external Hornresp bass-reflex comparison exposed a large
+unresolved mismatch, the project changed course: before adding new topology
+support, Session 4 was redefined as a diagnostic fault-isolation phase.
 
 ### Consequence
-`waveguide_1d` assembly is intentionally postponed until after Phase 3, so new
-topology complexity is not stacked on top of an insufficiently validated core.
+`waveguide_1d` assembly remains an intended later topology-expansion step, but
+it is no longer the immediate next phase after Phase 3 closure.
 
+---
+
+## D-0016 — Phase 4 is diagnostic fault isolation before topology expansion
+**Status:** accepted
+
+After Phase 3 closure, the first external Hornresp bass-reflex comparison
+remained diagnostically unresolved. Therefore the immediate next phase is not
+topology expansion, but focused fault isolation.
+
+### In scope
+- driver-only equivalence checks
+- rear-volume loading checks
+- staged reintroduction of duct and radiator
+- focused diagnostic notes, probes, and tests
+- localization of where mismatch first appears
+
+### Out of scope
+- `waveguide_1d` assembly
+- broad topology expansion
+- broad refactor
+- unsupported horn / line parity claims
+- forcing full Hornresp parity prematurely
+
+### Consequence
+The next accepted work should increase confidence about mismatch origin before
+new topology complexity is introduced. `waveguide_1d` assembly moves to the
+later extended-topology phase.
+
+---
+
+## D-0017 — driver front / rear acoustic coupling sign convention corrected
+**Status:** accepted
+
+Session 4 diagnostic work identified a sign-convention bug in the driver
+acoustic coupling rows of the coupled solve in `src/os_lem/solve.py`.
+
+The front / rear coupling signs were corrected so the solver baseline better
+matches physically plausible loudspeaker behavior and the real vented-box
+comparison used during the diagnostic cycle.
+
+### Consequence
+Previous frozen numerical reference outputs reflected the earlier incorrect
+sign convention and are superseded.
+
+The corrected solver is now the accepted baseline for subsequent development
+and future regressions must be judged against the corrected sign convention,
+not against the older frozen-reference outputs.

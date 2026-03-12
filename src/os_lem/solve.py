@@ -195,7 +195,7 @@ def build_coupled_system(
     A[row_m, system.driver_front_index] = -driver.Sd
     A[row_m, system.driver_rear_index] = +driver.Sd
     A[row_m, col_i] = driver.Bl
-    A[row_m, col_u] = _mechanical_impedance(model, omega)
+    A[row_m, col_u] = -_mechanical_impedance(model, omega)
 
     return CoupledSystemBuild(
         frequency_hz=frequency_hz,
