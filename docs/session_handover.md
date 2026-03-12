@@ -5,7 +5,7 @@
 
 ## Start / end reference
 - Start checkpoint for Session 4 diagnostic cycle: `15b499f`
-- End checkpoint: **to be filled after commit**
+- End checkpoint: '17c6f34'
 
 ## Session 4 outcome
 
