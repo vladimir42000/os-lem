@@ -1,0 +1,47 @@
+New operating model
+
+Use three layers from now on:
+
+Layer A — stable backbone
+
+Rarely changed. Only update deliberately at milestone review.
+
+docs/project_vision.md
+docs/architecture_invariants.md
+docs/target_capabilities.md
+
+Layer B — operational bootstrap
+
+Updated whenever the active state changes.
+
+docs/start_here.md
+docs/current_scope.md
+docs/next_patch.md
+
+Layer C — historical memory
+
+Keep for traceability, but do not use as primary startup control.
+
+docs/status.md
+docs/roadmap.md
+docs/decision_log.md
+docs/session_handover.md
+docs/development_policy.md
+
+________________________________________________________________
+
+How to use this going forward
+
+At the end of normal patch work, update only:
+
+docs/start_here.md if the startup truth changed
+docs/current_scope.md if current capability changed
+docs/next_patch.md for the next immediate patch
+
+Only at milestone review or strategic reset, update:
+
+docs/project_vision.md
+docs/architecture_invariants.md
+docs/target_capabilities.md
+
+That prevents relay drift.
