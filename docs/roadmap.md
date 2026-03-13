@@ -153,19 +153,17 @@ diagnostic cycle that identified and corrected one real implementation bug.
 ### Goal
 Resume topology growth after the Phase 4 corrective checkpoint.
 
-### First delivered step
-- minimal assembled `waveguide_1d`
-
 ### Delivered so far
 - `waveguide_1d` now assembles as a topology-resolved branch element
 - the acoustic matrix accepts reduced two-port `waveguide_1d` stamping
 - focused assembly and solve tests were added for the first minimal waveguide path
+- stronger internal validation now covers:
+  - constant-area segmentation-invariance sanity
+  - conical segmentation-refinement sanity
 - the existing `volume` / `duct` / `radiator` solver path remains green
-- repository suite is green at `56 passed`
+- repository suite is green at `58 passed`
 
 ### Remaining likely items inside Phase 5
-- stronger internal validation for `waveguide_1d`
-- cylindrical-degeneration and segmentation-refinement checks
 - first waveguide-specific exported observables
 - later `line_profile`
 - limited external overlap checks once internal waveguide confidence is stronger

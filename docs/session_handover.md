@@ -5,7 +5,7 @@
 
 ## Start / end reference
 - Start checkpoint for Session 4 diagnostic cycle: `15b499f`
-- End checkpoint: '17c6f34'
+- Current end checkpoint: `bb30d8b`
 
 ## Session 4 outcome
 
@@ -44,16 +44,25 @@ Delivered:
 - `waveguide_1d` assembles as a branch element
 - the acoustic matrix accepts reduced two-port `waveguide_1d` stamping
 - a minimal coupled solve with `waveguide_1d` is covered by focused tests
-- current known suite result: `56 passed`
+
+The next bounded Phase 5 validation follow-up is also complete.
+
+Delivered:
+- internal validation for assembled `waveguide_1d` was strengthened
+- constant-area waveguide behavior is covered by a segmentation-invariance sanity test
+- conical waveguide behavior is covered by a segmentation-refinement sanity test
+
+Current known suite result:
+- `58 passed`
 
 ## Recommended next patch target
 
 Resume bounded Phase 5 growth, but do not broaden scope.
 
 Recommended order:
-1. keep the corrected solver baseline and minimal `waveguide_1d` assembly fixed
+1. keep the corrected solver baseline and validated minimal `waveguide_1d` assembly fixed
 2. choose one single bounded follow-up waveguide patch
-3. likely first target: waveguide validation strengthening or first minimal waveguide-specific observability step
+3. likely first target: first minimal waveguide-specific observability step
 
 ## Cautions for the next session
 

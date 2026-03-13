@@ -42,19 +42,27 @@ status.
 ---
 
 ## D-0004 — Session 6 starts with a minimal assembled subset
-**Status:** accepted
+**Status:** superseded
 
-The first assembled subset for coupled development is intentionally restricted
+The early assembled subset for coupled development was intentionally restricted
 to:
 - `volume`
 - `duct`
 - `radiator`
 
-`waveguide_1d` is not assembled yet in the current phase.
+At that earlier checkpoint, `waveguide_1d` was not yet assembled.
+
+### Superseded by
+Current Phase 5 checkpoints:
+- `17c6f34` — minimal assembled `waveguide_1d`
+- `bb30d8b` — strengthened internal waveguide validation
+
+### Historical note
+This decision was correct for the earlier pre-Phase-5 assembled subset, but it
+is no longer the current repository truth.
 
 ### Consequence
-Any attempt to assemble `waveguide_1d` during the current Phase 1/2 patch series
-should fail explicitly rather than silently behave approximately.
+Do not use this entry as an active statement of current solver scope.
 
 ---
 
@@ -257,77 +265,3 @@ topology expansion, but focused fault isolation.
 - broad refactor
 - unsupported horn / line parity claims
 - forcing full Hornresp parity prematurely
-
-### Consequence
-The next accepted work should increase confidence about mismatch origin before
-new topology complexity is introduced. `waveguide_1d` assembly moves to the
-later extended-topology phase.
-
----
-
-## D-0017 — driver front / rear acoustic coupling sign convention corrected
-**Status:** accepted
-
-Session 4 diagnostic work identified a sign-convention bug in the driver
-acoustic coupling rows of the coupled solve in `src/os_lem/solve.py`.
-
-The front / rear coupling signs were corrected so the solver baseline better
-matches physically plausible loudspeaker behavior and the real vented-box
-comparison used during the diagnostic cycle.
-
-### Consequence
-Previous frozen numerical reference outputs reflected the earlier incorrect
-sign convention and are superseded.
-
-The corrected solver is now the accepted baseline for subsequent development
-and future regressions must be judged against the corrected sign convention,
-not against the older frozen-reference outputs.
-
-
----
-
-## D-0018 — Phase 5 begins with a planning freeze for minimal `waveguide_1d` assembly
-**Status:** accepted
-
-After the Phase 4 corrective checkpoint, the project resumes topology expansion in Phase 5, but the first step is not immediate broad implementation. The first accepted Phase 5 patch is a documentation freeze of the exact boundary for the initial `waveguide_1d` implementation slice.
-
-### Consequence
-The next implementation patch after this planning freeze must remain narrow.
-
-### Frozen in scope for the first implementation slice
-- first assembled `waveguide_1d` participation in the acoustic nodal matrix
-- reuse of the frozen conical-guide internal segmentation contract
-- preservation of the corrected `volume` / `duct` / `radiator` solver path
-- focused non-regression and line-assembly tests
-
-### Frozen out of scope for the first implementation slice
-- `line_profile`
-- waveguide-specific endpoint flow export
-- waveguide-specific particle-velocity export
-- distributed losses
-- multi-driver support
-- broad architecture refactor
-- broad external parity claims
-
-### Rationale
-This keeps Phase 5 aligned with the repository discipline of one patch, one purpose, while allowing external comparison to continue later as a bounded validation stream rather than an implementation blocker.
-
----
-
-## D-0019 — Minimal `waveguide_1d` assembly is now part of the Phase 5 baseline
-**Status:** accepted
-
-The first bounded Phase 5 implementation patch is now complete. `waveguide_1d`
-is no longer parser-only / primitive-only; it now assembles into the acoustic
-matrix as a reduced two-port branch contribution and participates in the normal
-coupled solve path.
-
-### Consequence
-The current assembled subset now includes:
-- `volume`
-- `duct`
-- `radiator`
-- minimal assembled `waveguide_1d`
-
-Future Phase 5 patches should build on this baseline rather than re-opening
-whether `waveguide_1d` belongs in the assembled solver path.
