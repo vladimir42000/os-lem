@@ -190,6 +190,83 @@ def test_build_acoustic_matrix_superposes_all_supported_stamps() -> None:
     np.testing.assert_allclose(built.Yaa, expected)
 
 
+
+
+def test_build_acoustic_matrix_waveguide_constant_area_is_segmentation_invariant() -> None:
+    coarse = Waveguide1DElement(
+        id="wg_coarse",
+        node_a="front",
+        node_b="port",
+        length_m=0.4,
+        area_start_m2=0.01,
+        area_end_m2=0.01,
+        profile="conical",
+        segments=1,
+    )
+    fine = Waveguide1DElement(
+        id="wg_fine",
+        node_a="front",
+        node_b="port",
+        length_m=0.4,
+        area_start_m2=0.01,
+        area_end_m2=0.01,
+        profile="conical",
+        segments=16,
+    )
+
+    coarse_model = NormalizedModel(
+        driver=_driver(),
+        waveguides=[coarse],
+        node_order=["front", "rear", "port"],
+    )
+    fine_model = NormalizedModel(
+        driver=_driver(),
+        waveguides=[fine],
+        node_order=["front", "rear", "port"],
+    )
+
+    coarse_system = assemble_system(coarse_model)
+    fine_system = assemble_system(fine_model)
+
+    coarse_matrix = build_acoustic_matrix(coarse_system, 100.0).Yaa
+    fine_matrix = build_acoustic_matrix(fine_system, 100.0).Yaa
+
+    np.testing.assert_allclose(coarse_matrix, fine_matrix, rtol=1e-12, atol=1e-15)
+
+
+def test_build_acoustic_matrix_waveguide_refinement_differences_shrink() -> None:
+    def _matrix_for_segments(segments: int) -> np.ndarray:
+        model = NormalizedModel(
+            driver=_driver(),
+            waveguides=[
+                Waveguide1DElement(
+                    id=f"wg_{segments}",
+                    node_a="front",
+                    node_b="port",
+                    length_m=0.4,
+                    area_start_m2=0.01,
+                    area_end_m2=0.02,
+                    profile="conical",
+                    segments=segments,
+                )
+            ],
+            node_order=["front", "rear", "port"],
+        )
+        system = assemble_system(model)
+        return build_acoustic_matrix(system, 100.0).Yaa
+
+    Y4 = _matrix_for_segments(4)
+    Y8 = _matrix_for_segments(8)
+    Y16 = _matrix_for_segments(16)
+    Y32 = _matrix_for_segments(32)
+
+    d_4_8 = np.linalg.norm(Y8 - Y4)
+    d_8_16 = np.linalg.norm(Y16 - Y8)
+    d_16_32 = np.linalg.norm(Y32 - Y16)
+
+    assert d_8_16 < d_4_8
+    assert d_16_32 < d_8_16
+
 def test_build_acoustic_matrix_rejects_nonpositive_frequency() -> None:
     model = NormalizedModel(
         driver=_driver(),
