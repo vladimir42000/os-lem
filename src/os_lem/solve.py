@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Mapping
 
 import numpy as np
 
@@ -42,6 +43,22 @@ class CoupledSystemBuild:
 
 
 @dataclass(slots=True, frozen=True)
+class WaveguideEndpointFlowPoint:
+    """Complex endpoint flows for one waveguide at one frequency."""
+
+    node_a: complex
+    node_b: complex
+
+
+@dataclass(slots=True, frozen=True)
+class WaveguideEndpointFlowSweep:
+    """Complex endpoint flows for one waveguide over a sweep."""
+
+    node_a: np.ndarray
+    node_b: np.ndarray
+
+
+@dataclass(slots=True, frozen=True)
 class SolvedFrequencyPoint:
     """Solved first coupled state for one frequency."""
 
@@ -52,6 +69,7 @@ class SolvedFrequencyPoint:
     coil_current: complex
     cone_velocity: complex
     cone_displacement: complex
+    waveguide_endpoint_flow: Mapping[str, WaveguideEndpointFlowPoint]
     solution_vector: np.ndarray
 
 
@@ -66,6 +84,7 @@ class SolvedFrequencySweep:
     coil_current: np.ndarray
     cone_velocity: np.ndarray
     cone_displacement: np.ndarray
+    waveguide_endpoint_flow: Mapping[str, WaveguideEndpointFlowSweep]
     source_voltage_rms: float
 
     @property
@@ -266,6 +285,43 @@ def build_coupled_system(
     )
 
 
+
+def _waveguide_endpoint_flows_for_pressures(
+    system: AssembledSystem,
+    omega: float,
+    pressures: np.ndarray,
+) -> dict[str, WaveguideEndpointFlowPoint]:
+    """Return endpoint flows for assembled waveguide branches.
+
+    The sign/orientation follows the reduced branch two-port relation
+    q = Y_branch @ [p(node_a), p(node_b)]^T, with port 0 mapped to node_a
+    and port 1 mapped to node_b.
+    """
+
+    endpoint_flows: dict[str, WaveguideEndpointFlowPoint] = {}
+
+    for element in system.branch_elements:
+        if element.kind != "waveguide_1d":
+            continue
+
+        payload = element.payload
+        assert isinstance(payload, Waveguide1DElement)
+        assert element.node_b is not None
+
+        endpoint_pressures = np.array(
+            [pressures[element.node_a], pressures[element.node_b]],
+            dtype=np.complex128,
+        )
+        Y_branch = _waveguide_equivalent_admittance_matrix(omega, payload)
+        endpoint_flow = Y_branch @ endpoint_pressures
+
+        endpoint_flows[element.id] = WaveguideEndpointFlowPoint(
+            node_a=complex(endpoint_flow[0]),
+            node_b=complex(endpoint_flow[1]),
+        )
+
+    return endpoint_flows
+
 def solve_frequency_point(
     model: NormalizedModel,
     system: AssembledSystem,
@@ -281,6 +337,11 @@ def solve_frequency_point(
     coil_current = complex(x[n])
     cone_velocity = complex(x[n + 1])
     cone_displacement = cone_velocity / (1j * built.omega_rad_s)
+    waveguide_endpoint_flow = _waveguide_endpoint_flows_for_pressures(
+        system,
+        built.omega_rad_s,
+        pressures,
+    )
 
     return SolvedFrequencyPoint(
         frequency_hz=frequency_hz,
@@ -290,6 +351,7 @@ def solve_frequency_point(
         coil_current=coil_current,
         cone_velocity=cone_velocity,
         cone_displacement=cone_displacement,
+        waveguide_endpoint_flow=waveguide_endpoint_flow,
         solution_vector=x,
     )
 
@@ -317,6 +379,21 @@ def solve_frequency_sweep(
     cone_displacement = np.array([point.cone_displacement for point in points], dtype=np.complex128)
     omega_rad_s = np.array([point.omega_rad_s for point in points], dtype=np.float64)
 
+    waveguide_ids = tuple(points[0].waveguide_endpoint_flow.keys())
+    waveguide_endpoint_flow = {
+        waveguide_id: WaveguideEndpointFlowSweep(
+            node_a=np.array(
+                [point.waveguide_endpoint_flow[waveguide_id].node_a for point in points],
+                dtype=np.complex128,
+            ),
+            node_b=np.array(
+                [point.waveguide_endpoint_flow[waveguide_id].node_b for point in points],
+                dtype=np.complex128,
+            ),
+        )
+        for waveguide_id in waveguide_ids
+    }
+
     return SolvedFrequencySweep(
         frequency_hz=frequency_hz.copy(),
         omega_rad_s=omega_rad_s,
@@ -325,6 +402,7 @@ def solve_frequency_sweep(
         coil_current=coil_current,
         cone_velocity=cone_velocity,
         cone_displacement=cone_displacement,
+        waveguide_endpoint_flow=waveguide_endpoint_flow,
         source_voltage_rms=model.driver.source_voltage_rms,
     )
 

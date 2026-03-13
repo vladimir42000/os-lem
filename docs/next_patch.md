@@ -17,7 +17,7 @@ green
 
 ## Candidate next patch after startup verification
 
-**First minimal waveguide-specific observability step**
+**Next minimal waveguide-specific observability step**
 
 ## Purpose
 
@@ -26,7 +26,6 @@ Add one bounded waveguide observability capability on top of the already assembl
 ## Preferred scope
 
 Choose exactly one of:
-- endpoint flow export, or
 - first waveguide particle-velocity export, or
 - first minimal `line_profile` infrastructure
 
