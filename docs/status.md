@@ -3,8 +3,8 @@
 ## Current development status
 
 - Active branch: `feature/p5-patch02-minimal-waveguide-assembly`
-- Current known good commit: `d7d74b4`
-- Current known test status: `69 passed`
+- Current known good commit: `8b59000`
+- Current known local test status after this patch: `74 passed`
 - Current phase state: **Phase 5 active**
 - Previous phase checkpoint: **Phase 4 closed at corrective checkpoint**
 
@@ -33,25 +33,26 @@ Session 4 closed with a narrow corrective checkpoint:
 
 ## What Phase 5 has delivered so far
 
-The first bounded Phase 5 implementation patch is now complete:
+The first bounded Phase 5 implementation patch is complete:
 
 - `waveguide_1d` now assembles as a branch element
 - the acoustic matrix now accepts `waveguide_1d` as a reduced two-port branch stamp
 - a minimal coupled solve with `waveguide_1d` is covered by focused tests
 
-The first bounded Phase 5 validation follow-up is also complete:
+The next bounded Phase 5 validation follow-up is also complete:
 
 - internal validation for assembled `waveguide_1d` was strengthened
 - constant-area waveguide behavior is covered by a segmentation-invariance sanity test
 - conical waveguide behavior is covered by a segmentation-refinement sanity test
 
-The first bounded Phase 5 waveguide observability follow-ups are now complete:
+The bounded Phase 5 waveguide observability follow-ups now complete are:
 
 - waveguide endpoint flow export
 - waveguide endpoint particle-velocity export
 - minimal `waveguide_1d` `line_profile` export for `pressure`
+- minimal `waveguide_1d` `line_profile` export for `volume_velocity`
 
-The full repository suite is green at `69 passed`.
+The full repository suite is green at `74 passed` in the local patched state.
 
 ## Current project interpretation
 
@@ -72,10 +73,9 @@ Continue controlled feature development in Phase 5.
 Recommended next step:
 1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
 2. choose one single bounded follow-up waveguide patch
-3. next likely target: minimal `waveguide_1d` `line_profile(volume_velocity)` export
+3. next likely target: minimal `waveguide_1d` `line_profile(particle_velocity)` export
 
 Still deferred:
-- `waveguide_1d` `line_profile` for `volume_velocity`
 - `waveguide_1d` `line_profile` for `particle_velocity`
 - distributed losses
 - broad external parity claims

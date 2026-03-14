@@ -5,7 +5,7 @@
 
 ## Start / end reference
 - Start checkpoint for Session 4 diagnostic cycle: `15b499f`
-- Current end checkpoint: `d7d74b4`
+- Current docs-aligned checkpoint before this code patch: `8b59000`
 
 ## Session 4 outcome
 
@@ -52,15 +52,16 @@ Delivered:
 - constant-area waveguide behavior is covered by a segmentation-invariance sanity test
 - conical waveguide behavior is covered by a segmentation-refinement sanity test
 
-The next bounded Phase 5 observability follow-ups are also complete.
+The bounded Phase 5 observability follow-ups now also complete are:
 
 Delivered:
 - waveguide endpoint flow export
 - waveguide endpoint particle-velocity export
 - minimal `waveguide_1d` `line_profile` export for `pressure`
+- minimal `waveguide_1d` `line_profile` export for `volume_velocity`
 
-Current known suite result:
-- `69 passed`
+Current known local suite result after this patch:
+- `74 passed`
 
 ## Recommended next patch target
 
@@ -69,7 +70,7 @@ Resume bounded Phase 5 growth, but do not broaden scope.
 Recommended order:
 1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
 2. choose one single bounded follow-up waveguide patch
-3. next likely target: minimal `waveguide_1d` `line_profile(volume_velocity)` export
+3. next likely target: minimal `waveguide_1d` `line_profile(particle_velocity)` export
 
 ## Cautions for the next session
 

@@ -204,6 +204,106 @@ def _waveguide_internal_nodal_pressures(
     return nodal_pressures
 
 
+
+
+def _waveguide_segment_left_flows(
+    omega: float,
+    payload: Waveguide1DElement,
+    nodal_pressures: np.ndarray,
+) -> np.ndarray:
+    """Return the +x-directed left-endpoint flow of each waveguide segment."""
+
+    areas = segment_midpoint_areas(
+        payload.length_m,
+        payload.area_start_m2,
+        payload.area_end_m2,
+        payload.segments,
+    )
+    dx = payload.length_m / payload.segments
+    left_flows = np.empty(payload.segments, dtype=np.complex128)
+
+    for seg_idx, area_m2 in enumerate(areas):
+        Y_seg = uniform_segment_admittance(omega, dx, float(area_m2))
+        p_seg = np.array(
+            [nodal_pressures[seg_idx], nodal_pressures[seg_idx + 1]],
+            dtype=np.complex128,
+        )
+        q_seg = Y_seg @ p_seg
+        left_flows[seg_idx] = q_seg[0]
+
+    return left_flows
+
+
+def _waveguide_sample_profile_quantity(
+    point: SolvedFrequencyPoint,
+    system: AssembledSystem,
+    waveguide_id: str,
+    points: int,
+    quantity: str,
+) -> WaveguideLineProfile:
+    """Return a sampled one-frequency line profile for one waveguide quantity."""
+
+    if points < 2:
+        raise ValueError("points must be >= 2")
+
+    if quantity not in {"pressure", "volume_velocity"}:
+        raise ValueError(f"unsupported waveguide line profile quantity {quantity!r}")
+
+    element = _find_waveguide_element(system, waveguide_id)
+    payload = element.payload
+    assert isinstance(payload, Waveguide1DElement)
+    assert element.node_b is not None
+
+    pressure_a = complex(point.pressures[element.node_a])
+    pressure_b = complex(point.pressures[element.node_b])
+    nodal_pressures = _waveguide_internal_nodal_pressures(
+        point.omega_rad_s,
+        payload,
+        pressure_a,
+        pressure_b,
+    )
+
+    segment_positions = segment_endpoint_positions(payload.length_m, payload.segments)
+    segment_areas = segment_midpoint_areas(
+        payload.length_m,
+        payload.area_start_m2,
+        payload.area_end_m2,
+        payload.segments,
+    )
+    dx = payload.length_m / payload.segments
+
+    x_m = np.linspace(0.0, payload.length_m, points, dtype=float)
+    values = np.empty(points, dtype=np.complex128)
+    sin_kdx = np.sin(point.omega_rad_s * dx / C0)
+
+    for idx, x_sample in enumerate(x_m):
+        if np.isclose(x_sample, payload.length_m):
+            seg_idx = payload.segments - 1
+            x_local = dx
+        else:
+            seg_idx = int(np.searchsorted(segment_positions, x_sample, side="right") - 1)
+            seg_idx = max(0, min(seg_idx, payload.segments - 1))
+            x_local = x_sample - segment_positions[seg_idx]
+
+        p_left = complex(nodal_pressures[seg_idx])
+        p_right = complex(nodal_pressures[seg_idx + 1])
+
+        if quantity == "pressure":
+            left_weight = np.sin(point.omega_rad_s * (dx - x_local) / C0) / sin_kdx
+            right_weight = np.sin(point.omega_rad_s * x_local / C0) / sin_kdx
+            values[idx] = left_weight * p_left + right_weight * p_right
+        else:
+            zc_a = RHO0 * C0 / float(segment_areas[seg_idx])
+            values[idx] = (
+                1j / (zc_a * sin_kdx)
+            ) * (
+                -p_left * np.cos(point.omega_rad_s * (dx - x_local) / C0)
+                + p_right * np.cos(point.omega_rad_s * x_local / C0)
+            )
+
+    return WaveguideLineProfile(quantity=quantity, x_m=x_m, values=values)
+
+
 def build_acoustic_matrix(system: AssembledSystem, frequency_hz: float) -> AcousticMatrixBuild:
     """Build the acoustic nodal admittance matrix for one frequency.
 
@@ -469,46 +569,30 @@ def waveguide_line_profile_pressure(
 ) -> WaveguideLineProfile:
     """Return a sampled one-frequency pressure profile for one waveguide."""
 
-    if points < 2:
-        raise ValueError("points must be >= 2")
-
-    element = _find_waveguide_element(system, waveguide_id)
-    payload = element.payload
-    assert isinstance(payload, Waveguide1DElement)
-    assert element.node_b is not None
-
-    pressure_a = complex(point.pressures[element.node_a])
-    pressure_b = complex(point.pressures[element.node_b])
-    nodal_pressures = _waveguide_internal_nodal_pressures(
-        point.omega_rad_s,
-        payload,
-        pressure_a,
-        pressure_b,
+    return _waveguide_sample_profile_quantity(
+        point,
+        system,
+        waveguide_id,
+        points,
+        quantity="pressure",
     )
 
-    segment_positions = segment_endpoint_positions(payload.length_m, payload.segments)
-    dx = payload.length_m / payload.segments
 
-    x_m = np.linspace(0.0, payload.length_m, points, dtype=float)
-    pressure = np.empty(points, dtype=np.complex128)
-    sin_kdx = np.sin(point.omega_rad_s * dx / C0)
+def waveguide_line_profile_volume_velocity(
+    point: SolvedFrequencyPoint,
+    system: AssembledSystem,
+    waveguide_id: str,
+    points: int,
+) -> WaveguideLineProfile:
+    """Return a sampled one-frequency volume-velocity profile for one waveguide."""
 
-    for idx, x_sample in enumerate(x_m):
-        if np.isclose(x_sample, payload.length_m):
-            seg_idx = payload.segments - 1
-            x_local = dx
-        else:
-            seg_idx = int(np.searchsorted(segment_positions, x_sample, side="right") - 1)
-            seg_idx = max(0, min(seg_idx, payload.segments - 1))
-            x_local = x_sample - segment_positions[seg_idx]
-
-        p_left = nodal_pressures[seg_idx]
-        p_right = nodal_pressures[seg_idx + 1]
-        left_weight = np.sin(point.omega_rad_s * (dx - x_local) / C0) / sin_kdx
-        right_weight = np.sin(point.omega_rad_s * x_local / C0) / sin_kdx
-        pressure[idx] = left_weight * p_left + right_weight * p_right
-
-    return WaveguideLineProfile(quantity="pressure", x_m=x_m, values=pressure)
+    return _waveguide_sample_profile_quantity(
+        point,
+        system,
+        waveguide_id,
+        points,
+        quantity="volume_velocity",
+    )
 
 
 def solve_frequency_sweep(
