@@ -171,13 +171,13 @@ Resume topology growth after the Phase 4 corrective checkpoint.
   - joint endpoint/profile agreement for all three profile quantities
   - cylindrical special-case consistency for constant area
 - the existing `volume` / `duct` / `radiator` solver path remains green
-- repository suite is green at `83 passed` in the local patched state
+- repository suite is green at `87 passed` in the local patched state
 
 ### Remaining likely items inside Phase 5
-- limited external overlap checks once internal waveguide confidence is stronger
+- limited conical reference-overlap checks once cylindrical overlap confidence is frozen
 
 ### Explicitly not yet delivered in Phase 5
-- limited external overlap checks for current `waveguide_1d` cases
+- limited conical reference-overlap checks for current `waveguide_1d` cases
 - distributed losses
 - broad external parity claims
 

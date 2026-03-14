@@ -38,6 +38,7 @@ Validated confidence currently covers:
 - minimal `waveguide_1d` particle-velocity profile endpoint consistency and reversal behavior
 - cross-profile identity checks for `pressure`, `volume_velocity`, and `particle_velocity`
 - cylindrical special-case consistency for `particle_velocity = volume_velocity / area_const`
+- first limited cylindrical reference-overlap check for entrance impedance and line-profile shape
 
 ## Current deferred capabilities
 

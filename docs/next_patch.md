@@ -10,14 +10,14 @@ Expected branch:
 `feature/p5-patch02-minimal-waveguide-assembly`
 
 Expected current checkpoint:
-latest committed Phase 5 waveguide validation checkpoint after cross-profile consistency coverage
+latest committed Phase 5 waveguide validation checkpoint after the first cylindrical reference-overlap check
 
 Expected suite:
 green
 
 ## Candidate next patch after startup verification
 
-**Next bounded waveguide validation step**
+**Next bounded waveguide validation step after the cylindrical checkpoint**
 
 ## Purpose
 
@@ -27,7 +27,7 @@ validated, and now internally cross-checked `waveguide_1d` path.
 ## Preferred scope
 
 Choose exactly one of:
-- first limited external overlap check for a simple `waveguide_1d` case
+- first limited conical reference-overlap check for a simple `waveguide_1d` case
 
 Do not do more than one in a single patch.
 
