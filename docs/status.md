@@ -3,8 +3,8 @@
 ## Current development status
 
 - Active branch: `feature/p5-patch02-minimal-waveguide-assembly`
-- Current known good commit: `8b59000`
-- Current known local test status after this patch: `74 passed`
+- Current known good commit before this patch: `4f64729`
+- Current known local test status after this patch: `79 passed`
 - Current phase state: **Phase 5 active**
 - Previous phase checkpoint: **Phase 4 closed at corrective checkpoint**
 
@@ -51,8 +51,9 @@ The bounded Phase 5 waveguide observability follow-ups now complete are:
 - waveguide endpoint particle-velocity export
 - minimal `waveguide_1d` `line_profile` export for `pressure`
 - minimal `waveguide_1d` `line_profile` export for `volume_velocity`
+- minimal `waveguide_1d` `line_profile` export for `particle_velocity`
 
-The full repository suite is green at `74 passed` in the local patched state.
+The full repository suite is green at `79 passed` in the local patched state.
 
 ## Current project interpretation
 
@@ -73,10 +74,9 @@ Continue controlled feature development in Phase 5.
 Recommended next step:
 1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
 2. choose one single bounded follow-up waveguide patch
-3. next likely target: minimal `waveguide_1d` `line_profile(particle_velocity)` export
+3. next likely target: first bounded waveguide overlap validation step
 
 Still deferred:
-- `waveguide_1d` `line_profile` for `particle_velocity`
 - distributed losses
 - broad external parity claims
 

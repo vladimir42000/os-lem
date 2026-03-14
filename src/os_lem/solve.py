@@ -13,6 +13,7 @@ from .elements.duct import duct_admittance
 from .elements.radiator import radiator_impedance
 from .elements.volume import volume_admittance
 from .elements.waveguide_1d import (
+    area_at_position,
     segment_endpoint_positions,
     segment_midpoint_areas,
     uniform_segment_admittance,
@@ -246,7 +247,7 @@ def _waveguide_sample_profile_quantity(
     if points < 2:
         raise ValueError("points must be >= 2")
 
-    if quantity not in {"pressure", "volume_velocity"}:
+    if quantity not in {"pressure", "volume_velocity", "particle_velocity"}:
         raise ValueError(f"unsupported waveguide line profile quantity {quantity!r}")
 
     element = _find_waveguide_element(system, waveguide_id)
@@ -294,12 +295,22 @@ def _waveguide_sample_profile_quantity(
             values[idx] = left_weight * p_left + right_weight * p_right
         else:
             zc_a = RHO0 * C0 / float(segment_areas[seg_idx])
-            values[idx] = (
+            volume_velocity = (
                 1j / (zc_a * sin_kdx)
             ) * (
                 -p_left * np.cos(point.omega_rad_s * (dx - x_local) / C0)
                 + p_right * np.cos(point.omega_rad_s * x_local / C0)
             )
+            if quantity == "volume_velocity":
+                values[idx] = volume_velocity
+            else:
+                local_area_m2 = area_at_position(
+                    payload.length_m,
+                    payload.area_start_m2,
+                    payload.area_end_m2,
+                    x_sample,
+                )
+                values[idx] = volume_velocity / local_area_m2
 
     return WaveguideLineProfile(quantity=quantity, x_m=x_m, values=values)
 
@@ -592,6 +603,23 @@ def waveguide_line_profile_volume_velocity(
         waveguide_id,
         points,
         quantity="volume_velocity",
+    )
+
+
+def waveguide_line_profile_particle_velocity(
+    point: SolvedFrequencyPoint,
+    system: AssembledSystem,
+    waveguide_id: str,
+    points: int,
+) -> WaveguideLineProfile:
+    """Return a sampled one-frequency particle-velocity profile for one waveguide."""
+
+    return _waveguide_sample_profile_quantity(
+        point,
+        system,
+        waveguide_id,
+        points,
+        quantity="particle_velocity",
     )
 
 

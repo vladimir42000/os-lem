@@ -10,24 +10,24 @@ Expected branch:
 `feature/p5-patch02-minimal-waveguide-assembly`
 
 Expected current checkpoint:
-latest committed Phase 5 observability checkpoint with pressure and volume-velocity line profiles aligned in docs
+latest committed Phase 5 observability checkpoint with all three line-profile quantities aligned in docs
 
 Expected suite:
 green
 
 ## Candidate next patch after startup verification
 
-**Next minimal waveguide-specific observability step**
+**Next bounded waveguide validation step**
 
 ## Purpose
 
-Add one bounded waveguide observability capability on top of the already assembled,
-validated, and partially observable `waveguide_1d` path.
+Add one bounded waveguide validation capability on top of the already assembled,
+validated, and now fully line-profile-observable `waveguide_1d` path.
 
 ## Preferred scope
 
 Choose exactly one of:
-- minimal `waveguide_1d` `line_profile` export for `particle_velocity`
+- first limited external overlap check for a simple `waveguide_1d` case
 
 Do not do more than one in a single patch.
 
@@ -47,7 +47,7 @@ The chosen patch must:
 - preserve current green tests
 - add focused tests for the new observable
 - avoid changing corrected solver conventions
-- avoid broadening beyond one observable step
+- avoid broadening beyond one validation step
 
 ## Must-not-change list
 
@@ -56,3 +56,4 @@ The chosen patch must:
 - current assembled representation discipline
 - already-landed waveguide pressure-profile behavior
 - already-landed waveguide volume-velocity-profile behavior
+- already-landed waveguide particle-velocity-profile behavior

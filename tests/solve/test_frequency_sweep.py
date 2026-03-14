@@ -17,6 +17,7 @@ from os_lem.solve import (
     _waveguide_internal_nodal_pressures,
     solve_frequency_point,
     solve_frequency_sweep,
+    waveguide_line_profile_particle_velocity,
     waveguide_line_profile_pressure,
     waveguide_line_profile_volume_velocity,
 )
@@ -419,3 +420,82 @@ def test_waveguide_line_profile_volume_velocity_rejects_too_few_points() -> None
 
     with pytest.raises(ValueError, match="points must be >= 2"):
         waveguide_line_profile_volume_velocity(point, system, "wg1", points=1)
+
+
+def test_waveguide_line_profile_particle_velocity_exposes_requested_axis_and_complex_values() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=17)
+
+    assert profile.quantity == "particle_velocity"
+    assert profile.x_m.shape == (17,)
+    assert profile.values.shape == (17,)
+    np.testing.assert_allclose(profile.x_m[0], 0.0)
+    np.testing.assert_allclose(profile.x_m[-1], model.waveguides[0].length_m)
+    assert np.all(np.diff(profile.x_m) > 0.0)
+    assert np.all(np.isfinite(profile.values.real))
+    assert np.all(np.isfinite(profile.values.imag))
+
+
+def test_waveguide_line_profile_particle_velocity_endpoints_match_endpoint_velocity_convention() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=21)
+
+    np.testing.assert_allclose(profile.values[0], point.waveguide_endpoint_velocity["wg1"].node_a)
+    np.testing.assert_allclose(profile.values[-1], -point.waveguide_endpoint_velocity["wg1"].node_b)
+
+
+def test_waveguide_line_profile_particle_velocity_matches_volume_velocity_over_local_area() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    particle_profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=17)
+    flow_profile = waveguide_line_profile_volume_velocity(point, system, "wg1", points=17)
+
+    from os_lem.elements.waveguide_1d import area_at_position
+
+    waveguide = model.waveguides[0]
+    area = np.array(
+        [
+            area_at_position(
+                waveguide.length_m,
+                waveguide.area_start_m2,
+                waveguide.area_end_m2,
+                float(x_m),
+            )
+            for x_m in particle_profile.x_m
+        ],
+        dtype=float,
+    )
+
+    np.testing.assert_allclose(particle_profile.values, flow_profile.values / area)
+
+
+def test_waveguide_line_profile_particle_velocity_reversal_reverses_axis_and_sign() -> None:
+    model_forward = _minimal_waveguide_model()
+    system_forward = assemble_system(model_forward)
+    point_forward = solve_frequency_point(model_forward, system_forward, 100.0)
+    profile_forward = waveguide_line_profile_particle_velocity(point_forward, system_forward, "wg1", points=17)
+
+    model_reverse = _minimal_waveguide_model_reversed()
+    system_reverse = assemble_system(model_reverse)
+    point_reverse = solve_frequency_point(model_reverse, system_reverse, 100.0)
+    profile_reverse = waveguide_line_profile_particle_velocity(point_reverse, system_reverse, "wg1", points=17)
+
+    np.testing.assert_allclose(profile_reverse.x_m, model_reverse.waveguides[0].length_m - profile_forward.x_m[::-1])
+    np.testing.assert_allclose(profile_reverse.values, -profile_forward.values[::-1])
+
+
+def test_waveguide_line_profile_particle_velocity_rejects_too_few_points() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+    point = solve_frequency_point(model, system, 100.0)
+
+    with pytest.raises(ValueError, match="points must be >= 2"):
+        waveguide_line_profile_particle_velocity(point, system, "wg1", points=1)

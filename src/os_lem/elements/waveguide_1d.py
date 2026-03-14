@@ -23,6 +23,18 @@ def segment_midpoint_areas(length_m: float, area_start_m2: float, area_end_m2: f
     return np.asarray(areas, dtype=float)
 
 
+
+
+def area_at_position(length_m: float, area_start_m2: float, area_end_m2: float, x_m: float) -> float:
+    if length_m <= 0.0:
+        raise ValueError("length_m must be > 0")
+    if x_m < 0.0 or x_m > length_m:
+        raise ValueError("x_m must be inside [0, length_m]")
+    r0 = math.sqrt(area_start_m2 / math.pi)
+    rL = math.sqrt(area_end_m2 / math.pi)
+    r_x = r0 + (rL - r0) * (x_m / length_m)
+    return float(math.pi * r_x * r_x)
+
 def segment_endpoint_positions(length_m: float, segments: int) -> np.ndarray:
     if segments <= 0:
         raise ValueError("segments must be > 0")

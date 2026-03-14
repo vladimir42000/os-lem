@@ -165,15 +165,15 @@ Resume topology growth after the Phase 4 corrective checkpoint.
   - endpoint particle-velocity export
   - minimal `line_profile` export for `pressure`
   - minimal `line_profile` export for `volume_velocity`
+  - minimal `line_profile` export for `particle_velocity`
 - the existing `volume` / `duct` / `radiator` solver path remains green
-- repository suite is green at `74 passed` in the local patched state
+- repository suite is green at `79 passed` in the local patched state
 
 ### Remaining likely items inside Phase 5
-- `waveguide_1d` `line_profile` for `particle_velocity`
 - limited external overlap checks once internal waveguide confidence is stronger
 
 ### Explicitly not yet delivered in Phase 5
-- `waveguide_1d` `line_profile` for `particle_velocity`
+- limited external overlap checks for current `waveguide_1d` cases
 - distributed losses
 - broad external parity claims
 
