@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+import numpy as np
 
 from .driver import normalize_driver
 from .errors import SchemaError, ValidationError
@@ -106,13 +107,16 @@ def _normalize_element(raw: dict[str, Any]):
         area_m2 = parse_value(raw["area"])
         _require_positive(f"duct[{raw['id']}].length", length_m)
         _require_positive(f"duct[{raw['id']}].area", area_m2)
+        loss = None
+        if "loss" in raw and raw["loss"] is not None:
+            raise ValidationError("duct.loss is reserved for future work and not supported in the current checkpoint")
         return DuctElement(
             id=str(raw["id"]),
             node_a=str(raw["node_a"]),
             node_b=str(raw["node_b"]),
             length_m=length_m,
             area_m2=area_m2,
-            loss=float(raw["loss"]) if "loss" in raw and raw["loss"] is not None else None,
+            loss=loss,
         )
 
     if etype == "waveguide_1d":
@@ -133,6 +137,14 @@ def _normalize_element(raw: dict[str, Any]):
         _require_positive(f"waveguide_1d[{raw['id']}].area_end", area_end_m2)
         if segments <= 0:
             raise ValidationError(f"waveguide_1d[{raw['id']}].segments must be > 0")
+        loss = float(raw["loss"]) if "loss" in raw and raw["loss"] is not None else None
+        if loss is not None:
+            if loss < 0.0:
+                raise ValidationError(f"waveguide_1d[{raw['id']}].loss must be >= 0")
+            if not np.isclose(area_start_m2, area_end_m2):
+                raise ValidationError(
+                    "waveguide_1d.loss is currently supported only for cylindrical guides with area_start == area_end"
+                )
         return Waveguide1DElement(
             id=str(raw["id"]),
             node_a=str(raw["node_a"]),
@@ -142,7 +154,7 @@ def _normalize_element(raw: dict[str, Any]):
             area_end_m2=area_end_m2,
             profile="conical",
             segments=segments,
-            loss=float(raw["loss"]) if "loss" in raw and raw["loss"] is not None else None,
+            loss=loss,
         )
 
     unknown = sorted(set(raw.keys()) - _RADIATOR_KEYS)

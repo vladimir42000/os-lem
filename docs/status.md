@@ -3,8 +3,8 @@
 ## Current development status
 
 - Active branch: `feature/p5-patch02-minimal-waveguide-assembly`
-- Current known good commit before this patch: `48ea78a`
-- Current known local test status after this patch: `91 passed`
+- Current known good commit before this patch: `de42daa`
+- Current known local test status after this patch: `83 passed`
 - Current phase state: **Phase 5 active**
 - Previous phase checkpoint: **Phase 4 closed at corrective checkpoint**
 
@@ -53,7 +53,13 @@ The bounded Phase 5 waveguide observability follow-ups now complete are:
 - minimal `waveguide_1d` `line_profile` export for `volume_velocity`
 - minimal `waveguide_1d` `line_profile` export for `particle_velocity`
 
-The full repository suite is green at `87 passed` in the local patched state.
+The first bounded cylindrical-loss implementation follow-up is now complete:
+
+- user-specified distributed loss is supported for cylindrical `waveguide_1d` only
+- lossless behavior is preserved when `loss` is absent or zero
+- lossy cylindrical profile reconstruction works for `pressure`, `volume_velocity`, and `particle_velocity`
+
+The full repository suite is green at `98 passed` in the local patched state.
 
 ## Current project interpretation
 
@@ -65,10 +71,8 @@ This does **not** freeze a claim of universal Hornresp parity. It freezes a narr
 - Phase 5 has resumed bounded topology expansion on top of that corrected baseline
 - the first assembled `waveguide_1d` path now has focused internal validation support
 - bounded first waveguide observability is now real in the repo
-- the minimal distributed-loss boundary is now frozen in docs, but still not implemented
 - cross-profile internal validation is now stronger for the current waveguide profile outputs
-- one first limited cylindrical reference-overlap check is now in place for a simple `waveguide_1d` case
-- one first limited conical reference-overlap check is now in place for a matched simple `waveguide_1d` case
+- the first minimal cylindrical distributed-loss extension is now real in the repo
 - future work should proceed from the corrected solver and current green test suite
 
 ## Immediate next objective
@@ -76,12 +80,13 @@ This does **not** freeze a claim of universal Hornresp parity. It freezes a narr
 Continue controlled feature development in Phase 5.
 
 Recommended next step:
-1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
-2. choose one single bounded follow-up waveguide patch
-3. next likely target: implement the first minimal distributed-loss extension for cylindrical `waveguide_1d` only
+1. keep the corrected solver baseline and current validated lossless and cylindrical-lossy `waveguide_1d` paths fixed
+2. choose one single bounded follow-up lossy-boundary patch
+3. next likely target: freeze the minimal conical lossy boundary before any conical lossy implementation work
 
 Still deferred:
-- distributed losses beyond the first cylindrical `waveguide_1d` boundary
+- conical lossy `waveguide_1d`
+- thermo-viscous auto-derived losses
 - broad external parity claims
 
 ## Explicitly out of scope right now

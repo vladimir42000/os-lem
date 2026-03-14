@@ -412,9 +412,6 @@ in the acoustic node-pressure subsystem.
 #### 6.2.1 Duct losses
 Viscous and thermal loss terms are deferred in v1.
 
-The first distributed-loss extension is explicitly not a duct-loss patch.
-`duct.loss` remains reserved and unsupported at the current checkpoint.
-
 ---
 
 ### 6.3 `waveguide_1d`
@@ -533,23 +530,41 @@ The internal port convention is:
 If \(S_0 = S_L\), the conical profile degenerates to a cylindrical line. The same segmentation rule still applies.
 
 #### 6.3.6 Waveguide losses
-Distributed loss modeling is deferred in v1, but the first-loss boundary is now frozen.
-
-The first allowed lossy extension is:
+The current minimal distributed-loss extension is frozen as:
 
 - `waveguide_1d` only
-- user-specified distributed loss only
-- no automatic thermo-viscous derivation from geometry
-- no lossy `duct` work in the same patch
-- no lossy radiator work in the same patch
+- cylindrical only, i.e. `area_start = area_end = S`
+- user-specified attenuation coefficient \(lpha\) in nepers per meter
+- no automatic thermo-viscous derivation
+- no conical lossy support in the current checkpoint
 
-The first implementation target must be cylindrical first:
+For the supported cylindrical lossy case:
 
-- `area_start == area_end`
-- loss applied uniformly per internal cylindrical subsegment
-- conical lossy support deferred to a later patch
+\[
+\gamma = lpha + jrac{\omega}{c_0}
+\]
 
-This freezes the project boundary without yet changing the current lossless assembly or observability formulas.
+\[
+Z_c^{(a)} = rac{ho_0 c_0}{S}
+\]
+
+\[
+\mathbf{T}_{cyl,loss}(\ell) =
+egin{bmatrix}
+\cosh(\gamma \ell) & Z_c^{(a)}\sinh(\gamma \ell) \
+\dfrac{1}{Z_c^{(a)}}\sinh(\gamma \ell) & \cosh(\gamma \ell)
+\end{bmatrix}
+\]
+
+\[
+\mathbf{Y}_{cyl,loss}(\ell) =
+egin{bmatrix}
+\dfrac{1}{Z_c^{(a)}}\coth(\gamma \ell) & -\dfrac{1}{Z_c^{(a)}}\operatorname{csch}(\gamma \ell) \
+-\dfrac{1}{Z_c^{(a)}}\operatorname{csch}(\gamma \ell) & \dfrac{1}{Z_c^{(a)}}\coth(\gamma \ell)
+\end{bmatrix}
+\]
+
+When `loss` is absent or zero, the current implementation must reduce exactly to the frozen lossless cylindrical behavior.
 
 ---
 

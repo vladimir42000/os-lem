@@ -144,7 +144,7 @@ def _waveguide_full_admittance_matrix(
     Y_full = np.zeros((n_nodes, n_nodes), dtype=np.complex128)
 
     for seg_idx, area_m2 in enumerate(areas):
-        Y_seg = uniform_segment_admittance(omega, dx, float(area_m2))
+        Y_seg = uniform_segment_admittance(omega, dx, float(area_m2), loss_np_per_m=float(payload.loss or 0.0))
         i = seg_idx
         j = seg_idx + 1
 
@@ -224,7 +224,7 @@ def _waveguide_segment_left_flows(
     left_flows = np.empty(payload.segments, dtype=np.complex128)
 
     for seg_idx, area_m2 in enumerate(areas):
-        Y_seg = uniform_segment_admittance(omega, dx, float(area_m2))
+        Y_seg = uniform_segment_admittance(omega, dx, float(area_m2), loss_np_per_m=float(payload.loss or 0.0))
         p_seg = np.array(
             [nodal_pressures[seg_idx], nodal_pressures[seg_idx + 1]],
             dtype=np.complex128,
@@ -275,7 +275,10 @@ def _waveguide_sample_profile_quantity(
 
     x_m = np.linspace(0.0, payload.length_m, points, dtype=float)
     values = np.empty(points, dtype=np.complex128)
-    sin_kdx = np.sin(point.omega_rad_s * dx / C0)
+
+    gamma = complex(float(payload.loss or 0.0), point.omega_rad_s / C0)
+    gamma_dx = gamma * dx
+    sinh_gamma_dx = np.sinh(gamma_dx)
 
     for idx, x_sample in enumerate(x_m):
         if np.isclose(x_sample, payload.length_m):
@@ -288,29 +291,29 @@ def _waveguide_sample_profile_quantity(
 
         p_left = complex(nodal_pressures[seg_idx])
         p_right = complex(nodal_pressures[seg_idx + 1])
+        zc_a = RHO0 * C0 / float(segment_areas[seg_idx])
+        left_weight = np.sinh(gamma * (dx - x_local)) / sinh_gamma_dx
+        right_weight = np.sinh(gamma * x_local) / sinh_gamma_dx
+        pressure = left_weight * p_left + right_weight * p_right
+        volume_velocity = -(
+            1.0 / (zc_a * sinh_gamma_dx)
+        ) * (
+            -p_left * np.cosh(gamma * (dx - x_local))
+            + p_right * np.cosh(gamma * x_local)
+        )
 
         if quantity == "pressure":
-            left_weight = np.sin(point.omega_rad_s * (dx - x_local) / C0) / sin_kdx
-            right_weight = np.sin(point.omega_rad_s * x_local / C0) / sin_kdx
-            values[idx] = left_weight * p_left + right_weight * p_right
+            values[idx] = pressure
+        elif quantity == "volume_velocity":
+            values[idx] = volume_velocity
         else:
-            zc_a = RHO0 * C0 / float(segment_areas[seg_idx])
-            volume_velocity = (
-                1j / (zc_a * sin_kdx)
-            ) * (
-                -p_left * np.cos(point.omega_rad_s * (dx - x_local) / C0)
-                + p_right * np.cos(point.omega_rad_s * x_local / C0)
+            local_area_m2 = area_at_position(
+                payload.length_m,
+                payload.area_start_m2,
+                payload.area_end_m2,
+                x_sample,
             )
-            if quantity == "volume_velocity":
-                values[idx] = volume_velocity
-            else:
-                local_area_m2 = area_at_position(
-                    payload.length_m,
-                    payload.area_start_m2,
-                    payload.area_end_m2,
-                    x_sample,
-                )
-                values[idx] = volume_velocity / local_area_m2
+            values[idx] = volume_velocity / local_area_m2
 
     return WaveguideLineProfile(quantity=quantity, x_m=x_m, values=values)
 

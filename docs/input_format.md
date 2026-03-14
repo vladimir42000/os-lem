@@ -274,11 +274,7 @@ Required fields:
 - `area`
 
 Optional fields:
-- `loss`
-
-#### Frozen v1 interpretation of `duct.loss`
-`duct.loss` remains reserved for future work and is not yet implemented.
-The first distributed-loss work will not start on `duct`.
+- `loss` (reserved and unsupported in the current checkpoint)
 
 ### `waveguide_1d`
 Required fields:
@@ -295,16 +291,10 @@ Optional fields:
 - `segments`
 - `loss`
 
-#### Frozen first-loss boundary for `waveguide_1d.loss`
-The field is now frozen as the entry point for the first lossy waveguide extension, but it is still not implemented at the current checkpoint.
-
-The first allowed loss-boundary interpretation is:
-- user-specified distributed loss on `waveguide_1d` only
-- per-uniform-subsegment propagation loss, not thermo-viscous geometry-derived loss
-- cylindrical first (`area_start == area_end`)
-- conical lossy support deferred
-
-Until the first lossy implementation lands, any use of `loss` remains unsupported and must not be advertised as implemented behavior.
+Current frozen loss boundary:
+- `waveguide_1d.loss` is user-specified distributed loss in nepers per meter
+- loss is currently supported only for the cylindrical special case where `area_start == area_end`
+- conical lossy `waveguide_1d` remains deferred
 
 #### Definition of `profile: conical`
 In v1, `conical` means the equivalent circular radius varies linearly with axial position.

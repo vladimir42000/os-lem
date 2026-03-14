@@ -170,18 +170,17 @@ Resume topology growth after the Phase 4 corrective checkpoint.
   - `particle_velocity = volume_velocity / local_area(x)` consistency
   - joint endpoint/profile agreement for all three profile quantities
   - cylindrical special-case consistency for constant area
-- limited reference-overlap validation now covers:
-  - one cylindrical `waveguide_1d` case with exact entrance-impedance and profile-shape reference checks
-  - one conical `waveguide_1d` case with exact entrance-impedance and profile-shape reference checks
 - the existing `volume` / `duct` / `radiator` solver path remains green
-- repository suite is green at `91 passed` in the local patched state
-- the minimal distributed-loss boundary is now frozen in the governing docs before any lossy implementation work
+- repository suite is green at `98 passed` in the local patched state
+- first minimal cylindrical distributed-loss support is implemented for `waveguide_1d` with exact-reference tests inside the frozen cylindrical-loss boundary
 
 ### Remaining likely items inside Phase 5
-- implement the first minimal distributed-loss extension for cylindrical `waveguide_1d` only, on top of the now-frozen loss boundary
+- freeze the minimal conical lossy boundary before any conical lossy implementation work
+- limited external overlap checks once lossy and lossless waveguide confidence is stronger
 
 ### Explicitly not yet delivered in Phase 5
-- distributed losses beyond the first cylindrical `waveguide_1d` boundary
+- conical lossy `waveguide_1d`
+- thermo-viscous auto-derived losses
 - broad external parity claims
 
 ### Exit criteria

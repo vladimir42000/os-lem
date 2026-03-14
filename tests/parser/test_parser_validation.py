@@ -127,3 +127,114 @@ def test_examples_load(example_root=Path("examples")):
         normalized, warnings = load_and_normalize(path)
         assert normalized.driver.id == "drv1"
         assert isinstance(warnings, list)
+
+
+def test_duct_loss_is_rejected_as_unsupported_current_checkpoint():
+    model = _base_model()
+    model["elements"].append(
+        {
+            "id": "d1",
+            "type": "duct",
+            "node_a": "rear",
+            "node_b": "mouth",
+            "length": "10 cm",
+            "area": "10 cm2",
+            "loss": 0.1,
+        }
+    )
+    model["elements"].append(
+        {
+            "id": "mouth_rad",
+            "type": "radiator",
+            "node": "mouth",
+            "model": "unflanged_piston",
+            "area": "20 cm2",
+        }
+    )
+    with pytest.raises(ValidationError, match="duct.loss"):
+        normalize_model(model)
+
+
+def test_waveguide_loss_is_accepted_for_cylindrical_case_only():
+    model = _base_model()
+    model["elements"].append(
+        {
+            "id": "wg1",
+            "type": "waveguide_1d",
+            "node_a": "rear",
+            "node_b": "mouth",
+            "length": "20 cm",
+            "area_start": "10 cm2",
+            "area_end": "10 cm2",
+            "profile": "conical",
+            "segments": 4,
+            "loss": 0.15,
+        }
+    )
+    model["elements"].append(
+        {
+            "id": "mouth_rad",
+            "type": "radiator",
+            "node": "mouth",
+            "model": "unflanged_piston",
+            "area": "20 cm2",
+        }
+    )
+    normalized, _ = normalize_model(model)
+    assert normalized.waveguides[0].loss == pytest.approx(0.15)
+
+
+def test_waveguide_loss_rejects_conical_case_and_negative_values():
+    model = _base_model()
+    model["elements"].append(
+        {
+            "id": "wg1",
+            "type": "waveguide_1d",
+            "node_a": "rear",
+            "node_b": "mouth",
+            "length": "20 cm",
+            "area_start": "10 cm2",
+            "area_end": "20 cm2",
+            "profile": "conical",
+            "segments": 4,
+            "loss": 0.15,
+        }
+    )
+    model["elements"].append(
+        {
+            "id": "mouth_rad",
+            "type": "radiator",
+            "node": "mouth",
+            "model": "unflanged_piston",
+            "area": "20 cm2",
+        }
+    )
+    with pytest.raises(ValidationError, match="cylindrical"):
+        normalize_model(model)
+
+    model = _base_model()
+    model["elements"].append(
+        {
+            "id": "wg1",
+            "type": "waveguide_1d",
+            "node_a": "rear",
+            "node_b": "mouth",
+            "length": "20 cm",
+            "area_start": "10 cm2",
+            "area_end": "10 cm2",
+            "profile": "conical",
+            "segments": 4,
+            "loss": -0.1,
+        }
+    )
+    model["elements"].append(
+        {
+            "id": "mouth_rad",
+            "type": "radiator",
+            "node": "mouth",
+            "model": "unflanged_piston",
+            "area": "20 cm2",
+        }
+    )
+    with pytest.raises(ValidationError, match="must be >= 0"):
+        normalize_model(model)

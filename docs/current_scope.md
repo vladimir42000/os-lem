@@ -38,15 +38,13 @@ Validated confidence currently covers:
 - minimal `waveguide_1d` particle-velocity profile endpoint consistency and reversal behavior
 - cross-profile identity checks for `pressure`, `volume_velocity`, and `particle_velocity`
 - cylindrical special-case consistency for `particle_velocity = volume_velocity / area_const`
-- first limited cylindrical reference-overlap check for entrance impedance and line-profile shape
-- first limited conical reference-overlap check for entrance impedance and line-profile shape
-- minimal distributed-loss boundary for `waveguide_1d` is frozen in docs, but not yet implemented
+- exact cylindrical lossy reference agreement for entrance behavior and sampled profiles within the frozen cylindrical-loss boundary
 
 ## Current deferred capabilities
 
 Not yet implemented or not yet supported as project claims:
 
-- distributed losses (implementation deferred; minimal `waveguide_1d` boundary now frozen)
+- minimal user-specified distributed loss for cylindrical `waveguide_1d`
 - passive radiator
 - multi-driver support
 - crossover/electrical-network expansion

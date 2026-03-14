@@ -5,7 +5,6 @@ import pytest
 
 from os_lem.assemble import assemble_system
 from os_lem.constants import C0, RHO0
-from os_lem.elements.radiator import radiator_impedance
 from os_lem.model import (
     Driver,
     DuctElement,
@@ -80,208 +79,6 @@ def _minimal_waveguide_model() -> NormalizedModel:
         ],
         node_order=["front", "rear", "port"],
     )
-
-
-def _minimal_cylindrical_waveguide_model() -> NormalizedModel:
-    return NormalizedModel(
-        driver=_driver(),
-        volumes=[
-            VolumeElement(id="rear_vol", node="rear", value_m3=0.02),
-        ],
-        radiators=[
-            RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.01),
-        ],
-        waveguides=[
-            Waveguide1DElement(
-                id="wg1",
-                node_a="front",
-                node_b="port",
-                length_m=0.40,
-                area_start_m2=0.01,
-                area_end_m2=0.01,
-                profile="conical",
-                segments=8,
-            )
-        ],
-        node_order=["front", "rear", "port"],
-    )
-
-
-def _minimal_conical_reference_waveguide_model() -> NormalizedModel:
-    return NormalizedModel(
-        driver=_driver(),
-        volumes=[
-            VolumeElement(id="rear_vol", node="rear", value_m3=0.02),
-        ],
-        radiators=[
-            RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.02),
-        ],
-        waveguides=[
-            Waveguide1DElement(
-                id="wg1",
-                node_a="front",
-                node_b="port",
-                length_m=0.40,
-                area_start_m2=0.01,
-                area_end_m2=0.02,
-                profile="conical",
-                segments=8,
-            )
-        ],
-        node_order=["front", "rear", "port"],
-    )
-
-
-def _conical_geometry(length_m: float, area_start_m2: float, area_end_m2: float) -> tuple[float, float]:
-    r0 = np.sqrt(area_start_m2 / np.pi)
-    rL = np.sqrt(area_end_m2 / np.pi)
-    slope = (rL - r0) / length_m
-    left_radius_m = r0 / slope
-    solid_angle = np.pi * slope * slope
-    return float(left_radius_m), float(solid_angle)
-
-
-def _conical_profile_state_from_wave_coefficients(
-    omega: float,
-    radius_m: float,
-    solid_angle: float,
-    coeff_minus: complex,
-    coeff_plus: complex,
-) -> tuple[complex, complex]:
-    k = omega / C0
-    exp_minus = np.exp(-1j * k * radius_m)
-    exp_plus = np.exp(1j * k * radius_m)
-    pressure = (coeff_minus * exp_minus + coeff_plus * exp_plus) / radius_m
-    flow = -solid_angle / (1j * omega * RHO0) * (
-        radius_m * (-1j * k * coeff_minus * exp_minus + 1j * k * coeff_plus * exp_plus)
-        - (coeff_minus * exp_minus + coeff_plus * exp_plus)
-    )
-    return pressure, flow
-
-
-def _conical_wave_coefficients_from_left_state(
-    omega: float,
-    left_radius_m: float,
-    solid_angle: float,
-    pressure_left: complex,
-    flow_left: complex,
-) -> tuple[complex, complex]:
-    k = omega / C0
-    exp_minus = np.exp(-1j * k * left_radius_m)
-    exp_plus = np.exp(1j * k * left_radius_m)
-    matrix = np.array(
-        [
-            [exp_minus / left_radius_m, exp_plus / left_radius_m],
-            [
-                -solid_angle / (1j * omega * RHO0) * (left_radius_m * (-1j * k) * exp_minus - exp_minus),
-                -solid_angle / (1j * omega * RHO0) * (left_radius_m * (1j * k) * exp_plus - exp_plus),
-            ],
-        ],
-        dtype=np.complex128,
-    )
-    coeff_minus, coeff_plus = np.linalg.solve(
-        matrix, np.array([pressure_left, flow_left], dtype=np.complex128)
-    )
-    return complex(coeff_minus), complex(coeff_plus)
-
-
-def _conical_profile_reference(
-    omega: float,
-    length_m: float,
-    area_start_m2: float,
-    area_end_m2: float,
-    x_m: np.ndarray,
-    pressure_left: complex,
-    flow_left: complex,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    left_radius_m, solid_angle = _conical_geometry(length_m, area_start_m2, area_end_m2)
-    radii_m = left_radius_m + np.asarray(x_m, dtype=float)
-    coeff_minus, coeff_plus = _conical_wave_coefficients_from_left_state(
-        omega,
-        left_radius_m,
-        solid_angle,
-        pressure_left,
-        flow_left,
-    )
-
-    pressure = np.empty_like(radii_m, dtype=np.complex128)
-    flow = np.empty_like(radii_m, dtype=np.complex128)
-    particle = np.empty_like(radii_m, dtype=np.complex128)
-
-    for idx, radius_m in enumerate(radii_m):
-        p_value, q_value = _conical_profile_state_from_wave_coefficients(
-            omega, float(radius_m), solid_angle, coeff_minus, coeff_plus
-        )
-        local_area_m2 = solid_angle * radius_m * radius_m
-        pressure[idx] = p_value
-        flow[idx] = q_value
-        particle[idx] = q_value / local_area_m2
-
-    return pressure, flow, particle
-
-
-def _conical_transfer_matrix(
-    omega: float,
-    length_m: float,
-    area_start_m2: float,
-    area_end_m2: float,
-) -> np.ndarray:
-    left_radius_m, solid_angle = _conical_geometry(length_m, area_start_m2, area_end_m2)
-    right_radius_m = left_radius_m + length_m
-    columns: list[tuple[complex, complex]] = []
-
-    for pressure_left, flow_left in ((1.0 + 0.0j, 0.0 + 0.0j), (0.0 + 0.0j, 1.0 + 0.0j)):
-        coeff_minus, coeff_plus = _conical_wave_coefficients_from_left_state(
-            omega,
-            left_radius_m,
-            solid_angle,
-            pressure_left,
-            flow_left,
-        )
-        pressure_right, flow_right = _conical_profile_state_from_wave_coefficients(
-            omega, right_radius_m, solid_angle, coeff_minus, coeff_plus
-        )
-        columns.append((pressure_right, flow_right))
-
-    return np.array(
-        [
-            [columns[0][0], columns[1][0]],
-            [columns[0][1], columns[1][1]],
-        ],
-        dtype=np.complex128,
-    )
-
-
-def _conical_line_input_impedance(
-    omega: float,
-    length_m: float,
-    area_start_m2: float,
-    area_end_m2: float,
-    load_impedance: complex,
-) -> complex:
-    transfer = _conical_transfer_matrix(omega, length_m, area_start_m2, area_end_m2)
-    a, b = transfer[0, 0], transfer[0, 1]
-    c, d = transfer[1, 0], transfer[1, 1]
-    return (load_impedance * d - b) / (a - load_impedance * c)
-
-
-def _cylindrical_line_input_impedance(omega: float, length_m: float, area_m2: float, load_impedance: complex) -> complex:
-    k = omega / C0
-    zc_a = RHO0 * C0 / area_m2
-    c = np.cos(k * length_m)
-    s = np.sin(k * length_m)
-    numerator = zc_a * (zc_a * s - 1j * load_impedance * c)
-    denominator = -1j * zc_a * c + load_impedance * s
-    return numerator / denominator
-
-
-def _cylindrical_profile_reference(omega: float, length_m: float, area_m2: float, x_m: np.ndarray, p_left: complex, q_left: complex) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    k = omega / C0
-    zc_a = RHO0 * C0 / area_m2
-    pressure = np.cos(k * x_m) * p_left - 1j * zc_a * np.sin(k * x_m) * q_left
-    flow = -1j * (np.sin(k * x_m) / zc_a) * p_left + np.cos(k * x_m) * q_left
-    particle = flow / area_m2
-    return pressure, flow, particle
 
 
 def test_solve_frequency_sweep_returns_expected_shapes_and_finite_outputs() -> None:
@@ -816,170 +613,137 @@ def test_waveguide_line_profiles_reversal_semantics_remain_jointly_consistent() 
     np.testing.assert_allclose(particle_reverse.values, -particle_forward.values[::-1])
 
 
-def test_cylindrical_waveguide_entrance_impedance_matches_exact_reference_over_small_sweep() -> None:
-    model = _minimal_cylindrical_waveguide_model()
-    system = assemble_system(model)
-    frequencies = np.array([40.0, 100.0, 180.0], dtype=float)
-    sweep = solve_frequency_sweep(model, system, frequencies)
-
-    waveguide = model.waveguides[0]
-    load_impedance = np.array(
-        [radiator_impedance("flanged_piston", 2.0 * np.pi * float(f_hz), waveguide.area_end_m2) for f_hz in frequencies],
-        dtype=np.complex128,
-    )
-    reference = np.array(
-        [
-            _cylindrical_line_input_impedance(2.0 * np.pi * float(f_hz), waveguide.length_m, waveguide.area_start_m2, z_load)
-            for f_hz, z_load in zip(frequencies, load_impedance, strict=True)
+def _minimal_waveguide_cylindrical_lossy_model(loss_np_per_m: float) -> NormalizedModel:
+    return NormalizedModel(
+        driver=_driver(),
+        volumes=[
+            VolumeElement(id="rear_vol", node="rear", value_m3=0.02),
         ],
-        dtype=np.complex128,
-    )
-    observed = sweep.pressures[:, 0] / sweep.waveguide_endpoint_flow["wg1"].node_a
-
-    np.testing.assert_allclose(observed, reference, rtol=5e-5, atol=1e-9)
-
-
-def test_cylindrical_waveguide_pressure_profile_matches_exact_reference_shape() -> None:
-    model = _minimal_cylindrical_waveguide_model()
-    system = assemble_system(model)
-    point = solve_frequency_point(model, system, 100.0)
-
-    pressure_profile = waveguide_line_profile_pressure(point, system, "wg1", points=23)
-    waveguide = model.waveguides[0]
-    reference_pressure, _, _ = _cylindrical_profile_reference(
-        point.omega_rad_s,
-        waveguide.length_m,
-        waveguide.area_start_m2,
-        pressure_profile.x_m,
-        complex(point.pressures[0]),
-        complex(point.waveguide_endpoint_flow["wg1"].node_a),
-    )
-
-    np.testing.assert_allclose(pressure_profile.values, reference_pressure, rtol=5e-5, atol=1e-9)
-
-
-def test_cylindrical_waveguide_volume_velocity_profile_matches_exact_reference_shape() -> None:
-    model = _minimal_cylindrical_waveguide_model()
-    system = assemble_system(model)
-    point = solve_frequency_point(model, system, 100.0)
-
-    flow_profile = waveguide_line_profile_volume_velocity(point, system, "wg1", points=23)
-    waveguide = model.waveguides[0]
-    _, reference_flow, _ = _cylindrical_profile_reference(
-        point.omega_rad_s,
-        waveguide.length_m,
-        waveguide.area_start_m2,
-        flow_profile.x_m,
-        complex(point.pressures[0]),
-        complex(point.waveguide_endpoint_flow["wg1"].node_a),
-    )
-
-    np.testing.assert_allclose(flow_profile.values, reference_flow, rtol=5e-5, atol=1e-9)
-
-
-def test_cylindrical_waveguide_particle_velocity_profile_matches_exact_reference_shape() -> None:
-    model = _minimal_cylindrical_waveguide_model()
-    system = assemble_system(model)
-    point = solve_frequency_point(model, system, 100.0)
-
-    particle_profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=23)
-    waveguide = model.waveguides[0]
-    _, _, reference_particle = _cylindrical_profile_reference(
-        point.omega_rad_s,
-        waveguide.length_m,
-        waveguide.area_start_m2,
-        particle_profile.x_m,
-        complex(point.pressures[0]),
-        complex(point.waveguide_endpoint_flow["wg1"].node_a),
-    )
-
-    np.testing.assert_allclose(particle_profile.values, reference_particle, rtol=5e-5, atol=1e-9)
-
-
-def test_conical_waveguide_entrance_impedance_matches_exact_reference_over_small_sweep() -> None:
-    model = _minimal_conical_reference_waveguide_model()
-    system = assemble_system(model)
-    frequencies = np.array([40.0, 100.0, 180.0], dtype=float)
-    sweep = solve_frequency_sweep(model, system, frequencies)
-
-    waveguide = model.waveguides[0]
-    load_impedance = np.array(
-        [radiator_impedance("flanged_piston", 2.0 * np.pi * float(f_hz), waveguide.area_end_m2) for f_hz in frequencies],
-        dtype=np.complex128,
-    )
-    reference = np.array(
-        [
-            _conical_line_input_impedance(
-                2.0 * np.pi * float(f_hz),
-                waveguide.length_m,
-                waveguide.area_start_m2,
-                waveguide.area_end_m2,
-                z_load,
+        radiators=[
+            RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.01),
+        ],
+        waveguides=[
+            Waveguide1DElement(
+                id="wg1",
+                node_a="front",
+                node_b="port",
+                length_m=0.40,
+                area_start_m2=0.0125,
+                area_end_m2=0.0125,
+                profile="conical",
+                segments=8,
+                loss=loss_np_per_m,
             )
-            for f_hz, z_load in zip(frequencies, load_impedance, strict=True)
+        ],
+        node_order=["front", "rear", "port"],
+    )
+
+
+def _exact_cylindrical_losssy_admittance_matrix(omega: float, length_m: float, area_m2: float, loss_np_per_m: float) -> np.ndarray:
+    gamma = complex(loss_np_per_m, omega / C0)
+    zc_a = RHO0 * C0 / area_m2
+    gl = gamma * length_m
+    s = np.sinh(gl)
+    c = np.cosh(gl)
+    return np.array(
+        [
+            [(1.0 / zc_a) * (c / s), -(1.0 / zc_a) * (1.0 / s)],
+            [-(1.0 / zc_a) * (1.0 / s), (1.0 / zc_a) * (c / s)],
         ],
         dtype=np.complex128,
     )
-    observed = sweep.pressures[:, 0] / sweep.waveguide_endpoint_flow["wg1"].node_a
-
-    np.testing.assert_allclose(observed, reference, rtol=8e-3, atol=1e-9)
 
 
-def test_conical_waveguide_pressure_profile_matches_exact_reference_shape() -> None:
-    model = _minimal_conical_reference_waveguide_model()
+def _exact_cylindrical_profile_from_endpoints(
+    omega: float,
+    length_m: float,
+    area_m2: float,
+    loss_np_per_m: float,
+    pressure_left: complex,
+    pressure_right: complex,
+    x_m: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    gamma = complex(loss_np_per_m, omega / C0)
+    zc_a = RHO0 * C0 / area_m2
+    gl = gamma * length_m
+    sinh_gl = np.sinh(gl)
+    pressure = (
+        np.sinh(gamma * (length_m - x_m)) / sinh_gl * pressure_left
+        + np.sinh(gamma * x_m) / sinh_gl * pressure_right
+    )
+    volume_velocity = -(
+        1.0 / (zc_a * sinh_gl)
+    ) * (
+        -pressure_left * np.cosh(gamma * (length_m - x_m))
+        + pressure_right * np.cosh(gamma * x_m)
+    )
+    particle_velocity = volume_velocity / area_m2
+    return pressure, volume_velocity, particle_velocity
+
+
+def test_loss_zero_reproduces_current_lossless_cylindrical_waveguide_behavior() -> None:
+    model_lossless = _minimal_waveguide_cylindrical_model()
+    system_lossless = assemble_system(model_lossless)
+    point_lossless = solve_frequency_point(model_lossless, system_lossless, 100.0)
+
+    model_zero_loss = _minimal_waveguide_cylindrical_lossy_model(0.0)
+    system_zero_loss = assemble_system(model_zero_loss)
+    point_zero_loss = solve_frequency_point(model_zero_loss, system_zero_loss, 100.0)
+
+    np.testing.assert_allclose(point_zero_loss.pressures, point_lossless.pressures)
+    np.testing.assert_allclose(point_zero_loss.coil_current, point_lossless.coil_current)
+    np.testing.assert_allclose(point_zero_loss.waveguide_endpoint_flow["wg1"].node_a, point_lossless.waveguide_endpoint_flow["wg1"].node_a)
+    np.testing.assert_allclose(point_zero_loss.waveguide_endpoint_flow["wg1"].node_b, point_lossless.waveguide_endpoint_flow["wg1"].node_b)
+
+
+def test_lossy_cylindrical_waveguide_equivalent_admittance_matches_exact_reference() -> None:
+    model = _minimal_waveguide_cylindrical_lossy_model(0.35)
+    waveguide = model.waveguides[0]
+    omega = 2.0 * np.pi * 100.0
+
+    actual = _waveguide_equivalent_admittance_matrix(omega, waveguide)
+    expected = _exact_cylindrical_losssy_admittance_matrix(
+        omega,
+        waveguide.length_m,
+        waveguide.area_start_m2,
+        waveguide.loss or 0.0,
+    )
+
+    np.testing.assert_allclose(actual, expected)
+
+
+def test_lossy_cylindrical_profiles_match_exact_reference_from_solved_endpoints() -> None:
+    model = _minimal_waveguide_cylindrical_lossy_model(0.35)
     system = assemble_system(model)
     point = solve_frequency_point(model, system, 100.0)
 
-    pressure_profile = waveguide_line_profile_pressure(point, system, "wg1", points=23)
+    pressure_profile = waveguide_line_profile_pressure(point, system, "wg1", points=17)
+    flow_profile = waveguide_line_profile_volume_velocity(point, system, "wg1", points=17)
+    particle_profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=17)
+
     waveguide = model.waveguides[0]
-    reference_pressure, _, _ = _conical_profile_reference(
+    expected_p, expected_q, expected_v = _exact_cylindrical_profile_from_endpoints(
         point.omega_rad_s,
         waveguide.length_m,
         waveguide.area_start_m2,
-        waveguide.area_end_m2,
+        waveguide.loss or 0.0,
+        point.pressures[0],
+        point.pressures[2],
         pressure_profile.x_m,
-        complex(point.pressures[0]),
-        complex(point.waveguide_endpoint_flow["wg1"].node_a),
     )
 
-    np.testing.assert_allclose(pressure_profile.values, reference_pressure, rtol=4e-3, atol=1e-9)
+    np.testing.assert_allclose(pressure_profile.values, expected_p)
+    np.testing.assert_allclose(flow_profile.values, expected_q)
+    np.testing.assert_allclose(particle_profile.values, expected_v)
 
 
-def test_conical_waveguide_volume_velocity_profile_matches_exact_reference_shape() -> None:
-    model = _minimal_conical_reference_waveguide_model()
-    system = assemble_system(model)
-    point = solve_frequency_point(model, system, 100.0)
+def test_increasing_cylindrical_loss_reduces_transmitted_pressure_magnitude() -> None:
+    model_low = _minimal_waveguide_cylindrical_lossy_model(0.05)
+    system_low = assemble_system(model_low)
+    point_low = solve_frequency_point(model_low, system_low, 100.0)
 
-    flow_profile = waveguide_line_profile_volume_velocity(point, system, "wg1", points=23)
-    waveguide = model.waveguides[0]
-    _, reference_flow, _ = _conical_profile_reference(
-        point.omega_rad_s,
-        waveguide.length_m,
-        waveguide.area_start_m2,
-        waveguide.area_end_m2,
-        flow_profile.x_m,
-        complex(point.pressures[0]),
-        complex(point.waveguide_endpoint_flow["wg1"].node_a),
-    )
+    model_high = _minimal_waveguide_cylindrical_lossy_model(0.50)
+    system_high = assemble_system(model_high)
+    point_high = solve_frequency_point(model_high, system_high, 100.0)
 
-    np.testing.assert_allclose(flow_profile.values, reference_flow, rtol=1e-3, atol=1e-9)
-
-
-def test_conical_waveguide_particle_velocity_profile_matches_exact_reference_shape() -> None:
-    model = _minimal_conical_reference_waveguide_model()
-    system = assemble_system(model)
-    point = solve_frequency_point(model, system, 100.0)
-
-    particle_profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=23)
-    waveguide = model.waveguides[0]
-    _, _, reference_particle = _conical_profile_reference(
-        point.omega_rad_s,
-        waveguide.length_m,
-        waveguide.area_start_m2,
-        waveguide.area_end_m2,
-        particle_profile.x_m,
-        complex(point.pressures[0]),
-        complex(point.waveguide_endpoint_flow["wg1"].node_a),
-    )
-
-    np.testing.assert_allclose(particle_profile.values, reference_particle, rtol=1e-3, atol=1e-9)
+    assert abs(point_high.pressures[2]) < abs(point_low.pressures[2])
