@@ -10,24 +10,24 @@ Expected branch:
 `feature/p5-patch02-minimal-waveguide-assembly`
 
 Expected current checkpoint:
-latest committed Phase 5 waveguide validation checkpoint after the first cylindrical reference-overlap check
+latest committed Phase 5 waveguide validation checkpoint after the first cylindrical and conical reference-overlap checks
 
 Expected suite:
 green
 
 ## Candidate next patch after startup verification
 
-**Next bounded waveguide validation step after the cylindrical checkpoint**
+**Next bounded waveguide loss-boundary step after the cylindrical and conical checkpoints**
 
 ## Purpose
 
-Add one bounded waveguide validation capability on top of the already assembled,
+Freeze one bounded waveguide loss-boundary decision on top of the already assembled,
 validated, and now internally cross-checked `waveguide_1d` path.
 
 ## Preferred scope
 
 Choose exactly one of:
-- first limited conical reference-overlap check for a simple `waveguide_1d` case
+- freeze the minimal distributed-loss boundary for `waveguide_1d` before any lossy implementation work
 
 Do not do more than one in a single patch.
 
@@ -45,7 +45,7 @@ Do not do more than one in a single patch.
 
 The chosen patch must:
 - preserve current green tests
-- add focused tests or reference checks for the chosen overlap case
+- freeze the exact loss-boundary scope and keep the current validated lossless path unchanged
 - avoid changing corrected solver conventions
 - avoid broadening beyond one validation step
 

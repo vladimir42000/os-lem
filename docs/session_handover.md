@@ -62,7 +62,7 @@ Delivered:
 - minimal `waveguide_1d` `line_profile` export for `particle_velocity`
 
 Current known local suite result after this patch:
-- `87 passed`
+- `91 passed`
 
 ## Phase 5 validation follow-up now also complete
 
@@ -71,6 +71,7 @@ Delivered:
 - joint endpoint/profile agreement checks for all three profile quantities
 - cylindrical special-case consistency checks for constant-area guides
 - first limited cylindrical reference-overlap checks for entrance impedance and line-profile shape
+- first limited conical reference-overlap checks for entrance impedance and line-profile shape
 
 ## Recommended next patch target
 
@@ -79,7 +80,7 @@ Resume bounded Phase 5 growth, but do not broaden scope.
 Recommended order:
 1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
 2. choose one single bounded follow-up waveguide patch
-3. next likely target: first limited conical reference-overlap check for a simple `waveguide_1d` case
+3. next likely target: freeze the minimal distributed-loss boundary for `waveguide_1d` before any lossy implementation work
 
 ## Cautions for the next session
 

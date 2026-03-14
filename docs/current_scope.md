@@ -39,6 +39,7 @@ Validated confidence currently covers:
 - cross-profile identity checks for `pressure`, `volume_velocity`, and `particle_velocity`
 - cylindrical special-case consistency for `particle_velocity = volume_velocity / area_const`
 - first limited cylindrical reference-overlap check for entrance impedance and line-profile shape
+- first limited conical reference-overlap check for entrance impedance and line-profile shape
 
 ## Current deferred capabilities
 
