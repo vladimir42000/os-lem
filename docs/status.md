@@ -3,8 +3,8 @@
 ## Current development status
 
 - Active branch: `feature/p5-patch02-minimal-waveguide-assembly`
-- Current known good commit: `bb30d8b`
-- Current known test status: `58 passed`
+- Current known good commit: `d7d74b4`
+- Current known test status: `69 passed`
 - Current phase state: **Phase 5 active**
 - Previous phase checkpoint: **Phase 4 closed at corrective checkpoint**
 
@@ -45,7 +45,13 @@ The first bounded Phase 5 validation follow-up is also complete:
 - constant-area waveguide behavior is covered by a segmentation-invariance sanity test
 - conical waveguide behavior is covered by a segmentation-refinement sanity test
 
-The full repository suite is green at `58 passed`.
+The first bounded Phase 5 waveguide observability follow-ups are now complete:
+
+- waveguide endpoint flow export
+- waveguide endpoint particle-velocity export
+- minimal `waveguide_1d` `line_profile` export for `pressure`
+
+The full repository suite is green at `69 passed`.
 
 ## Current project interpretation
 
@@ -56,6 +62,7 @@ This does **not** freeze a claim of universal Hornresp parity. It freezes a narr
 - Session 4 successfully identified and corrected one real implementation bug
 - Phase 5 has resumed bounded topology expansion on top of that corrected baseline
 - the first assembled `waveguide_1d` path now has focused internal validation support
+- bounded first waveguide observability is now real in the repo
 - future work should proceed from the corrected solver and current green test suite
 
 ## Immediate next objective
@@ -63,14 +70,13 @@ This does **not** freeze a claim of universal Hornresp parity. It freezes a narr
 Continue controlled feature development in Phase 5.
 
 Recommended next step:
-1. keep the corrected solver baseline and validated minimal `waveguide_1d` assembly fixed
-2. choose one bounded follow-up waveguide patch
-3. likely first target: first minimal waveguide-specific observability step
+1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
+2. choose one single bounded follow-up waveguide patch
+3. next likely target: minimal `waveguide_1d` `line_profile(volume_velocity)` export
 
 Still deferred:
-- `line_profile`
-- waveguide-specific endpoint flow export
-- waveguide-specific particle-velocity export
+- `waveguide_1d` `line_profile` for `volume_velocity`
+- `waveguide_1d` `line_profile` for `particle_velocity`
 - distributed losses
 - broad external parity claims
 

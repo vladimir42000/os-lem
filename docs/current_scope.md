@@ -22,6 +22,7 @@ Current available outputs include:
 - one-radiator SPL
 - waveguide endpoint flow export
 - waveguide endpoint particle-velocity export
+- minimal `waveguide_1d` `line_profile` export for `pressure`
 
 ## Current validated scope
 
@@ -30,12 +31,14 @@ Validated confidence currently covers:
 - simple assembled acoustic participation of `waveguide_1d`
 - waveguide constant-area segmentation-invariance sanity
 - waveguide conical refinement sanity
+- minimal `waveguide_1d` pressure-profile endpoint consistency and reversal behavior
 
 ## Current deferred capabilities
 
 Not yet implemented or not yet supported as project claims:
 
-- `line_profile`
+- `waveguide_1d` `line_profile` for `volume_velocity`
+- `waveguide_1d` `line_profile` for `particle_velocity`
 - distributed losses
 - passive radiator
 - multi-driver support

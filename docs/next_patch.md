@@ -10,7 +10,7 @@ Expected branch:
 `feature/p5-patch02-minimal-waveguide-assembly`
 
 Expected current checkpoint:
-latest committed docs-aligned Phase 5 validation checkpoint
+latest committed Phase 5 docs-aligned observability checkpoint
 
 Expected suite:
 green
@@ -21,17 +21,19 @@ green
 
 ## Purpose
 
-Add one bounded waveguide observability capability on top of the already assembled and internally sanity-checked `waveguide_1d` path.
+Add one bounded waveguide observability capability on top of the already assembled,
+validated, and partially observable `waveguide_1d` path.
 
 ## Preferred scope
 
 Choose exactly one of:
-- first minimal `line_profile` infrastructure
+- minimal `waveguide_1d` `line_profile` export for `volume_velocity`
 
 Do not do more than one in a single patch.
 
 ## Out of scope
 
+- `waveguide_1d` `line_profile` for `particle_velocity`
 - distributed losses
 - passive radiator
 - multi-driver support
@@ -53,3 +55,4 @@ The chosen patch must:
 - driver coupling sign conventions
 - validated earlier solver behavior
 - current assembled representation discipline
+- already-landed waveguide pressure-profile behavior

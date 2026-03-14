@@ -160,18 +160,21 @@ Resume topology growth after the Phase 4 corrective checkpoint.
 - stronger internal validation now covers:
   - constant-area segmentation-invariance sanity
   - conical segmentation-refinement sanity
+- first waveguide-specific observability is now delivered:
+  - endpoint flow export
+  - endpoint particle-velocity export
+  - minimal `line_profile` export for `pressure`
 - the existing `volume` / `duct` / `radiator` solver path remains green
-- repository suite is green at `58 passed`
+- repository suite is green at `69 passed`
 
 ### Remaining likely items inside Phase 5
-- first waveguide-specific exported observables
-- later `line_profile`
+- `waveguide_1d` `line_profile` for `volume_velocity`
+- `waveguide_1d` `line_profile` for `particle_velocity`
 - limited external overlap checks once internal waveguide confidence is stronger
 
 ### Explicitly not yet delivered in Phase 5
-- `line_profile`
-- waveguide-specific endpoint-flow export
-- waveguide-specific particle-velocity export
+- `waveguide_1d` `line_profile` for `volume_velocity`
+- `waveguide_1d` `line_profile` for `particle_velocity`
 - distributed losses
 - broad external parity claims
 
