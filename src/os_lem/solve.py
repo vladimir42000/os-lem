@@ -59,6 +59,22 @@ class WaveguideEndpointFlowSweep:
 
 
 @dataclass(slots=True, frozen=True)
+class WaveguideEndpointVelocityPoint:
+    """Complex endpoint particle velocities for one waveguide at one frequency."""
+
+    node_a: complex
+    node_b: complex
+
+
+@dataclass(slots=True, frozen=True)
+class WaveguideEndpointVelocitySweep:
+    """Complex endpoint particle velocities for one waveguide over a sweep."""
+
+    node_a: np.ndarray
+    node_b: np.ndarray
+
+
+@dataclass(slots=True, frozen=True)
 class SolvedFrequencyPoint:
     """Solved first coupled state for one frequency."""
 
@@ -70,6 +86,7 @@ class SolvedFrequencyPoint:
     cone_velocity: complex
     cone_displacement: complex
     waveguide_endpoint_flow: Mapping[str, WaveguideEndpointFlowPoint]
+    waveguide_endpoint_velocity: Mapping[str, WaveguideEndpointVelocityPoint]
     solution_vector: np.ndarray
 
 
@@ -85,6 +102,7 @@ class SolvedFrequencySweep:
     cone_velocity: np.ndarray
     cone_displacement: np.ndarray
     waveguide_endpoint_flow: Mapping[str, WaveguideEndpointFlowSweep]
+    waveguide_endpoint_velocity: Mapping[str, WaveguideEndpointVelocitySweep]
     source_voltage_rms: float
 
     @property
@@ -285,7 +303,6 @@ def build_coupled_system(
     )
 
 
-
 def _waveguide_endpoint_flows_for_pressures(
     system: AssembledSystem,
     omega: float,
@@ -322,6 +339,31 @@ def _waveguide_endpoint_flows_for_pressures(
 
     return endpoint_flows
 
+
+def _waveguide_endpoint_velocity_for_flow(
+    system: AssembledSystem,
+    endpoint_flow: Mapping[str, WaveguideEndpointFlowPoint],
+) -> dict[str, WaveguideEndpointVelocityPoint]:
+    """Return endpoint particle velocities for assembled waveguide branches."""
+
+    endpoint_velocity: dict[str, WaveguideEndpointVelocityPoint] = {}
+
+    for element in system.branch_elements:
+        if element.kind != "waveguide_1d":
+            continue
+
+        payload = element.payload
+        assert isinstance(payload, Waveguide1DElement)
+
+        flow = endpoint_flow[element.id]
+        endpoint_velocity[element.id] = WaveguideEndpointVelocityPoint(
+            node_a=flow.node_a / payload.area_start_m2,
+            node_b=flow.node_b / payload.area_end_m2,
+        )
+
+    return endpoint_velocity
+
+
 def solve_frequency_point(
     model: NormalizedModel,
     system: AssembledSystem,
@@ -342,6 +384,10 @@ def solve_frequency_point(
         built.omega_rad_s,
         pressures,
     )
+    waveguide_endpoint_velocity = _waveguide_endpoint_velocity_for_flow(
+        system,
+        waveguide_endpoint_flow,
+    )
 
     return SolvedFrequencyPoint(
         frequency_hz=frequency_hz,
@@ -352,6 +398,7 @@ def solve_frequency_point(
         cone_velocity=cone_velocity,
         cone_displacement=cone_displacement,
         waveguide_endpoint_flow=waveguide_endpoint_flow,
+        waveguide_endpoint_velocity=waveguide_endpoint_velocity,
         solution_vector=x,
     )
 
@@ -393,6 +440,19 @@ def solve_frequency_sweep(
         )
         for waveguide_id in waveguide_ids
     }
+    waveguide_endpoint_velocity = {
+        waveguide_id: WaveguideEndpointVelocitySweep(
+            node_a=np.array(
+                [point.waveguide_endpoint_velocity[waveguide_id].node_a for point in points],
+                dtype=np.complex128,
+            ),
+            node_b=np.array(
+                [point.waveguide_endpoint_velocity[waveguide_id].node_b for point in points],
+                dtype=np.complex128,
+            ),
+        )
+        for waveguide_id in waveguide_ids
+    }
 
     return SolvedFrequencySweep(
         frequency_hz=frequency_hz.copy(),
@@ -403,6 +463,7 @@ def solve_frequency_sweep(
         cone_velocity=cone_velocity,
         cone_displacement=cone_displacement,
         waveguide_endpoint_flow=waveguide_endpoint_flow,
+        waveguide_endpoint_velocity=waveguide_endpoint_velocity,
         source_voltage_rms=model.driver.source_voltage_rms,
     )
 

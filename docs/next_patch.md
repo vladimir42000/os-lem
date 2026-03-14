@@ -26,7 +26,6 @@ Add one bounded waveguide observability capability on top of the already assembl
 ## Preferred scope
 
 Choose exactly one of:
-- first waveguide particle-velocity export, or
 - first minimal `line_profile` infrastructure
 
 Do not do more than one in a single patch.

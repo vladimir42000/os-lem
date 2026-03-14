@@ -51,7 +51,6 @@ def _minimal_vented_like_model() -> NormalizedModel:
     )
 
 
-
 def _minimal_waveguide_model() -> NormalizedModel:
     return NormalizedModel(
         driver=_driver(),
@@ -75,6 +74,7 @@ def _minimal_waveguide_model() -> NormalizedModel:
         ],
         node_order=["front", "rear", "port"],
     )
+
 
 def test_solve_frequency_sweep_returns_expected_shapes_and_finite_outputs() -> None:
     model = _minimal_vented_like_model()
@@ -185,3 +185,54 @@ def test_waveguide_endpoint_flow_matches_reduced_two_port_relation() -> None:
 
     np.testing.assert_allclose(point.waveguide_endpoint_flow["wg1"].node_a, expected_flow[0])
     np.testing.assert_allclose(point.waveguide_endpoint_flow["wg1"].node_b, expected_flow[1])
+
+
+def test_waveguide_endpoint_velocity_is_exposed_with_explicit_endpoint_names() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    sweep = solve_frequency_sweep(model, system, [100.0, 200.0])
+
+    assert tuple(point.waveguide_endpoint_velocity.keys()) == ("wg1",)
+    assert tuple(sweep.waveguide_endpoint_velocity.keys()) == ("wg1",)
+
+    point_velocity = point.waveguide_endpoint_velocity["wg1"]
+    sweep_velocity = sweep.waveguide_endpoint_velocity["wg1"]
+
+    assert isinstance(point_velocity.node_a, complex)
+    assert isinstance(point_velocity.node_b, complex)
+    assert sweep_velocity.node_a.shape == (2,)
+    assert sweep_velocity.node_b.shape == (2,)
+    assert np.all(np.isfinite(sweep_velocity.node_a.real))
+    assert np.all(np.isfinite(sweep_velocity.node_a.imag))
+    assert np.all(np.isfinite(sweep_velocity.node_b.real))
+    assert np.all(np.isfinite(sweep_velocity.node_b.imag))
+
+
+def test_waveguide_endpoint_velocity_first_sweep_point_matches_one_frequency_solver() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    sweep = solve_frequency_sweep(model, system, [100.0, 200.0])
+
+    np.testing.assert_allclose(sweep.waveguide_endpoint_velocity["wg1"].node_a[0], point.waveguide_endpoint_velocity["wg1"].node_a)
+    np.testing.assert_allclose(sweep.waveguide_endpoint_velocity["wg1"].node_b[0], point.waveguide_endpoint_velocity["wg1"].node_b)
+
+
+def test_waveguide_endpoint_velocity_matches_flow_over_local_area() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    waveguide = model.waveguides[0]
+
+    np.testing.assert_allclose(
+        point.waveguide_endpoint_velocity["wg1"].node_a,
+        point.waveguide_endpoint_flow["wg1"].node_a / waveguide.area_start_m2,
+    )
+    np.testing.assert_allclose(
+        point.waveguide_endpoint_velocity["wg1"].node_b,
+        point.waveguide_endpoint_flow["wg1"].node_b / waveguide.area_end_m2,
+    )

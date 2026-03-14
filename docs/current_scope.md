@@ -21,6 +21,7 @@ Current available outputs include:
 - one-radiator far-field pressure
 - one-radiator SPL
 - waveguide endpoint flow export
+- waveguide endpoint particle-velocity export
 
 ## Current validated scope
 
@@ -35,7 +36,6 @@ Validated confidence currently covers:
 Not yet implemented or not yet supported as project claims:
 
 - `line_profile`
-- waveguide-specific particle-velocity export
 - distributed losses
 - passive radiator
 - multi-driver support
