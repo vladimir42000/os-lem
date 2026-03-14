@@ -80,12 +80,13 @@ Resume bounded Phase 5 growth, but do not broaden scope.
 Recommended order:
 1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
 2. choose one single bounded follow-up waveguide patch
-3. next likely target: freeze the minimal distributed-loss boundary for `waveguide_1d` before any lossy implementation work
+3. next likely target: implement the first minimal distributed-loss extension for cylindrical `waveguide_1d` only
 
 ## Cautions for the next session
 
 - do not casually change driver coupling sign conventions again
 - do not treat refreshed frozen references as proof of broad external parity
 - do not mix waveguide follow-up work with unrelated solver rewrites
-- do not broaden immediately to losses, multi-driver work, or broad AkAbak/Hornresp parity claims
+- the minimal distributed-loss boundary is now frozen; do not broaden beyond the first cylindrical `waveguide_1d` loss step
+- do not broaden immediately to multi-driver work, or broad AkAbak/Hornresp parity claims
 - keep patches small and reviewable

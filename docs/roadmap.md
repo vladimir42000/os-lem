@@ -175,12 +175,13 @@ Resume topology growth after the Phase 4 corrective checkpoint.
   - one conical `waveguide_1d` case with exact entrance-impedance and profile-shape reference checks
 - the existing `volume` / `duct` / `radiator` solver path remains green
 - repository suite is green at `91 passed` in the local patched state
+- the minimal distributed-loss boundary is now frozen in the governing docs before any lossy implementation work
 
 ### Remaining likely items inside Phase 5
-- freeze the minimal distributed-loss boundary for `waveguide_1d` before any lossy implementation work
+- implement the first minimal distributed-loss extension for cylindrical `waveguide_1d` only, on top of the now-frozen loss boundary
 
 ### Explicitly not yet delivered in Phase 5
-- distributed losses
+- distributed losses beyond the first cylindrical `waveguide_1d` boundary
 - broad external parity claims
 
 ### Exit criteria

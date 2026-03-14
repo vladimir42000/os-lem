@@ -10,30 +10,30 @@ Expected branch:
 `feature/p5-patch02-minimal-waveguide-assembly`
 
 Expected current checkpoint:
-latest committed Phase 5 waveguide validation checkpoint after the first cylindrical and conical reference-overlap checks
+latest committed Phase 5 waveguide validation checkpoint after the first cylindrical and conical reference-overlap checks and the frozen loss-boundary docs patch
 
 Expected suite:
 green
 
 ## Candidate next patch after startup verification
 
-**Next bounded waveguide loss-boundary step after the cylindrical and conical checkpoints**
+**Next bounded waveguide lossy implementation step after the frozen loss-boundary checkpoint**
 
 ## Purpose
 
-Freeze one bounded waveguide loss-boundary decision on top of the already assembled,
-validated, and now internally cross-checked `waveguide_1d` path.
+Implement one bounded lossy waveguide step on top of the already assembled,
+validated, and now loss-boundary-frozen `waveguide_1d` path.
 
 ## Preferred scope
 
 Choose exactly one of:
-- freeze the minimal distributed-loss boundary for `waveguide_1d` before any lossy implementation work
+- implement the first minimal distributed-loss extension for cylindrical `waveguide_1d` only
 
 Do not do more than one in a single patch.
 
 ## Out of scope
 
-- distributed losses
+- distributed losses beyond the first cylindrical `waveguide_1d` boundary
 - passive radiator
 - multi-driver support
 - broad output framework rewrite
@@ -45,7 +45,10 @@ Do not do more than one in a single patch.
 
 The chosen patch must:
 - preserve current green tests
-- freeze the exact loss-boundary scope and keep the current validated lossless path unchanged
+- preserve current green tests
+- keep the current validated lossless path intact outside the new bounded lossy cylindrical step
+- avoid changing corrected solver conventions
+- avoid broadening beyond one lossy implementation step
 - avoid changing corrected solver conventions
 - avoid broadening beyond one validation step
 

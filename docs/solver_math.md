@@ -412,6 +412,9 @@ in the acoustic node-pressure subsystem.
 #### 6.2.1 Duct losses
 Viscous and thermal loss terms are deferred in v1.
 
+The first distributed-loss extension is explicitly not a duct-loss patch.
+`duct.loss` remains reserved and unsupported at the current checkpoint.
+
 ---
 
 ### 6.3 `waveguide_1d`
@@ -530,7 +533,23 @@ The internal port convention is:
 If \(S_0 = S_L\), the conical profile degenerates to a cylindrical line. The same segmentation rule still applies.
 
 #### 6.3.6 Waveguide losses
-Distributed loss modeling is deferred in v1.
+Distributed loss modeling is deferred in v1, but the first-loss boundary is now frozen.
+
+The first allowed lossy extension is:
+
+- `waveguide_1d` only
+- user-specified distributed loss only
+- no automatic thermo-viscous derivation from geometry
+- no lossy `duct` work in the same patch
+- no lossy radiator work in the same patch
+
+The first implementation target must be cylindrical first:
+
+- `area_start == area_end`
+- loss applied uniformly per internal cylindrical subsegment
+- conical lossy support deferred to a later patch
+
+This freezes the project boundary without yet changing the current lossless assembly or observability formulas.
 
 ---
 

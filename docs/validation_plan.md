@@ -173,6 +173,18 @@ Frozen v1 convergence metric for the official reference case:
 
 This is a release blocker.
 
+### B6a. First-loss boundary freeze check
+Before any lossy implementation lands, the docs and tests must keep the current waveguide path explicitly lossless.
+
+The first lossy validation campaign is frozen to:
+
+- `waveguide_1d` only
+- cylindrical case first
+- user-specified distributed loss only
+- no broad parity claim from the first lossy checkpoint
+
+This check exists to prevent scope drift before the first lossy patch.
+
 ### B7. Radiator boundary impedance formula tests
 For each radiator model, compare the implemented boundary impedance against the frozen formulas in `docs/radiator_models.md` at a small set of dimensionless sample points.
 

@@ -40,12 +40,13 @@ Validated confidence currently covers:
 - cylindrical special-case consistency for `particle_velocity = volume_velocity / area_const`
 - first limited cylindrical reference-overlap check for entrance impedance and line-profile shape
 - first limited conical reference-overlap check for entrance impedance and line-profile shape
+- minimal distributed-loss boundary for `waveguide_1d` is frozen in docs, but not yet implemented
 
 ## Current deferred capabilities
 
 Not yet implemented or not yet supported as project claims:
 
-- distributed losses
+- distributed losses (implementation deferred; minimal `waveguide_1d` boundary now frozen)
 - passive radiator
 - multi-driver support
 - crossover/electrical-network expansion

@@ -65,6 +65,7 @@ This does **not** freeze a claim of universal Hornresp parity. It freezes a narr
 - Phase 5 has resumed bounded topology expansion on top of that corrected baseline
 - the first assembled `waveguide_1d` path now has focused internal validation support
 - bounded first waveguide observability is now real in the repo
+- the minimal distributed-loss boundary is now frozen in docs, but still not implemented
 - cross-profile internal validation is now stronger for the current waveguide profile outputs
 - one first limited cylindrical reference-overlap check is now in place for a simple `waveguide_1d` case
 - one first limited conical reference-overlap check is now in place for a matched simple `waveguide_1d` case
@@ -77,10 +78,10 @@ Continue controlled feature development in Phase 5.
 Recommended next step:
 1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
 2. choose one single bounded follow-up waveguide patch
-3. next likely target: freeze the minimal distributed-loss boundary for `waveguide_1d` before any lossy implementation work
+3. next likely target: implement the first minimal distributed-loss extension for cylindrical `waveguide_1d` only
 
 Still deferred:
-- distributed losses
+- distributed losses beyond the first cylindrical `waveguide_1d` boundary
 - broad external parity claims
 
 ## Explicitly out of scope right now
