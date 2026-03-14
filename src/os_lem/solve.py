@@ -12,7 +12,11 @@ from .constants import C0, P_REF, RHO0
 from .elements.duct import duct_admittance
 from .elements.radiator import radiator_impedance
 from .elements.volume import volume_admittance
-from .elements.waveguide_1d import segment_midpoint_areas, uniform_segment_admittance
+from .elements.waveguide_1d import (
+    segment_endpoint_positions,
+    segment_midpoint_areas,
+    uniform_segment_admittance,
+)
 from .model import (
     DuctElement,
     NormalizedModel,
@@ -75,6 +79,15 @@ class WaveguideEndpointVelocitySweep:
 
 
 @dataclass(slots=True, frozen=True)
+class WaveguideLineProfile:
+    """Sampled one-frequency line profile for one waveguide quantity."""
+
+    quantity: str
+    x_m: np.ndarray
+    values: np.ndarray
+
+
+@dataclass(slots=True, frozen=True)
 class SolvedFrequencyPoint:
     """Solved first coupled state for one frequency."""
 
@@ -112,11 +125,11 @@ class SolvedFrequencySweep:
         return self.source_voltage_rms / self.coil_current
 
 
-def _waveguide_equivalent_admittance_matrix(
+def _waveguide_full_admittance_matrix(
     omega: float,
     payload: Waveguide1DElement,
 ) -> np.ndarray:
-    """Return the reduced 2x2 nodal admittance of a segmented waveguide_1d."""
+    """Return the segmented full nodal admittance of one waveguide_1d."""
 
     areas = segment_midpoint_areas(
         payload.length_m,
@@ -139,6 +152,18 @@ def _waveguide_equivalent_admittance_matrix(
         Y_full[j, i] += Y_seg[1, 0]
         Y_full[j, j] += Y_seg[1, 1]
 
+    return Y_full
+
+
+def _waveguide_equivalent_admittance_matrix(
+    omega: float,
+    payload: Waveguide1DElement,
+) -> np.ndarray:
+    """Return the reduced 2x2 nodal admittance of a segmented waveguide_1d."""
+
+    Y_full = _waveguide_full_admittance_matrix(omega, payload)
+    n_nodes = payload.segments + 1
+
     if n_nodes == 2:
         return Y_full
 
@@ -151,6 +176,32 @@ def _waveguide_equivalent_admittance_matrix(
     Y_ii = Y_full[np.ix_(internal_idx, internal_idx)]
 
     return Y_ee - Y_ei @ np.linalg.solve(Y_ii, Y_ie)
+
+
+def _waveguide_internal_nodal_pressures(
+    omega: float,
+    payload: Waveguide1DElement,
+    pressure_a: complex,
+    pressure_b: complex,
+) -> np.ndarray:
+    """Recover all segmented nodal pressures from the endpoint pressures."""
+
+    nodal_pressures = np.empty(payload.segments + 1, dtype=np.complex128)
+    nodal_pressures[0] = pressure_a
+    nodal_pressures[-1] = pressure_b
+
+    if payload.segments == 1:
+        return nodal_pressures
+
+    Y_full = _waveguide_full_admittance_matrix(omega, payload)
+    end_idx = np.array([0, payload.segments], dtype=int)
+    internal_idx = np.arange(1, payload.segments, dtype=int)
+
+    Y_ie = Y_full[np.ix_(internal_idx, end_idx)]
+    Y_ii = Y_full[np.ix_(internal_idx, internal_idx)]
+    end_pressures = np.array([pressure_a, pressure_b], dtype=np.complex128)
+    nodal_pressures[1:-1] = -np.linalg.solve(Y_ii, Y_ie @ end_pressures)
+    return nodal_pressures
 
 
 def build_acoustic_matrix(system: AssembledSystem, frequency_hz: float) -> AcousticMatrixBuild:
@@ -340,6 +391,13 @@ def _waveguide_endpoint_flows_for_pressures(
     return endpoint_flows
 
 
+def _find_waveguide_element(system: AssembledSystem, waveguide_id: str) -> AssembledElement:
+    for element in system.branch_elements:
+        if element.kind == "waveguide_1d" and element.id == waveguide_id:
+            return element
+    raise ValueError(f"unknown waveguide id {waveguide_id!r}")
+
+
 def _waveguide_endpoint_velocity_for_flow(
     system: AssembledSystem,
     endpoint_flow: Mapping[str, WaveguideEndpointFlowPoint],
@@ -401,6 +459,56 @@ def solve_frequency_point(
         waveguide_endpoint_velocity=waveguide_endpoint_velocity,
         solution_vector=x,
     )
+
+
+def waveguide_line_profile_pressure(
+    point: SolvedFrequencyPoint,
+    system: AssembledSystem,
+    waveguide_id: str,
+    points: int,
+) -> WaveguideLineProfile:
+    """Return a sampled one-frequency pressure profile for one waveguide."""
+
+    if points < 2:
+        raise ValueError("points must be >= 2")
+
+    element = _find_waveguide_element(system, waveguide_id)
+    payload = element.payload
+    assert isinstance(payload, Waveguide1DElement)
+    assert element.node_b is not None
+
+    pressure_a = complex(point.pressures[element.node_a])
+    pressure_b = complex(point.pressures[element.node_b])
+    nodal_pressures = _waveguide_internal_nodal_pressures(
+        point.omega_rad_s,
+        payload,
+        pressure_a,
+        pressure_b,
+    )
+
+    segment_positions = segment_endpoint_positions(payload.length_m, payload.segments)
+    dx = payload.length_m / payload.segments
+
+    x_m = np.linspace(0.0, payload.length_m, points, dtype=float)
+    pressure = np.empty(points, dtype=np.complex128)
+    sin_kdx = np.sin(point.omega_rad_s * dx / C0)
+
+    for idx, x_sample in enumerate(x_m):
+        if np.isclose(x_sample, payload.length_m):
+            seg_idx = payload.segments - 1
+            x_local = dx
+        else:
+            seg_idx = int(np.searchsorted(segment_positions, x_sample, side="right") - 1)
+            seg_idx = max(0, min(seg_idx, payload.segments - 1))
+            x_local = x_sample - segment_positions[seg_idx]
+
+        p_left = nodal_pressures[seg_idx]
+        p_right = nodal_pressures[seg_idx + 1]
+        left_weight = np.sin(point.omega_rad_s * (dx - x_local) / C0) / sin_kdx
+        right_weight = np.sin(point.omega_rad_s * x_local / C0) / sin_kdx
+        pressure[idx] = left_weight * p_left + right_weight * p_right
+
+    return WaveguideLineProfile(quantity="pressure", x_m=x_m, values=pressure)
 
 
 def solve_frequency_sweep(

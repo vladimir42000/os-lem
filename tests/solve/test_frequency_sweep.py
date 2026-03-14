@@ -14,8 +14,10 @@ from os_lem.model import (
 )
 from os_lem.solve import (
     _waveguide_equivalent_admittance_matrix,
+    _waveguide_internal_nodal_pressures,
     solve_frequency_point,
     solve_frequency_sweep,
+    waveguide_line_profile_pressure,
 )
 
 
@@ -236,3 +238,97 @@ def test_waveguide_endpoint_velocity_matches_flow_over_local_area() -> None:
         point.waveguide_endpoint_velocity["wg1"].node_b,
         point.waveguide_endpoint_flow["wg1"].node_b / waveguide.area_end_m2,
     )
+
+
+def _minimal_waveguide_model_reversed() -> NormalizedModel:
+    return NormalizedModel(
+        driver=_driver(),
+        volumes=[
+            VolumeElement(id="rear_vol", node="rear", value_m3=0.02),
+        ],
+        radiators=[
+            RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.01),
+        ],
+        waveguides=[
+            Waveguide1DElement(
+                id="wg1",
+                node_a="port",
+                node_b="front",
+                length_m=0.40,
+                area_start_m2=0.02,
+                area_end_m2=0.01,
+                profile="conical",
+                segments=8,
+            )
+        ],
+        node_order=["front", "rear", "port"],
+    )
+
+
+def test_waveguide_line_profile_pressure_exposes_requested_axis_and_complex_values() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    profile = waveguide_line_profile_pressure(point, system, "wg1", points=17)
+
+    assert profile.quantity == "pressure"
+    assert profile.x_m.shape == (17,)
+    assert profile.values.shape == (17,)
+    np.testing.assert_allclose(profile.x_m[0], 0.0)
+    np.testing.assert_allclose(profile.x_m[-1], model.waveguides[0].length_m)
+    assert np.all(np.diff(profile.x_m) > 0.0)
+    assert np.all(np.isfinite(profile.values.real))
+    assert np.all(np.isfinite(profile.values.imag))
+
+
+def test_waveguide_line_profile_pressure_endpoints_match_solved_endpoint_pressures() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    profile = waveguide_line_profile_pressure(point, system, "wg1", points=21)
+
+    np.testing.assert_allclose(profile.values[0], point.pressures[0])
+    np.testing.assert_allclose(profile.values[-1], point.pressures[2])
+
+
+def test_waveguide_line_profile_pressure_matches_segmented_nodal_pressures_at_boundaries() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    waveguide = model.waveguides[0]
+    profile = waveguide_line_profile_pressure(point, system, "wg1", points=waveguide.segments + 1)
+    nodal_pressures = _waveguide_internal_nodal_pressures(
+        point.omega_rad_s,
+        waveguide,
+        point.pressures[0],
+        point.pressures[2],
+    )
+
+    np.testing.assert_allclose(profile.values, nodal_pressures)
+
+
+def test_waveguide_line_profile_pressure_reversal_reverses_x_convention_consistently() -> None:
+    model_forward = _minimal_waveguide_model()
+    system_forward = assemble_system(model_forward)
+    point_forward = solve_frequency_point(model_forward, system_forward, 100.0)
+    profile_forward = waveguide_line_profile_pressure(point_forward, system_forward, "wg1", points=17)
+
+    model_reverse = _minimal_waveguide_model_reversed()
+    system_reverse = assemble_system(model_reverse)
+    point_reverse = solve_frequency_point(model_reverse, system_reverse, 100.0)
+    profile_reverse = waveguide_line_profile_pressure(point_reverse, system_reverse, "wg1", points=17)
+
+    np.testing.assert_allclose(profile_reverse.x_m, model_reverse.waveguides[0].length_m - profile_forward.x_m[::-1])
+    np.testing.assert_allclose(profile_reverse.values, profile_forward.values[::-1])
+
+
+def test_waveguide_line_profile_pressure_rejects_too_few_points() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+    point = solve_frequency_point(model, system, 100.0)
+
+    with pytest.raises(ValueError, match="points must be >= 2"):
+        waveguide_line_profile_pressure(point, system, "wg1", points=1)
