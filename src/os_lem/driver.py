@@ -78,7 +78,7 @@ def canonical_from_ts_classic(raw: dict) -> Driver:
     Cms = Vas / (RHO0 * C0 * C0 * Sd * Sd)
     Mms = 1.0 / (w_s * w_s * Cms)
     Rms = w_s * Mms / Qms
-    Bl = math.sqrt(Re * Rms / Qes)
+    Bl = math.sqrt(w_s * Mms * Re / Qes)
 
     return Driver(
         id=str(raw["id"]),

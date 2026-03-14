@@ -265,3 +265,16 @@ topology expansion, but focused fault isolation.
 - broad refactor
 - unsupported horn / line parity claims
 - forcing full Hornresp parity prematurely
+
+
+## D-0017 — Correct ts_classic canonical Bl derivation before further feature expansion
+**Status:** accepted
+
+A debug checkpoint triggered by the side comparison harness exposed a physically incorrect `ts_classic` motor normalization: `Bl` was derived from `Re * Rms / Qes` instead of the correct T/S relation `w_s * Mms * Re / Qes`. The bug materially suppressed the motional contribution in canonical sealed-box input impedance while leaving much of the rest of the narrow test suite green.
+
+### Consequence
+A bounded correctness patch takes priority over further Phase 5 feature planning. The patch must:
+- correct the `ts_classic` `Bl` derivation
+- add regression coverage for canonical normalization
+- keep sealed-box impedance mismatch on the separate debug track until a second root cause is confirmed
+- avoid mixing frontend or broader bass-reflex work into the same patch

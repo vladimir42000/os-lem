@@ -10,29 +10,30 @@ Expected branch:
 `feature/p5-patch02-minimal-waveguide-assembly`
 
 Expected current checkpoint:
-latest committed Phase 5 cylindrical-loss implementation checkpoint
+latest committed Phase 5 cylindrical-loss implementation checkpoint plus bounded `ts_classic` motor-normalization bug-fix candidate
 
 Expected suite:
 green
 
 ## Candidate next patch after startup verification
 
-**Next bounded lossy-boundary planning step**
+**Fix `ts_classic` canonical `Bl` normalization**
 
 ## Purpose
 
-Freeze one bounded lossy-scope decision on top of the already assembled,
-validated, and now minimally cylindrical-lossy `waveguide_1d` path.
+Correct the `ts_classic` driver canonicalization bug that underestimates `Bl`. This patch is intentionally limited to the canonical normalization error; the remaining sealed-box impedance mismatch stays on the debug track until verified separately.
 
-## Preferred scope
+## Required scope
 
-Choose exactly one of:
-- freeze the minimal conical lossy boundary before any conical lossy implementation work
-
-Do not do more than one in a single patch.
+Do exactly these things:
+- fix the `Bl` derivation in `src/os_lem/driver.py`
+- update canonical driver normalization tests so expected `Bl` is computed from the correct T/S relation
+- update only directly affected project docs to reflect the correction checkpoint
 
 ## Out of scope
 
+- frontend work
+- bass-reflex diagnosis expansion in the same patch
 - passive radiator
 - multi-driver support
 - broad output framework rewrite
@@ -44,14 +45,15 @@ Do not do more than one in a single patch.
 
 The chosen patch must:
 - preserve current green tests
-- freeze one clear lossy-scope decision without implementing conical lossy code
-- avoid changing corrected solver conventions
-- avoid broadening beyond one planning step
+- correct `ts_classic` canonical `Bl` normalization
+- add regression coverage that would have caught the prior canonical normalization bug
+- avoid changing unrelated solver conventions
+- avoid broadening beyond one correctness fix
 
 ## Must-not-change list
 
 - driver coupling sign conventions
-- validated earlier solver behavior
+- validated earlier solver behavior outside the corrected `ts_classic` normalization
 - current assembled representation discipline
 - already-landed waveguide pressure-profile behavior
 - already-landed waveguide volume-velocity-profile behavior

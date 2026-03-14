@@ -39,12 +39,12 @@ Validated confidence currently covers:
 - cross-profile identity checks for `pressure`, `volume_velocity`, and `particle_velocity`
 - cylindrical special-case consistency for `particle_velocity = volume_velocity / area_const`
 - exact cylindrical lossy reference agreement for entrance behavior and sampled profiles within the frozen cylindrical-loss boundary
+- corrected `ts_classic` canonical motor normalization (`Bl`) against the standard T/S relation
 
 ## Current deferred capabilities
 
 Not yet implemented or not yet supported as project claims:
 
-- minimal user-specified distributed loss for cylindrical `waveguide_1d`
 - passive radiator
 - multi-driver support
 - crossover/electrical-network expansion
