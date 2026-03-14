@@ -242,6 +242,32 @@ def test_waveguide_endpoint_velocity_matches_flow_over_local_area() -> None:
     )
 
 
+
+
+def _minimal_waveguide_cylindrical_model() -> NormalizedModel:
+    return NormalizedModel(
+        driver=_driver(),
+        volumes=[
+            VolumeElement(id="rear_vol", node="rear", value_m3=0.02),
+        ],
+        radiators=[
+            RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.01),
+        ],
+        waveguides=[
+            Waveguide1DElement(
+                id="wg1",
+                node_a="front",
+                node_b="port",
+                length_m=0.40,
+                area_start_m2=0.0125,
+                area_end_m2=0.0125,
+                profile="conical",
+                segments=8,
+            )
+        ],
+        node_order=["front", "rear", "port"],
+    )
+
 def _minimal_waveguide_model_reversed() -> NormalizedModel:
     return NormalizedModel(
         driver=_driver(),
@@ -499,3 +525,88 @@ def test_waveguide_line_profile_particle_velocity_rejects_too_few_points() -> No
 
     with pytest.raises(ValueError, match="points must be >= 2"):
         waveguide_line_profile_particle_velocity(point, system, "wg1", points=1)
+
+
+def test_waveguide_line_profiles_share_common_axis_and_cross_profile_identity() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    pressure_profile = waveguide_line_profile_pressure(point, system, "wg1", points=19)
+    flow_profile = waveguide_line_profile_volume_velocity(point, system, "wg1", points=19)
+    particle_profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=19)
+
+    np.testing.assert_allclose(pressure_profile.x_m, flow_profile.x_m)
+    np.testing.assert_allclose(pressure_profile.x_m, particle_profile.x_m)
+
+    from os_lem.elements.waveguide_1d import area_at_position
+
+    waveguide = model.waveguides[0]
+    area = np.array(
+        [
+            area_at_position(
+                waveguide.length_m,
+                waveguide.area_start_m2,
+                waveguide.area_end_m2,
+                float(x_m),
+            )
+            for x_m in particle_profile.x_m
+        ],
+        dtype=float,
+    )
+
+    np.testing.assert_allclose(particle_profile.values, flow_profile.values / area)
+
+
+def test_waveguide_line_profiles_jointly_match_existing_endpoint_exports() -> None:
+    model = _minimal_waveguide_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    pressure_profile = waveguide_line_profile_pressure(point, system, "wg1", points=23)
+    flow_profile = waveguide_line_profile_volume_velocity(point, system, "wg1", points=23)
+    particle_profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=23)
+
+    np.testing.assert_allclose(pressure_profile.values[0], point.pressures[0])
+    np.testing.assert_allclose(pressure_profile.values[-1], point.pressures[2])
+    np.testing.assert_allclose(flow_profile.values[0], point.waveguide_endpoint_flow["wg1"].node_a)
+    np.testing.assert_allclose(flow_profile.values[-1], -point.waveguide_endpoint_flow["wg1"].node_b)
+    np.testing.assert_allclose(particle_profile.values[0], point.waveguide_endpoint_velocity["wg1"].node_a)
+    np.testing.assert_allclose(particle_profile.values[-1], -point.waveguide_endpoint_velocity["wg1"].node_b)
+
+
+def test_waveguide_line_profiles_cylindrical_case_uses_constant_area_identity_everywhere() -> None:
+    model = _minimal_waveguide_cylindrical_model()
+    system = assemble_system(model)
+
+    point = solve_frequency_point(model, system, 100.0)
+    flow_profile = waveguide_line_profile_volume_velocity(point, system, "wg1", points=29)
+    particle_profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=29)
+
+    area_const = model.waveguides[0].area_start_m2
+    np.testing.assert_allclose(flow_profile.x_m, particle_profile.x_m)
+    np.testing.assert_allclose(particle_profile.values, flow_profile.values / area_const)
+
+
+def test_waveguide_line_profiles_reversal_semantics_remain_jointly_consistent() -> None:
+    model_forward = _minimal_waveguide_model()
+    system_forward = assemble_system(model_forward)
+    point_forward = solve_frequency_point(model_forward, system_forward, 100.0)
+    pressure_forward = waveguide_line_profile_pressure(point_forward, system_forward, "wg1", points=19)
+    flow_forward = waveguide_line_profile_volume_velocity(point_forward, system_forward, "wg1", points=19)
+    particle_forward = waveguide_line_profile_particle_velocity(point_forward, system_forward, "wg1", points=19)
+
+    model_reverse = _minimal_waveguide_model_reversed()
+    system_reverse = assemble_system(model_reverse)
+    point_reverse = solve_frequency_point(model_reverse, system_reverse, 100.0)
+    pressure_reverse = waveguide_line_profile_pressure(point_reverse, system_reverse, "wg1", points=19)
+    flow_reverse = waveguide_line_profile_volume_velocity(point_reverse, system_reverse, "wg1", points=19)
+    particle_reverse = waveguide_line_profile_particle_velocity(point_reverse, system_reverse, "wg1", points=19)
+
+    reversed_x = model_reverse.waveguides[0].length_m - pressure_forward.x_m[::-1]
+    np.testing.assert_allclose(pressure_reverse.x_m, reversed_x)
+    np.testing.assert_allclose(flow_reverse.x_m, reversed_x)
+    np.testing.assert_allclose(particle_reverse.x_m, reversed_x)
+    np.testing.assert_allclose(pressure_reverse.values, pressure_forward.values[::-1])
+    np.testing.assert_allclose(flow_reverse.values, -flow_forward.values[::-1])
+    np.testing.assert_allclose(particle_reverse.values, -particle_forward.values[::-1])

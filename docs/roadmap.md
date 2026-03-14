@@ -166,8 +166,12 @@ Resume topology growth after the Phase 4 corrective checkpoint.
   - minimal `line_profile` export for `pressure`
   - minimal `line_profile` export for `volume_velocity`
   - minimal `line_profile` export for `particle_velocity`
+- stronger cross-profile internal validation now covers:
+  - `particle_velocity = volume_velocity / local_area(x)` consistency
+  - joint endpoint/profile agreement for all three profile quantities
+  - cylindrical special-case consistency for constant area
 - the existing `volume` / `duct` / `radiator` solver path remains green
-- repository suite is green at `79 passed` in the local patched state
+- repository suite is green at `83 passed` in the local patched state
 
 ### Remaining likely items inside Phase 5
 - limited external overlap checks once internal waveguide confidence is stronger

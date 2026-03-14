@@ -10,7 +10,7 @@ Expected branch:
 `feature/p5-patch02-minimal-waveguide-assembly`
 
 Expected current checkpoint:
-latest committed Phase 5 observability checkpoint with all three line-profile quantities aligned in docs
+latest committed Phase 5 waveguide validation checkpoint after cross-profile consistency coverage
 
 Expected suite:
 green
@@ -22,7 +22,7 @@ green
 ## Purpose
 
 Add one bounded waveguide validation capability on top of the already assembled,
-validated, and now fully line-profile-observable `waveguide_1d` path.
+validated, and now internally cross-checked `waveguide_1d` path.
 
 ## Preferred scope
 
@@ -45,7 +45,7 @@ Do not do more than one in a single patch.
 
 The chosen patch must:
 - preserve current green tests
-- add focused tests for the new observable
+- add focused tests or reference checks for the chosen overlap case
 - avoid changing corrected solver conventions
 - avoid broadening beyond one validation step
 

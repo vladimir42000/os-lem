@@ -3,8 +3,8 @@
 ## Current development status
 
 - Active branch: `feature/p5-patch02-minimal-waveguide-assembly`
-- Current known good commit before this patch: `4f64729`
-- Current known local test status after this patch: `79 passed`
+- Current known good commit before this patch: `de42daa`
+- Current known local test status after this patch: `83 passed`
 - Current phase state: **Phase 5 active**
 - Previous phase checkpoint: **Phase 4 closed at corrective checkpoint**
 
@@ -53,7 +53,7 @@ The bounded Phase 5 waveguide observability follow-ups now complete are:
 - minimal `waveguide_1d` `line_profile` export for `volume_velocity`
 - minimal `waveguide_1d` `line_profile` export for `particle_velocity`
 
-The full repository suite is green at `79 passed` in the local patched state.
+The full repository suite is green at `83 passed` in the local patched state.
 
 ## Current project interpretation
 
@@ -65,6 +65,7 @@ This does **not** freeze a claim of universal Hornresp parity. It freezes a narr
 - Phase 5 has resumed bounded topology expansion on top of that corrected baseline
 - the first assembled `waveguide_1d` path now has focused internal validation support
 - bounded first waveguide observability is now real in the repo
+- cross-profile internal validation is now stronger for the current waveguide profile outputs
 - future work should proceed from the corrected solver and current green test suite
 
 ## Immediate next objective
@@ -74,7 +75,7 @@ Continue controlled feature development in Phase 5.
 Recommended next step:
 1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
 2. choose one single bounded follow-up waveguide patch
-3. next likely target: first bounded waveguide overlap validation step
+3. next likely target: first limited external overlap check for a simple `waveguide_1d` case
 
 Still deferred:
 - distributed losses

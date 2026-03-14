@@ -5,7 +5,7 @@
 
 ## Start / end reference
 - Start checkpoint for Session 4 diagnostic cycle: `15b499f`
-- Current docs-aligned checkpoint before this code patch: `4f64729`
+- Current docs-aligned checkpoint before this code patch: `de42daa`
 
 ## Session 4 outcome
 
@@ -62,7 +62,14 @@ Delivered:
 - minimal `waveguide_1d` `line_profile` export for `particle_velocity`
 
 Current known local suite result after this patch:
-- `79 passed`
+- `83 passed`
+
+## Phase 5 validation follow-up now also complete
+
+Delivered:
+- stronger cross-profile consistency validation for `pressure`, `volume_velocity`, and `particle_velocity`
+- joint endpoint/profile agreement checks for all three profile quantities
+- cylindrical special-case consistency checks for constant-area guides
 
 ## Recommended next patch target
 
@@ -71,7 +78,7 @@ Resume bounded Phase 5 growth, but do not broaden scope.
 Recommended order:
 1. keep the corrected solver baseline and current validated `waveguide_1d` path fixed
 2. choose one single bounded follow-up waveguide patch
-3. next likely target: first bounded waveguide overlap validation step
+3. next likely target: first limited external overlap check for a simple `waveguide_1d` case
 
 ## Cautions for the next session
 
