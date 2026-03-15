@@ -70,19 +70,11 @@ def load_solver(repo_root_text: str | None):
     if str(src_dir) not in sys.path:
         sys.path.insert(0, str(src_dir))
 
-    from os_lem.assemble import assemble_system
-    from os_lem.constants import P_REF
-    from os_lem.parser import normalize_model
-    from os_lem.solve import radiator_observation_pressure, radiator_spl, solve_frequency_sweep
+    from os_lem.api import run_simulation
 
     return {
         "repo_root": repo_root,
-        "normalize_model": normalize_model,
-        "assemble_system": assemble_system,
-        "solve_frequency_sweep": solve_frequency_sweep,
-        "radiator_observation_pressure": radiator_observation_pressure,
-        "radiator_spl": radiator_spl,
-        "P_REF": P_REF,
+        "run_simulation": run_simulation,
     }
 
 
@@ -202,39 +194,29 @@ def build_vented_model(
 
 
 def run_model(model_dict: dict[str, Any], frequencies: np.ndarray, solver: dict[str, Any]) -> dict[str, np.ndarray]:
-    normalize_model = solver["normalize_model"]
-    assemble_system = solver["assemble_system"]
-    solve_frequency_sweep = solver["solve_frequency_sweep"]
-    radiator_spl = solver["radiator_spl"]
-    radiator_observation_pressure = solver["radiator_observation_pressure"]
-    p_ref = solver["P_REF"]
-
-    model, warnings = normalize_model(model_dict)
-    system = assemble_system(model)
-    sweep = solve_frequency_sweep(model, system, frequencies)
+    result = solver["run_simulation"](model_dict, frequencies)
 
     out: dict[str, np.ndarray] = {
-        "frequency_hz": np.asarray(frequencies, dtype=float),
-        "zin_mag": np.abs(sweep.input_impedance),
-        "x_mm": np.abs(sweep.cone_displacement) * 1e3,
+        "frequency_hz": np.asarray(result.frequencies_hz, dtype=float),
     }
-    if warnings:
-        out["warnings"] = np.array(warnings, dtype=object)
+    if result.zin_mag_ohm is not None:
+        out["zin_mag"] = result.zin_mag_ohm
+    if result.cone_excursion_mm is not None:
+        out["x_mm"] = result.cone_excursion_mm
+    if result.warnings:
+        out["warnings"] = np.array(result.warnings, dtype=object)
 
-    radiator_ids = {r["id"] for r in model_dict["elements"] if r["type"] == "radiator"}
-    default_space = model_dict.get("meta", {}).get("radiation_space")
-    if "front_rad" in radiator_ids:
-        out["spl_driver_db"] = radiator_spl(sweep, system, "front_rad", 1.0, radiation_space=default_space)
-        out["p_driver"] = radiator_observation_pressure(sweep, system, "front_rad", 1.0, radiation_space=default_space)
-    if "port_rad" in radiator_ids:
-        out["spl_port_db"] = radiator_spl(sweep, system, "port_rad", 1.0, radiation_space=default_space)
-        out["p_port"] = radiator_observation_pressure(sweep, system, "port_rad", 1.0, radiation_space=default_space)
+    if "spl_driver" in result.series:
+        out["spl_driver_db"] = np.asarray(result.series["spl_driver"], dtype=float)
+    elif "spl_front" in result.series:
+        out["spl_driver_db"] = np.asarray(result.series["spl_front"], dtype=float)
 
-    if "p_driver" in out and "p_port" in out:
-        p_total = out["p_driver"] + out["p_port"]
-        out["spl_total_db"] = 20.0 * np.log10(np.maximum(np.abs(p_total), 1e-30) / p_ref)
+    if "spl_port" in result.series:
+        out["spl_port_db"] = np.asarray(result.series["spl_port"], dtype=float)
 
-    if "spl_driver_db" in out and "spl_total_db" not in out:
+    if "spl_total" in result.series:
+        out["spl_total_db"] = np.asarray(result.series["spl_total"], dtype=float)
+    elif "spl_driver_db" in out:
         out["spl_total_db"] = out["spl_driver_db"]
 
     return out

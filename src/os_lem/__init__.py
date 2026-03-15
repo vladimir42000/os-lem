@@ -1,5 +1,6 @@
 """os_lem package."""
 
+from .api import run_simulation, SimulationResult, LineProfileResult
 from .constants import RHO0, C0, Z0, P_REF, DEFAULT_DRIVE_V_RMS
 from .model import (
     Driver,
@@ -17,6 +18,9 @@ __all__ = [
     "Z0",
     "P_REF",
     "DEFAULT_DRIVE_V_RMS",
+    "run_simulation",
+    "SimulationResult",
+    "LineProfileResult",
     "Driver",
     "VolumeElement",
     "DuctElement",

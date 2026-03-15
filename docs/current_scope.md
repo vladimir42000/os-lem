@@ -50,7 +50,8 @@ Not yet implemented or not yet supported as project claims:
 - crossover/electrical-network expansion
 - broad AkAbak parity claims
 - broad Hornresp parity claims
-- GUI / interactive frontend
+- frozen long-term public frontend/API contract
+- broad GUI / interactive frontend product claims
 
 ## Current interpretation
 
@@ -67,3 +68,4 @@ Do not confuse:
 - future target capabilities
 
 - explicit observation `radiation_space` support for `spl` and `spl_sum`, decoupled from radiator impedance model
+- provisional `os_lem.api` frontend facade for dict-based runs and ready-to-plot common outputs
