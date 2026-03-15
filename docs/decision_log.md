@@ -278,3 +278,13 @@ A bounded correctness patch takes priority over further Phase 5 feature planning
 - add regression coverage for canonical normalization
 - keep sealed-box impedance mismatch on the separate debug track until a second root cause is confirmed
 - avoid mixing frontend or broader bass-reflex work into the same patch
+
+---
+
+## D-0021 — baffled-piston Struve evaluation uses the exact SciPy function
+**Status:** accepted
+
+The closed-box debug track showed that the previously frozen Aarts-Janssen approximation for the order-1 Struve function produced an invalid low-frequency limit in the active baffled-piston radiation path.
+
+### Consequence
+The normative `infinite_baffle_piston` implementation now uses `scipy.special.struve(1, z)` and future changes must preserve the small-\(ka\) invariant \(X_1 \sim 8ka / (3\pi)\).

@@ -18,7 +18,7 @@ Use the debug branch only for diagnosing the closed-box / loudspeaker kernel mis
 - clean branch is green
 - debug branch is also currently green after reverting a temporary sign experiment
 - debug branch contains reusable comparison assets and investigation notes
-- closed-box mismatch remains unresolved
+- closed-box mismatch has a localized root cause and a bounded corrective patch path
 
 ## Reproduction assets
 
@@ -98,3 +98,14 @@ python debug/export_closed_box_compare.py
 ~~~
 
 and continue from the documented findings instead of restarting the diagnosis from zero.
+
+
+## Localized fix plan
+
+Apply a single bounded patch on a child debug branch from `debug/closed-box-mismatch`:
+
+- code: replace `_struve_h1_aarts_janssen()` body with `scipy.special.struve(1, z)`
+- tests: add a low-`ka` baffled-piston reactance regression and a closed-box regression proving that larger rear volume increases resonance-region excursion again
+- docs: update `docs/radiator_models.md`, `docs/decision_log.md`, and these debug notes
+
+Do not mix this with waveguide work or general repo cleanup.

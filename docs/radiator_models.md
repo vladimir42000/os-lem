@@ -117,23 +117,33 @@ Then the acoustic boundary impedance is
 Z_{rad}(\omega) = \frac{\rho_0 c_0}{S} z_{baf}(2ka)
 \]
 
-### 2.2 Frozen Struve approximation
-To avoid making special-function support a blocker for the first implementation, v1 freezes the Aarts-Janssen approximation for \(H_1\):
+### 2.2 Frozen Struve evaluator
+The earlier Aarts-Janssen approximation was reopened after the closed-box debug track showed that its low-frequency behavior was wrong in the active baffled-piston path. In particular, the approximation returned a non-zero constant as \(z \to 0\), which made
 
 \[
-H_1(z) \approx \frac{2}{\pi} - J_0(z)
-+ \left(\frac{16}{\pi^2} - 1\right) \frac{\sin z}{z}
-+ \left(\frac{12}{\pi} - \frac{36}{\pi^2}\right) \frac{1 - \cos z}{z^2}
+X_1(x) = \frac{2 H_1(x)}{x}
 \]
 
-with the removable-singularity handling:
+blow up like \(1/x\) instead of approaching zero linearly with \(ka\). That injected a false low-frequency radiation reactance and flattened sealed-box motional impedance.
 
-- at \(z = 0\), use \(H_1(0) = 0\)
-- for very small \(|z|\), the implementation must avoid raw division-by-zero in the approximation expression
+The active v1 implementation now freezes the exact order-1 Struve evaluator:
 
-v1 freezes this approximation exactly as written. Implementations must not substitute a different Struve evaluator unless that decision is explicitly reopened.
+\[
+H_1(z) = \operatorname{Struve}_1(z)
+\]
 
-### 2.3 Observation transfer
+using `scipy.special.struve(1, z)`.
+
+### 2.3 Low-frequency invariant
+For small \(ka\), the baffled-piston normalized impedance must satisfy:
+
+\[
+R_1 \sim \frac{(ka)^2}{2}, \qquad X_1 \sim \frac{8ka}{3\pi}
+\]
+
+Any future implementation change must preserve this limit and must not reintroduce a false singularity in \(X_1\).
+
+### 2.4 Observation transfer
 The frozen v1 observation transfer is the half-space transfer:
 
 \[

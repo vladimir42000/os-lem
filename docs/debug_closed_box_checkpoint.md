@@ -202,3 +202,23 @@ This debug branch should preserve:
 - debug documentation and handover notes
 
 It should **not** be treated as the normal feature-development branch.
+
+
+## Root cause localized
+
+The remaining dominant defect is in the low-frequency evaluation of the baffled-piston normalized reactance:
+
+- `_z_baffled()` computes `x1 = 2 * H1(x) / x` with `x = 2ka`
+- the previously frozen Aarts-Janssen approximation returned a non-zero constant as `x -> 0`
+- this created a false `1/x` growth in `x1`
+- the solver then saw an artificial positive imaginary radiation load, which flattened the electrical motional peak and suppressed excursion
+
+The bounded fix is to replace the approximation body with `scipy.special.struve(1, z)` and lock the correct small-`ka` invariant in tests and docs.
+
+## Patch acceptance target
+
+After the fix:
+
+- closed-box input impedance must recover a strong motional peak near sealed-box resonance
+- larger rear volume must no longer reduce resonant excursion
+- the clean waveguide branch remains untouched
