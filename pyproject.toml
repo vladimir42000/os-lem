@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "os-lem"
-version = "0.0.1"
+version = "0.1.0"
 description = "Open scriptable lumped-element loudspeaker / enclosure simulator"
 readme = "README.md"
 requires-python = ">=3.10"

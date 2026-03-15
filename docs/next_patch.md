@@ -2,7 +2,7 @@
 
 ## Status
 
-This file defines the single immediate next patch target for the next development session after the current docs-alignment work is merged.
+This file defines the single immediate next patch target for the next development session after the current release-readiness work is merged.
 
 ---
 
@@ -13,8 +13,9 @@ Expected integration branch:
 
 Expected current posture:
 - release governance docs landed
-- milestone branch created
-- docs aligned to current repo truth
+- milestone docs aligned to current repo truth
+- maintained validation/example assets preserved
+- release metadata aligned
 - suite green
 
 Expected suite:
@@ -24,18 +25,20 @@ Expected suite:
 
 ## Candidate next patch after startup verification
 
-**Preserve maintained validation/example assets for the `v0.1.0` milestone**
+**Release `v0.1.0` from the current milestone, unless a concrete blocker is found**
 
-Suggested patch branch:
-`chore/v0.1.0-preserve-validation-examples`
+Suggested immediate sequence:
+1. final review of milestone contents
+2. fast-forward `main` to the milestone head
+3. create tag `v0.1.0`
+4. prepare release notes / GitHub release text
+5. only then select the first bounded post-`v0.1.0` patch
 
 ---
 
 ## Purpose
 
-Preserve useful Streamlit / validation example assets in tracked form and document their role honestly.
-
-The goal is to support validation and demonstration workflows without broadening kernel, API, or product claims.
+Freeze the first honest external release of `os-lem` without broadening capability claims.
 
 ---
 
@@ -43,43 +46,39 @@ The goal is to support validation and demonstration workflows without broadening
 
 Do exactly these things:
 
-- inspect the current tracked example state in `examples/streamlit_frontend/`
-- compare it against preserved local/example branch assets
-- restore only genuinely useful example files needed for validation/demo workflows
-- add a minimal README or note if needed
-- keep example/prototype status explicit
-- prefer the provisional `os_lem.api` facade over raw internal pipeline imports where practical within the bounded patch
+- verify that the milestone branch is green
+- verify that README, package version, and release docs match the `v0.1.0` posture
+- merge the milestone into `main` without introducing unrelated changes
+- create the `v0.1.0` tag on `main`
+- prepare release notes that describe both included scope and explicit non-claims
 
 ---
 
 ## Out of scope
 
-- solver/kernel changes
-- parser changes
-- API redesign
-- broad frontend expansion
-- transmission-line feature work
-- broad docs rewrite beyond directly affected example notes
-- broad productization claims
+- new solver/kernel changes
+- new parser changes
+- new frontend capability work
+- transmission-line feature expansion
+- broad API redesign
+- broad roadmap rewrite beyond the release step
+- post-`v0.1.0` feature work in the same patch
 
 ---
 
 ## Acceptance requirement
 
-The chosen patch must:
+The release step is complete only if:
 
-- preserve useful example assets in tracked form
-- keep their status explicitly prototype/example/validation-oriented
-- avoid reintroducing brittle direct coupling to unstable internal modules where the facade is the intended integration surface
-- preserve the current green suite
-- avoid broadening external claims
+- `main` reflects the milestone head
+- the repository remains green
+- tag `v0.1.0` exists on the released commit
+- public-facing release posture stays narrow and honest
 
 ---
 
 ## Must-not-change list
 
-- current solver conventions
-- corrected sealed-box and bass-reflex checkpoints
-- current validated waveguide subset
-- current release governance structure
-- current narrow public-claim posture
+- current validated kernel behavior
+- current conservative release posture
+- milestone branch history

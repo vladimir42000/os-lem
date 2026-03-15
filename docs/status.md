@@ -6,7 +6,7 @@
 - integration branch: `milestone/v0.1.0-foundation`
 - current known green suite on the development line: `104 passed`
 
-Current branch activity may happen on short-lived child branches, but milestone integration truth now lives on the `milestone/v0.1.0-foundation` branch until the first release is ready.
+Current branch activity may happen on short-lived child branches, but milestone integration truth now lives on the `milestone/v0.1.0-foundation` branch until the first release is cut.
 
 ---
 
@@ -31,6 +31,8 @@ The current validated foundation includes:
   - minimal `line_profile` for `particle_velocity`
 - cylindrical distributed loss for `waveguide_1d` within the currently frozen cylindrical-loss boundary
 - provisional `os_lem.api` integration facade
+- maintained example path in `examples/streamlit_frontend/app.py`
+- preserved prototype/example path in `examples/streamlit_frontend/app2.py`
 
 ---
 
@@ -48,9 +50,9 @@ These checkpoints improve trust in the current narrow kernel baseline, but they 
 
 ## Current project interpretation
 
-`os-lem` is now beyond pure early scaffolding and has enough real validated behavior to justify a first honest release target.
+`os-lem` is now at first-release readiness, subject to final release execution on top of the current milestone.
 
-That release target is intentionally narrow:
+That release target remains intentionally narrow:
 
 - a validated foundation release
 - not a broad loudspeaker product
@@ -61,13 +63,16 @@ That release target is intentionally narrow:
 
 ## Immediate next objective
 
-After the current docs-alignment patch is merged, the next bounded milestone patch should be:
+The immediate next objective is:
 
-- preserve maintained validation/example assets cleanly
-- keep example posture explicit
-- avoid mixing this with new kernel work
+- release `v0.1.0` from `milestone/v0.1.0-foundation`
 
-After that, the milestone should be reviewed for `v0.1.0` release readiness.
+That means:
+- merge the milestone into `main`
+- tag `v0.1.0`
+- publish release notes with honest scope and explicit non-claims
+
+Only after that should the first bounded post-release patch be selected.
 
 ---
 

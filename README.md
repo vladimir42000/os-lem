@@ -1,78 +1,100 @@
 # os-lem
 
-Open, scriptable loudspeaker and enclosure simulator inspired by Akabak 2.1 style LEM workflows.
+Open, scriptable loudspeaker and enclosure simulator with a disciplined, test-first development style inspired by classic Akabak-era LEM workflows.
 
-## Current status
+## Release status
 
-This repository already contains the first narrow coupled solver path.
+Current release target:
+- `v0.1.0` foundation release
 
-Implemented today:
-- parser / normalizer for the frozen v1 subset
-- primitive evaluators for:
+This repository now contains a real, tested foundation release candidate.
+
+It supports a narrow but useful coupled loudspeaker/enclosure kernel and is intentionally conservative about broader claims.
+
+## What `v0.1.0` includes
+
+Current validated foundation:
+
+- one-driver coupled electro-mechano-acoustic solve
+- frequency sweep
+- assembled elements:
   - `volume`
   - `duct`
-  - `waveguide_1d`
   - `radiator`
-- deterministic assembly for the currently supported coupled subset:
-  - `volume`
-  - `duct`
-  - `radiator`
-- coupled one-frequency electromechano-acoustic solve
-- frequency sweep over the current coupled solve
-- first outputs:
-  - `input_impedance`
-  - `cone_velocity`
-  - `cone_displacement`
+  - minimal `waveguide_1d`
+- classical outputs:
+  - input impedance
+  - cone velocity
+  - cone displacement
   - one-radiator far-field pressure
-  - one-radiator `spl`
+  - one-radiator SPL
+- current minimal waveguide observability subset:
+  - endpoint flow export
+  - endpoint particle-velocity export
+  - minimal `line_profile` export for `pressure`
+  - minimal `line_profile` export for `volume_velocity`
+  - minimal `line_profile` export for `particle_velocity`
+- cylindrical distributed loss for `waveguide_1d` within the currently frozen cylindrical-loss boundary
+- provisional `os_lem.api` integration facade
+- maintained Streamlit example path in `examples/streamlit_frontend/app.py`
+- preserved prototype/example frontend artifact in `examples/streamlit_frontend/app2.py`
 
-## Current scope boundary
+## Explicit non-claims for `v0.1.0`
 
-The currently active assembled solver path supports:
-- `volume`
-- `duct`
-- `radiator`
+`os-lem` `v0.1.0` does **not** claim:
 
-Important limitation:
-- `waveguide_1d` exists as a primitive evaluator, but is **not yet assembled**
-  into the coupled solver path
-
-Also important:
-- the active observation helpers currently live in `src/os_lem/solve.py`
-- `src/os_lem/observe.py` is not yet the active public observation path
-
-## Current development phase
-
-Active work has now entered:
-
-**Phase 3 — validation of the current solver path**
-
-This phase is validation-first:
-- mandatory internal physics sanity checks
-- limited external comparison only for simple cases that truly overlap the
-  currently supported solver scope
-
-This is **not yet** a Hornresp-equivalent tool.
+- broad Hornresp parity
+- broad AkAbak parity
+- mature transmission-line support
+- broad horn / line workflow coverage
+- conical lossy `waveguide_1d`
+- thermo-viscous auto-derived losses
+- stable long-term public API
+- product-grade GUI/frontend
+- multi-driver support
+- passive radiator support
+- crossover-network maturity
 
 ## Quick start
 
-    python3 -m venv .venv
-    . .venv/bin/activate
-    pip install -e ".[dev]"
-    pytest -q
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+```
 
 ## Example files
 
 Examples live under:
-- `examples/free_air/model.yaml`
 - `examples/closed_box/model.yaml`
 - `examples/vented_box/model.yaml`
-- `examples/line_basic/model.yaml`
-- `examples/conical_line/model.yaml`
+- `examples/streamlit_frontend/app.py`
 
-## Next planned phase after validation
+The Streamlit example is the maintained example path for the current release target and is intended to use the provisional `os_lem.api` facade.
 
-After Phase 3 validation is complete, Phase 4 is planned to begin with:
-- `waveguide_1d` assembly
+`examples/streamlit_frontend/app2.py` is preserved as a prototype/example artifact and should not be interpreted as a frozen supported frontend surface.
 
-That is the next real topology expansion step.
+## Documentation entry points
+
+Start with:
+- `docs/start_here.md`
+- `docs/current_scope.md`
+- `docs/release_strategy.md`
+- `docs/release_plan.md`
+- `docs/capability_matrix.md`
+- `docs/frontend_api.md`
+
+## Development model
+
+This project uses:
+
+- small, bounded patches
+- green tests before and after changes
+- milestone integration before release
+- conservative capability claims
+
+Current integration branch for the first release:
+- `milestone/v0.1.0-foundation`
+
+`main` is reserved for released/stable history.
