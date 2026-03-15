@@ -58,6 +58,21 @@ def test_baffled_piston_low_frequency_behavior_is_inertive():
     assert z.real >= -1e-12
 
 
+
+def test_baffled_piston_low_frequency_reactance_matches_small_ka_slope():
+    f = 20.0
+    w = 2 * math.pi * f
+    area = 132e-4
+    a = piston_radius_from_area(area)
+    ka = (w / C0) * a
+    z = radiator_impedance("infinite_baffle_piston", w, area)
+
+    normalized_reactance = z.imag * area / Z0
+    expected = 8.0 * ka / (3.0 * PI)
+
+    assert normalized_reactance > 0.0
+    assert math.isclose(normalized_reactance, expected, rel_tol=0.05, abs_tol=0.0)
+
 def test_baffled_piston_formula_is_stable_at_small_ka():
     f = 20.0
     w = 2 * math.pi * f

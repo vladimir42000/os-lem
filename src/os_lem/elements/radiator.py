@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 
-from scipy.special import j0, j1
+from scipy.special import j1, struve
 
 from ..constants import C0, PI, RHO0, Z0
 
@@ -16,29 +16,8 @@ def piston_radius_from_area(area_m2: float) -> float:
     return math.sqrt(area_m2 / PI)
 
 
-def _safe_sin_over_z(z: float) -> float:
-    if abs(z) < 1e-10:
-        zz = z * z
-        return 1.0 - zz / 6.0 + zz * zz / 120.0
-    return math.sin(z) / z
-
-
-def _safe_one_minus_cos_over_z2(z: float) -> float:
-    if abs(z) < 1e-8:
-        zz = z * z
-        return 0.5 - zz / 24.0 + zz * zz / 720.0
-    return (1.0 - math.cos(z)) / (z * z)
-
-
 def _struve_h1_aarts_janssen(z: float) -> float:
-    if z == 0.0:
-        return 0.0
-    return (
-        2.0 / PI
-        - j0(z)
-        + ((16.0 / (PI * PI)) - 1.0) * _safe_sin_over_z(z)
-        + ((12.0 / PI) - (36.0 / (PI * PI))) * _safe_one_minus_cos_over_z2(z)
-    )
+    return float(struve(1, z))
 
 
 def _z_baffled(ka: float) -> complex:
