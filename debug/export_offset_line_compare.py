@@ -1,0 +1,206 @@
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import math
+import sys
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+import yaml
+
+
+def _candidate_repo_roots(start: Path) -> list[Path]:
+    candidates: list[Path] = []
+    for p in [start, *start.parents]:
+        if (p / "src" / "os_lem").exists():
+            candidates.append(p)
+    uniq: list[Path] = []
+    seen: set[Path] = set()
+    for p in candidates:
+        rp = p.resolve()
+        if rp not in seen:
+            uniq.append(rp)
+            seen.add(rp)
+    return uniq
+
+
+def _load_reference_csv(path: Path) -> dict[str, np.ndarray]:
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Reference file not found: {path}\n"
+            "Create it from debug/hornresp_offset_line_reference_template.csv "
+            "and save it as debug/hornresp_offset_line_reference.csv"
+        )
+
+    with path.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    if not rows:
+        raise ValueError(f"Reference file is empty: {path}")
+
+    required = {"frequency_hz"}
+    available = set(reader.fieldnames or [])
+    if not required.issubset(available):
+        raise ValueError(f"Reference CSV must contain at least: {sorted(required)}")
+
+    out: dict[str, list[float]] = {name: [] for name in available}
+    for row in rows:
+        for name in available:
+            raw = (row.get(name) or "").strip()
+            if raw == "":
+                out[name].append(float("nan"))
+            else:
+                out[name].append(float(raw))
+
+    arrays = {name: np.asarray(values, dtype=float) for name, values in out.items()}
+    freq = arrays["frequency_hz"]
+    if freq.ndim != 1 or freq.size == 0:
+        raise ValueError("frequency_hz must be a non-empty 1D column")
+    if np.any(~np.isfinite(freq)):
+        raise ValueError("frequency_hz contains non-finite values")
+    if np.any(freq <= 0.0):
+        raise ValueError("frequency_hz must be > 0")
+    if np.any(np.diff(freq) <= 0.0):
+        raise ValueError("frequency_hz must be strictly increasing")
+    return arrays
+
+
+def _metrics(sim: np.ndarray, ref: np.ndarray) -> dict[str, float]:
+    mask = np.isfinite(sim) & np.isfinite(ref)
+    if not np.any(mask):
+        return {"count": 0}
+    diff = sim[mask] - ref[mask]
+    return {
+        "count": int(mask.sum()),
+        "mae": float(np.mean(np.abs(diff))),
+        "rmse": float(np.sqrt(np.mean(diff * diff))),
+        "max_abs_error": float(np.max(np.abs(diff))),
+    }
+
+
+def main() -> int:
+    here = Path(__file__).resolve()
+    repo_candidates = _candidate_repo_roots(here.parent)
+    if not repo_candidates:
+        raise SystemExit("Could not locate repo root containing src/os_lem")
+    repo_root = repo_candidates[0]
+
+    if str(repo_root / "src") not in sys.path:
+        sys.path.insert(0, str(repo_root / "src"))
+
+    from os_lem.api import run_simulation  # imported after sys.path update
+
+    parser = argparse.ArgumentParser(description="Compare os-lem offset-line outputs against Hornresp reference CSV.")
+    parser.add_argument(
+        "--model",
+        default=str(repo_root / "examples" / "offset_line_minimal" / "model.yaml"),
+        help="Path to os-lem model YAML",
+    )
+    parser.add_argument(
+        "--reference",
+        default=str(repo_root / "debug" / "hornresp_offset_line_reference.csv"),
+        help="Path to Hornresp reference CSV",
+    )
+    parser.add_argument(
+        "--outdir",
+        default=str(repo_root / "debug" / "offset_line_compare_out"),
+        help="Output directory for comparison artifacts",
+    )
+    args = parser.parse_args()
+
+    model_path = Path(args.model)
+    reference_path = Path(args.reference)
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    model_dict = yaml.safe_load(model_path.read_text(encoding="utf-8"))
+    ref = _load_reference_csv(reference_path)
+    freqs = ref["frequency_hz"]
+
+    result = run_simulation(model_dict, freqs)
+
+    compare_columns: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+
+    if "zin_mag_ohm" in ref and result.zin_mag_ohm is not None:
+        compare_columns["zin_mag_ohm"] = (np.asarray(result.zin_mag_ohm, dtype=float), ref["zin_mag_ohm"])
+
+    if "x_mm" in ref and result.cone_excursion_mm is not None:
+        compare_columns["x_mm"] = (np.asarray(result.cone_excursion_mm, dtype=float), ref["x_mm"])
+
+    if "spl_total_db" in ref and "spl_total" in result.series:
+        compare_columns["spl_total_db"] = (
+            np.asarray(result.series["spl_total"], dtype=float),
+            ref["spl_total_db"],
+        )
+
+    if "spl_mouth_db" in ref and "spl_mouth" in result.series:
+        compare_columns["spl_mouth_db"] = (
+            np.asarray(result.series["spl_mouth"], dtype=float),
+            ref["spl_mouth_db"],
+        )
+
+    if not compare_columns:
+        raise ValueError(
+            "Reference CSV does not contain any supported comparison columns.\n"
+            "Supported optional columns are: zin_mag_ohm, x_mm, spl_total_db, spl_mouth_db"
+        )
+
+    comparison_csv = outdir / "offset_line_compare.csv"
+    summary_json = outdir / "offset_line_summary.json"
+
+    fieldnames = ["frequency_hz"]
+    rows: list[dict[str, Any]] = []
+    for name in compare_columns:
+        fieldnames.extend([f"oslem_{name}", f"hornresp_{name}", f"delta_{name}"])
+
+    for i, f_hz in enumerate(freqs):
+        row: dict[str, Any] = {"frequency_hz": float(f_hz)}
+        for name, (sim, ref_col) in compare_columns.items():
+            sim_v = float(sim[i]) if np.isfinite(sim[i]) else math.nan
+            ref_v = float(ref_col[i]) if np.isfinite(ref_col[i]) else math.nan
+            delta = sim_v - ref_v if math.isfinite(sim_v) and math.isfinite(ref_v) else math.nan
+            row[f"oslem_{name}"] = sim_v
+            row[f"hornresp_{name}"] = ref_v
+            row[f"delta_{name}"] = delta
+        rows.append(row)
+
+    with comparison_csv.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    summary: dict[str, Any] = {
+        "model": str(model_path),
+        "reference": str(reference_path),
+        "points": int(freqs.size),
+        "comparisons": {},
+        "warnings": list(result.warnings or []),
+    }
+
+    for name, (sim, ref_col) in compare_columns.items():
+        summary["comparisons"][name] = _metrics(sim, ref_col)
+
+    summary_json.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    print("Comparison artifacts written:")
+    print(f"  CSV:  {comparison_csv}")
+    print(f"  JSON: {summary_json}")
+    print("")
+    print("Available comparison metrics:")
+    for name, metrics in summary["comparisons"].items():
+        print(f"  {name}: {metrics}")
+    if summary["warnings"]:
+        print("")
+        print("os-lem warnings:")
+        for warning in summary["warnings"]:
+            print(f"  - {warning}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

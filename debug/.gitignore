@@ -1,2 +1,4 @@
 *.csv
 __tmp_*.yaml
+offset_line_compare_out/
+!hornresp_offset_line_reference_template.csv
