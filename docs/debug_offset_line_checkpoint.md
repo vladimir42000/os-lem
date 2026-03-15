@@ -36,24 +36,19 @@ Use:
 
 - `examples/offset_line_minimal/model.yaml`
 - `debug/export_offset_line_compare.py`
-- `debug/hornresp_offset_line_reference.csv`
+- `debug/hornresp_offset_line_reference.txt` or `.csv`
 
-The reference CSV should be created by copying:
+The script now accepts either:
 
-- `debug/hornresp_offset_line_reference_template.csv`
+- a Hornresp text-table export (`.txt`)
+- a normalized CSV reference (`.csv`)
 
-and filling the available Hornresp-exported columns.
+For the direct Hornresp text export, the parser currently maps:
 
-Supported optional comparison columns:
-
-- `zin_mag_ohm`
-- `x_mm`
-- `spl_total_db`
-- `spl_mouth_db`
-
-Required column:
-
-- `frequency_hz`
+- `Freq (hertz)` -> `frequency_hz`
+- `Ze (ohms)` -> `zin_mag_ohm`
+- `Xd (mm)` -> `x_mm`
+- `SPL (dB)` -> `spl_total_db`
 
 ---
 

@@ -4,6 +4,7 @@ import argparse
 import csv
 import json
 import math
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -28,13 +29,6 @@ def _candidate_repo_roots(start: Path) -> list[Path]:
 
 
 def _load_reference_csv(path: Path) -> dict[str, np.ndarray]:
-    if not path.exists():
-        raise FileNotFoundError(
-            f"Reference file not found: {path}\n"
-            "Create it from debug/hornresp_offset_line_reference_template.csv "
-            "and save it as debug/hornresp_offset_line_reference.csv"
-        )
-
     with path.open(newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         rows = list(reader)
@@ -57,7 +51,75 @@ def _load_reference_csv(path: Path) -> dict[str, np.ndarray]:
                 out[name].append(float(raw))
 
     arrays = {name: np.asarray(values, dtype=float) for name, values in out.items()}
-    freq = arrays["frequency_hz"]
+    _validate_frequency_axis(arrays["frequency_hz"])
+    return arrays
+
+
+def _normalize_hornresp_header(name: str) -> str:
+    name = name.strip()
+    mapping = {
+        "Freq (hertz)": "frequency_hz",
+        "Ze (ohms)": "zin_mag_ohm",
+        "Xd (mm)": "x_mm",
+        "SPL (dB)": "spl_total_db",
+    }
+    return mapping.get(name, name)
+
+
+def _load_reference_hornresp_txt(path: Path) -> dict[str, np.ndarray]:
+    text = path.read_text(encoding="utf-8", errors="replace").splitlines()
+
+    header_idx = None
+    header = None
+    for i, line in enumerate(text):
+        if "Freq (hertz)" in line and "Ze (ohms)" in line:
+            header_idx = i
+            header = [c.strip() for c in re.split(r"\t+", line.strip()) if c.strip()]
+            break
+
+    if header_idx is None or header is None:
+        raise ValueError(
+            f"Could not find Hornresp result table header in {path}. "
+            "Expected a line containing at least 'Freq (hertz)' and 'Ze (ohms)'."
+        )
+
+    norm_header = [_normalize_hornresp_header(h) for h in header]
+    columns: dict[str, list[float]] = {h: [] for h in norm_header}
+
+    for line in text[header_idx + 1 :]:
+        line = line.strip()
+        if not line:
+            continue
+        parts = [c.strip() for c in re.split(r"\t+", line) if c.strip()]
+        if len(parts) != len(header):
+            # stop once the regular table structure ends
+            continue
+        try:
+            vals = [float(p) for p in parts]
+        except ValueError:
+            continue
+        for key, val in zip(norm_header, vals):
+            columns[key].append(val)
+
+    if not columns.get("frequency_hz"):
+        raise ValueError(f"No numeric Hornresp rows found in {path}")
+
+    arrays = {name: np.asarray(values, dtype=float) for name, values in columns.items()}
+    _validate_frequency_axis(arrays["frequency_hz"])
+    return arrays
+
+
+def _load_reference(path: Path) -> dict[str, np.ndarray]:
+    if not path.exists():
+        raise FileNotFoundError(f"Reference file not found: {path}")
+    if path.suffix.lower() == ".csv":
+        return _load_reference_csv(path)
+    if path.suffix.lower() == ".txt":
+        return _load_reference_hornresp_txt(path)
+    raise ValueError(f"Unsupported reference file type: {path.suffix}")
+
+
+def _validate_frequency_axis(freq: np.ndarray) -> None:
     if freq.ndim != 1 or freq.size == 0:
         raise ValueError("frequency_hz must be a non-empty 1D column")
     if np.any(~np.isfinite(freq)):
@@ -66,7 +128,6 @@ def _load_reference_csv(path: Path) -> dict[str, np.ndarray]:
         raise ValueError("frequency_hz must be > 0")
     if np.any(np.diff(freq) <= 0.0):
         raise ValueError("frequency_hz must be strictly increasing")
-    return arrays
 
 
 def _metrics(sim: np.ndarray, ref: np.ndarray) -> dict[str, float]:
@@ -94,7 +155,7 @@ def main() -> int:
 
     from os_lem.api import run_simulation  # imported after sys.path update
 
-    parser = argparse.ArgumentParser(description="Compare os-lem offset-line outputs against Hornresp reference CSV.")
+    parser = argparse.ArgumentParser(description="Compare os-lem offset-line outputs against Hornresp reference data.")
     parser.add_argument(
         "--model",
         default=str(repo_root / "examples" / "offset_line_minimal" / "model.yaml"),
@@ -102,8 +163,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--reference",
-        default=str(repo_root / "debug" / "hornresp_offset_line_reference.csv"),
-        help="Path to Hornresp reference CSV",
+        default=str(repo_root / "debug" / "hornresp_offset_line_reference.txt"),
+        help="Path to Hornresp reference file (.txt table export or .csv)",
     )
     parser.add_argument(
         "--outdir",
@@ -118,7 +179,7 @@ def main() -> int:
     outdir.mkdir(parents=True, exist_ok=True)
 
     model_dict = yaml.safe_load(model_path.read_text(encoding="utf-8"))
-    ref = _load_reference_csv(reference_path)
+    ref = _load_reference(reference_path)
     freqs = ref["frequency_hz"]
 
     result = run_simulation(model_dict, freqs)
@@ -145,7 +206,7 @@ def main() -> int:
 
     if not compare_columns:
         raise ValueError(
-            "Reference CSV does not contain any supported comparison columns.\n"
+            "Reference file does not contain any supported comparison columns.\n"
             "Supported optional columns are: zin_mag_ohm, x_mm, spl_total_db, spl_mouth_db"
         )
 

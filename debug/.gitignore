@@ -2,3 +2,5 @@
 __tmp_*.yaml
 offset_line_compare_out/
 !hornresp_offset_line_reference_template.csv
+hornresp_offset_line_reference.txt
+hornresp_offset_line_definition.txt
