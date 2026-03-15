@@ -1,0 +1,86 @@
+meta:
+  name: offset_line_minimal
+
+driver:
+  id: drv1
+  model: ts_classic
+  Re: 5.8 ohm
+  Le: 0.35 mH
+  Fs: 34 Hz
+  Qes: 0.42
+  Qms: 4.1
+  Vas: 55 l
+  Sd: 132 cm2
+  node_front: front
+  node_rear: rear
+
+elements:
+  - id: front_rad
+    type: radiator
+    node: front
+    model: infinite_baffle_piston
+    area: 132 cm2
+
+  - id: tl_closed_stub
+    type: waveguide_1d
+    node_a: closed_end
+    node_b: rear
+    length: 0.45 m
+    area_start: 132 cm2
+    area_end: 132 cm2
+    profile: conical
+    segments: 8
+
+  - id: tl_main
+    type: waveguide_1d
+    node_a: rear
+    node_b: mouth
+    length: 1.15 m
+    area_start: 132 cm2
+    area_end: 132 cm2
+    profile: conical
+    segments: 16
+
+  - id: mouth_rad
+    type: radiator
+    node: mouth
+    model: unflanged_piston
+    area: 132 cm2
+
+observations:
+  - id: zin
+    type: input_impedance
+    target: drv1
+
+  - id: spl_driver
+    type: spl
+    target: front_rad
+    distance: 1 m
+
+  - id: spl_mouth
+    type: spl
+    target: mouth_rad
+    distance: 1 m
+
+  - id: spl_total
+    type: spl_sum
+    radiation_space: 2pi
+    terms:
+      - target: front_rad
+        distance: 1 m
+      - target: mouth_rad
+        distance: 1 m
+
+  - id: offset_stub_p_100
+    type: line_profile
+    target: tl_closed_stub
+    frequency: 100 Hz
+    quantity: pressure
+    points: 25
+
+  - id: offset_main_p_100
+    type: line_profile
+    target: tl_main
+    frequency: 100 Hz
+    quantity: pressure
+    points: 25
