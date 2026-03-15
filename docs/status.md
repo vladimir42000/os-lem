@@ -2,17 +2,23 @@
 
 ## Current development status
 
-- active release target: `v0.1.0`
-- integration branch: `milestone/v0.1.0-foundation`
-- current known green suite on the development line: `104 passed`
+- latest released version: `v0.1.0`
+- released branch of record: `main`
+- current known green suite on the released baseline: `104 passed`
 
-Current branch activity may happen on short-lived child branches, but milestone integration truth now lives on the `milestone/v0.1.0-foundation` branch until the first release is cut.
+The `v0.1.0` foundation release is now complete and tagged.
+
+That release established:
+- a real released `main`
+- pre-1.0 semantic versioning
+- milestone-based integration before release
+- conservative capability/release vocabulary
 
 ---
 
-## Current validated foundation
+## Current released foundation (`v0.1.0`)
 
-The current validated foundation includes:
+The released foundation includes:
 
 - one-driver coupled electro-mechano-acoustic solve
 - frequency sweep
@@ -36,51 +42,52 @@ The current validated foundation includes:
 
 ---
 
-## Recent corrective checkpoints now integrated
+## Current interpretation
 
-The current development line already includes these corrective checkpoints:
+`v0.1.0` is a narrow but real foundation release.
 
-- corrected `ts_classic` canonical `Bl` normalization
-- corrected closed-box baffled-radiator low-frequency reactance behavior through the Struve-path fix
-- corrected bass-reflex SPL observation behavior by decoupling observation `radiation_space` from the radiator mechanical model
-
-These checkpoints improve trust in the current narrow kernel baseline, but they do **not** justify broad external parity claims.
+It is intentionally conservative and does **not** imply:
+- broad Hornresp parity
+- broad AkAbak parity
+- mature transmission-line support
+- broad horn / line workflow coverage
+- stable long-term public API
+- product-grade GUI/frontend
 
 ---
 
-## Current project interpretation
+## Next release target
 
-`os-lem` is now at first-release readiness, subject to final release execution on top of the current milestone.
+The next planned release target is:
 
-That release target remains intentionally narrow:
+- `v0.2.0`
 
-- a validated foundation release
-- not a broad loudspeaker product
-- not a broad Hornresp/AkAbak replacement claim
-- not a frozen long-term API claim
+The purpose of `v0.2.0` is **not** to become a broad feature bucket.
+
+It should deliver exactly one coherent next capability step beyond the `v0.1.0` foundation.
 
 ---
 
 ## Immediate next objective
 
-The immediate next objective is:
+The immediate next objective is to prepare the `v0.2.0` cycle with a bounded truth-finding step:
 
-- release `v0.1.0` from `milestone/v0.1.0-foundation`
+- create a `v0.2.0` milestone branch
+- investigate current repository truth for a minimal transmission-line / offset-line case
+- determine whether current support is:
+  - already present
+  - partial
+  - or absent
 
-That means:
-- merge the milestone into `main`
-- tag `v0.1.0`
-- publish release notes with honest scope and explicit non-claims
-
-Only after that should the first bounded post-release patch be selected.
+Only after that should the first real `v0.2.0` implementation claim be chosen.
 
 ---
 
 ## Explicitly out of scope right now
 
 - broad refactor
+- broad post-release cleanup
+- broad transmission-line marketing claims
 - multi-driver expansion
 - passive radiator support
-- broad horn / transmission-line claims
-- broad GUI / product claims
-- unsupported external parity marketing
+- GUI productization

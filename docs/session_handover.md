@@ -1,66 +1,51 @@
 # Session handover
 
-## Branches of record
+## Released baseline
 
-Integration branch:
-- `milestone/v0.1.0-foundation`
+The repository now has a real released baseline:
 
-Current docs-alignment patch branch at the time of this handover:
-- `chore/v0.1.0-docs-alignment`
+- latest released version: `v0.1.0`
+- released branch of record: `main`
 
-Recent governance patch branch already integrated into the milestone:
-- `chore/release-governance`
+That release was cut after:
 
-Important historical debug lineage:
-- `debug/closed-box-mismatch`
-- `debug/closed-box-radiator-fix`
-- `debug/bassreflex-radiation-space`
+- governance docs were introduced
+- milestone structure was formalized
+- milestone docs were aligned to repo truth
+- validation/example assets were preserved
+- release metadata and release notes were prepared
 
----
-
-## Current repo truth
-
-The project now has an explicit release spine:
-
-- `main` is reserved for released/stable history
-- `milestone/v0.1.0-foundation` is the integration branch for the first real release
-- short-lived patch branches should branch from the current milestone
-- release planning is now defined by:
-  - `docs/release_strategy.md`
-  - `docs/release_plan.md`
-  - `docs/capability_matrix.md`
-
-Current known green suite on the development line:
+Current known green suite on the released baseline:
 - `104 passed`
 
 ---
 
-## Current validated foundation
+## Branch posture after the first release
 
-The current milestone already includes:
-
-- corrected sealed-box baffled-radiator Struve behavior
-- corrected bass-reflex SPL observation `radiation_space` behavior
-- corrected `ts_classic` canonical `Bl` normalization
-- minimal assembled `waveguide_1d`
-- current minimal waveguide endpoint/profile observability subset
-- minimal cylindrical distributed loss for `waveguide_1d` within the frozen cylindrical-loss boundary
-- provisional `os_lem.api` facade
-
-This is enough to justify a first honest release target, but not enough to justify broad external parity or broad product claims.
+- `main` is now the stable/released branch
+- `milestone/v0.1.0-foundation` remains as historical integration lineage
+- new work should not continue on the old `v0.1.0` milestone branch
+- the next release cycle should start from `main`
 
 ---
 
-## Immediate next patch after this docs patch
+## Current planning direction
 
-After the current docs-alignment patch is merged, the next bounded patch should be:
+The next planned target is:
 
-- preserve maintained validation/example assets cleanly
-- keep their status explicit as example/prototype/validation-oriented
-- avoid broadening kernel/API/product claims
+- `v0.2.0`
 
-Suggested next patch branch:
-- `chore/v0.1.0-preserve-validation-examples`
+That target should begin conservatively.
+
+Recommended opening move:
+- create a `v0.2.0` milestone branch
+- run one bounded line / offset-line truth-finding investigation
+- decide from evidence whether the next claim is:
+  - support already present
+  - partial support
+  - unsupported
+
+Do not jump directly to broad transmission-line implementation claims.
 
 ---
 
@@ -87,8 +72,8 @@ pytest -q
 
 Before proposing changes, reconstruct:
 
-- current repo truth
-- current milestone posture
+- current released baseline
+- whether the user is working from `main` or a child branch
 - whether `docs/next_patch.md` still matches reality
 - one bounded next patch only
 
@@ -96,9 +81,7 @@ Before proposing changes, reconstruct:
 
 ## Important cautions
 
-- do not develop directly on `main`
-- do not confuse implemented subset with released subset
-- do not overstate Hornresp/AkAbak parity
-- do not freeze broad transmission-line claims prematurely
-- do not mix example preservation with kernel redesign
-- keep patches small and reviewable
+- do not continue normal development on `milestone/v0.1.0-foundation`
+- do not broaden post-release claims impulsively
+- do not mix new capability work with broad cleanup
+- preserve the release discipline that produced `v0.1.0`

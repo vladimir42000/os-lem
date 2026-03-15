@@ -1,16 +1,18 @@
 # os-lem current scope
 
-## Current integration checkpoint
+## Current released baseline
 
-- active release target: `v0.1.0`
-- integration branch for the release target: `milestone/v0.1.0-foundation`
-- current known green suite on the development line: `104 passed`
+- latest released version: `v0.1.0`
+- released branch of record: `main`
+- current known green suite on the released baseline: `104 passed`
+
+The current public baseline is the tagged `v0.1.0` foundation release.
 
 ---
 
 ## Current implemented kernel subset
 
-At the current checkpoint, the implemented assembled subset is:
+At the current released checkpoint, the implemented assembled subset is:
 
 - `volume`
 - `duct`
@@ -50,9 +52,9 @@ Current integration support also includes:
 
 ---
 
-## Current validated scope
+## Current validated/released scope
 
-Validated confidence currently covers:
+The released `v0.1.0` confidence scope covers:
 
 - the corrected Phase 4 solver baseline
 - corrected `ts_classic` canonical motor normalization (`Bl`) against the standard T/S relation
@@ -88,27 +90,10 @@ Not yet implemented, not yet frozen, or not yet claimed as released project scop
 
 ---
 
-## Current interpretation
+## Current next-step caution
 
-`os-lem` is currently a narrow but real loudspeaker LEM kernel.
+The current scope document describes the released `v0.1.0` baseline.
 
-It now has enough validated capability to justify a first honest release target, but it is still not a broad product and it must not be described as a general Hornresp or AkAbak replacement at this checkpoint.
+It does **not** claim that the next release target is already implemented.
 
-The `v0.1.0` release target should therefore reflect the currently validated foundation honestly, without widening claims beyond evidence.
-
----
-
-## Current caution
-
-Do not confuse:
-
-- implemented subset
-- validated subset
-- released subset
-- future target capabilities
-
-Release posture is defined by:
-
-- `docs/release_strategy.md`
-- `docs/release_plan.md`
-- `docs/capability_matrix.md`
+The next release cycle must re-establish repo truth through a bounded investigation before widening claims.

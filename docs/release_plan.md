@@ -10,69 +10,28 @@ A release should answer:
 - how confident we are
 - what is explicitly not yet claimed
 
-Current integration target:
-- `milestone/v0.1.0-foundation`
+Latest completed release:
+- `v0.1.0`
+
+Next planned release target:
+- `v0.2.0`
 
 ---
 
 ## v0.1.0 — foundation release
+**Status:** released
 
-### Release intent
+`v0.1.0` is the first honest external foundation release of `os-lem`.
 
-`v0.1.0` should be the first honest, externally visible release of `os-lem`.
+It established:
 
-It should present a narrow but real kernel with clear limits.
+- a narrow but real loudspeaker/enclosure kernel
+- a tagged stable release on `main`
+- a milestone-based release structure
+- conservative capability/release claims
 
-### Planned included scope
-
-The intended `v0.1.0` scope is:
-
-- corrected sealed-box baseline
-- corrected vented / bass-reflex baseline
-- narrow validated output path for:
-  - input impedance
-  - cone velocity
-  - cone displacement
-  - one-radiator far-field pressure
-  - one-radiator SPL
-- minimal assembled `waveguide_1d`
-- currently validated minimal waveguide observability subset:
-  - endpoint flow export
-  - endpoint particle-velocity export
-  - minimal `line_profile` export for `pressure`
-  - minimal `line_profile` export for `volume_velocity`
-  - minimal `line_profile` export for `particle_velocity`
-- current minimal cylindrical distributed-loss support for `waveguide_1d` within the frozen cylindrical-loss boundary
-- corrected `ts_classic` canonical motor normalization
-- provisional `os_lem.api` frontend facade
-- at least one maintained example path
-- green regression suite
-- docs aligned to actual delivered behavior
-
-### Explicit non-claims for v0.1.0
-
-`v0.1.0` does **not** claim:
-
-- broad Hornresp parity
-- broad AkAbak parity
-- mature transmission-line support
-- broad horn / line workflow coverage
-- conical lossy `waveguide_1d`
-- thermo-viscous auto-derived losses
-- stable long-term public API
-- product-grade GUI
-- multi-driver support
-- passive radiator support
-- crossover-network maturity
-
-### Likely remaining work before release
-
-The exact sequence may change, but likely remaining items are:
-
-1. docs/status alignment
-2. preserved validation/example asset integration
-3. final milestone review
-4. release tagging / release-note preparation
+The exact release scope is documented in:
+- `docs/v0_1_0_release_notes.md`
 
 ---
 
@@ -90,23 +49,40 @@ Post-`v0.1.0` patch releases may contain:
 
 They should not redefine project scope.
 
+At the current moment, no `v0.1.1` patch is planned.
+The next active planning target is `v0.2.0`.
+
 ---
 
 ## v0.2.0 — next bounded capability milestone
+**Status:** planned
 
 ### Intent
 
 `v0.2.0` should introduce exactly one coherent next-level capability step beyond the `v0.1.0` foundation.
 
-Likely candidate directions include one of:
+The first step in this cycle should be a bounded truth-finding investigation, not an immediate broad implementation promise.
 
-- first additional waveguide-specific exported observable beyond the current minimal subset
-- first bounded line / offset-line truth-finding result strong enough to support a narrow claim
-- another tightly scoped topology/observability extension
+### Planned opening move
+
+Start by determining repository truth for a minimal transmission-line / offset-line case:
+
+- define one minimal reproducible case
+- compare expected versus actual behavior
+- classify current support as:
+  - already supported
+  - partially supported
+  - unsupported
+
+### Why this is the right opening move
+
+Because `v0.1.0` deliberately avoided broad line / transmission-line claims.
+
+Before choosing the next implementation milestone, the project should first determine what the current kernel already does and does not support.
 
 ### Rule
 
-`v0.2.0` must still preserve the small-patch philosophy.
+`v0.2.0` must preserve the small-patch philosophy.
 It must not become a broad “everything after v0.1” bucket.
 
 ---
@@ -144,9 +120,9 @@ Until then, all releases remain intentionally pre-1.0.
 
 ## Current planning caution
 
-The repository already contains more capability than the old public release posture suggested.
+The correct next move after a first release is not to broaden claims impulsively.
 
-That is acceptable.
-
-The job of release planning is not to claim everything that exists.
-The job is to release what is coherent, validated, and supportable.
+The correct next move is to preserve discipline:
+- small bounded patches
+- milestone integration
+- evidence before claims
