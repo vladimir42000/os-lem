@@ -65,3 +65,5 @@ Do not confuse:
 - internally validated subset
 - externally validated subset
 - future target capabilities
+
+- explicit observation `radiation_space` support for `spl` and `spl_sum`, decoupled from radiator impedance model

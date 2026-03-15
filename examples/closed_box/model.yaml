@@ -1,5 +1,6 @@
 meta:
   name: closed_box
+  radiation_space: 2pi
 
 driver:
   id: drv1

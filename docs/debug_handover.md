@@ -109,3 +109,10 @@ Apply a single bounded patch on a child debug branch from `debug/closed-box-mism
 - docs: update `docs/radiator_models.md`, `docs/decision_log.md`, and these debug notes
 
 Do not mix this with waveguide work or general repo cleanup.
+
+
+## Follow-on bass-reflex finding
+
+After the closed-box Struve fix, the next localized vented-box mismatch was traced to mixed observation radiation spaces in SPL summation: the driver and port could silently inherit different solid-angle conventions from their radiator models.
+
+The next bounded patch after the closed-box fix should therefore decouple observation `radiation_space` from the radiator mechanical model, preserve legacy fallback defaults for backward compatibility, and warn when `spl_sum` mixes spaces.

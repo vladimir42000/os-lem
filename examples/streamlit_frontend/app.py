@@ -128,7 +128,7 @@ def base_driver_yaml(ts: dict[str, float]) -> dict[str, Any]:
 def build_closed_model(ts: dict[str, float], vb_l: float) -> dict[str, Any]:
     sd = ts["Sd"]
     return {
-        "meta": {"name": "closed_box_demo"},
+        "meta": {"name": "closed_box_demo", "radiation_space": "2pi"},
         "driver": base_driver_yaml(ts),
         "elements": [
             {
@@ -157,7 +157,7 @@ def build_vented_model(
     sd = ts["Sd"]
     port_area_cm2 = np.pi * (port_dia_cm / 2.0) ** 2
     return {
-        "meta": {"name": "vented_box_demo"},
+        "meta": {"name": "vented_box_demo", "radiation_space": "2pi"},
         "driver": base_driver_yaml(ts),
         "elements": [
             {
@@ -222,12 +222,13 @@ def run_model(model_dict: dict[str, Any], frequencies: np.ndarray, solver: dict[
         out["warnings"] = np.array(warnings, dtype=object)
 
     radiator_ids = {r["id"] for r in model_dict["elements"] if r["type"] == "radiator"}
+    default_space = model_dict.get("meta", {}).get("radiation_space")
     if "front_rad" in radiator_ids:
-        out["spl_driver_db"] = radiator_spl(sweep, system, "front_rad", 1.0)
-        out["p_driver"] = radiator_observation_pressure(sweep, system, "front_rad", 1.0)
+        out["spl_driver_db"] = radiator_spl(sweep, system, "front_rad", 1.0, radiation_space=default_space)
+        out["p_driver"] = radiator_observation_pressure(sweep, system, "front_rad", 1.0, radiation_space=default_space)
     if "port_rad" in radiator_ids:
-        out["spl_port_db"] = radiator_spl(sweep, system, "port_rad", 1.0)
-        out["p_port"] = radiator_observation_pressure(sweep, system, "port_rad", 1.0)
+        out["spl_port_db"] = radiator_spl(sweep, system, "port_rad", 1.0, radiation_space=default_space)
+        out["p_port"] = radiator_observation_pressure(sweep, system, "port_rad", 1.0, radiation_space=default_space)
 
     if "p_driver" in out and "p_port" in out:
         p_total = out["p_driver"] + out["p_port"]

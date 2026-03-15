@@ -288,3 +288,15 @@ The closed-box debug track showed that the previously frozen Aarts-Janssen appro
 
 ### Consequence
 The normative `infinite_baffle_piston` implementation now uses `scipy.special.struve(1, z)` and future changes must preserve the small-\(ka\) invariant \(X_1 \sim 8ka / (3\pi)\).
+
+
+## D-0015 — observation radiation space is explicit and separate from radiator impedance model
+**Status:** accepted
+
+The SPL observation radiation space is now an explicit contract separate from the radiator mechanical impedance model.
+
+### Consequence
+- `radiator.model` continues to control only the boundary impedance/loading formula
+- `spl` and `spl_sum` may resolve `radiation_space` explicitly
+- legacy model-based space inference remains only as a backward-compatible fallback
+- mixed-space `spl_sum` cases should surface a parser warning because low-frequency summation may be unphysical
