@@ -2,105 +2,80 @@
 
 ## Current development status
 
-- Active branch: `feature/p5-patch02-minimal-waveguide-assembly`
-- Current known good commit before this patch: `7b1a47b`
-- Current known local test status after this patch: `pending local verification after ts_classic Bl normalization fix`
-- Current phase state: **Phase 5 active**
-- Previous phase checkpoint: **Phase 4 closed at corrective checkpoint**
+- active release target: `v0.1.0`
+- integration branch: `milestone/v0.1.0-foundation`
+- current known green suite on the development line: `104 passed`
 
-## Current validated implemented subset
+Current branch activity may happen on short-lived child branches, but milestone integration truth now lives on the `milestone/v0.1.0-foundation` branch until the first release is ready.
 
-The currently assembled and validated subset is:
+---
 
-- `volume`
-- `duct`
-- `radiator`
-- minimal assembled `waveguide_1d`
+## Current validated foundation
 
-`waveguide_1d` is now assembled as a reduced two-port branch contribution in the
-current solver path.
+The current validated foundation includes:
 
-## What Phase 4 delivered
+- one-driver coupled electro-mechano-acoustic solve
+- frequency sweep
+- assembled `volume`, `duct`, `radiator`, and minimal `waveguide_1d`
+- classical outputs:
+  - input impedance
+  - cone velocity
+  - cone displacement
+  - one-radiator far-field pressure
+  - one-radiator SPL
+- waveguide outputs:
+  - endpoint flow
+  - endpoint particle velocity
+  - minimal `line_profile` for `pressure`
+  - minimal `line_profile` for `volume_velocity`
+  - minimal `line_profile` for `particle_velocity`
+- cylindrical distributed loss for `waveguide_1d` within the currently frozen cylindrical-loss boundary
+- provisional `os_lem.api` integration facade
 
-Session 4 closed with a narrow corrective checkpoint:
+---
 
-- diagnostic investigation isolated a real solver sign-convention bug
-- driver front / rear acoustic coupling signs were corrected in `src/os_lem/solve.py`
-- frozen numerical reference outputs were refreshed to the corrected solver
-- Phase 3 validation tests were updated so they remain meaningful under the corrected solver baseline
-- a real vented-box comparison artifact improved confidence in the corrected behavior
-- no topology expansion was performed during Phase 4
+## Recent corrective checkpoints now integrated
 
-## What Phase 5 has delivered so far
+The current development line already includes these corrective checkpoints:
 
-The first bounded Phase 5 implementation patch is complete:
+- corrected `ts_classic` canonical `Bl` normalization
+- corrected closed-box baffled-radiator low-frequency reactance behavior through the Struve-path fix
+- corrected bass-reflex SPL observation behavior by decoupling observation `radiation_space` from the radiator mechanical model
 
-- `waveguide_1d` now assembles as a branch element
-- the acoustic matrix now accepts `waveguide_1d` as a reduced two-port branch stamp
-- a minimal coupled solve with `waveguide_1d` is covered by focused tests
+These checkpoints improve trust in the current narrow kernel baseline, but they do **not** justify broad external parity claims.
 
-The next bounded Phase 5 validation follow-up is also complete:
-
-- internal validation for assembled `waveguide_1d` was strengthened
-- constant-area waveguide behavior is covered by a segmentation-invariance sanity test
-- conical waveguide behavior is covered by a segmentation-refinement sanity test
-
-The bounded Phase 5 waveguide observability follow-ups now complete are:
-
-- waveguide endpoint flow export
-- waveguide endpoint particle-velocity export
-- minimal `waveguide_1d` `line_profile` export for `pressure`
-- minimal `waveguide_1d` `line_profile` export for `volume_velocity`
-- minimal `waveguide_1d` `line_profile` export for `particle_velocity`
-
-The first bounded cylindrical-loss implementation follow-up is now complete:
-
-- user-specified distributed loss is supported for cylindrical `waveguide_1d` only
-- lossless behavior is preserved when `loss` is absent or zero
-- lossy cylindrical profile reconstruction works for `pressure`, `volume_velocity`, and `particle_velocity`
-
-The full repository suite was green at `90 passed` before this debug checkpoint; local post-fix verification must refresh that number.
-
-A bounded post-Phase-5 debug correction is now required before further feature planning:
-
-- `ts_classic` driver canonicalization had an incorrect `Bl` derivation
-- the bug suppressed the motional contribution in canonical sealed-box input impedance
-- the fix is a solver-correctness checkpoint, not frontend work
-- focused regression coverage is required for canonical normalization; sealed-box impedance behavior remains under active debug after this fix
+---
 
 ## Current project interpretation
 
-The corrected solver baseline from Phase 4 remains the accepted development baseline.
+`os-lem` is now beyond pure early scaffolding and has enough real validated behavior to justify a first honest release target.
 
-This does **not** freeze a claim of universal Hornresp parity. It freezes a narrower conclusion:
+That release target is intentionally narrow:
 
-- Session 4 successfully identified and corrected one real implementation bug
-- Phase 5 has resumed bounded topology expansion on top of that corrected baseline
-- the first assembled `waveguide_1d` path now has focused internal validation support
-- bounded first waveguide observability is now real in the repo
-- cross-profile internal validation is now stronger for the current waveguide profile outputs
-- the first minimal cylindrical distributed-loss extension is now real in the repo
-- future work should proceed from the corrected solver and current green test suite
+- a validated foundation release
+- not a broad loudspeaker product
+- not a broad Hornresp/AkAbak replacement claim
+- not a frozen long-term API claim
+
+---
 
 ## Immediate next objective
 
-Complete the bounded `ts_classic` motor-normalization correction and re-freeze repo truth before selecting any new Phase 5 feature patch.
+After the current docs-alignment patch is merged, the next bounded milestone patch should be:
 
-Recommended next step:
-1. correct `ts_classic` canonical `Bl` derivation
-2. land focused regression tests for canonical normalization
-3. rerun the full repository suite
-4. continue the separate sealed-box / bass-reflex impedance debug track because the `Bl` correction alone does not fully restore the expected impedance hump
-5. only then reconstruct the next single bounded Phase 5 planning step
+- preserve maintained validation/example assets cleanly
+- keep example posture explicit
+- avoid mixing this with new kernel work
 
-Still deferred:
-- conical lossy `waveguide_1d`
-- thermo-viscous auto-derived losses
-- broad external parity claims
+After that, the milestone should be reviewed for `v0.1.0` release readiness.
+
+---
 
 ## Explicitly out of scope right now
 
 - broad refactor
 - multi-driver expansion
-- forcing broad external parity claims
-- unsupported horn / line validation claims
+- passive radiator support
+- broad horn / transmission-line claims
+- broad GUI / product claims
+- unsupported external parity marketing

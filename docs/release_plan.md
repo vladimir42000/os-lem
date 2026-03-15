@@ -5,6 +5,7 @@
 Releases are defined by capability maturity, not by raw patch count.
 
 A release should answer:
+
 - what the software can do
 - how confident we are
 - what is explicitly not yet claimed
@@ -34,7 +35,15 @@ The intended `v0.1.0` scope is:
   - cone displacement
   - one-radiator far-field pressure
   - one-radiator SPL
-- minimal assembled `waveguide_1d` capability as part of the current validated repo subset
+- minimal assembled `waveguide_1d`
+- currently validated minimal waveguide observability subset:
+  - endpoint flow export
+  - endpoint particle-velocity export
+  - minimal `line_profile` export for `pressure`
+  - minimal `line_profile` export for `volume_velocity`
+  - minimal `line_profile` export for `particle_velocity`
+- current minimal cylindrical distributed-loss support for `waveguide_1d` within the frozen cylindrical-loss boundary
+- corrected `ts_classic` canonical motor normalization
 - provisional `os_lem.api` frontend facade
 - at least one maintained example path
 - green regression suite
@@ -48,21 +57,22 @@ The intended `v0.1.0` scope is:
 - broad AkAbak parity
 - mature transmission-line support
 - broad horn / line workflow coverage
+- conical lossy `waveguide_1d`
+- thermo-viscous auto-derived losses
 - stable long-term public API
 - product-grade GUI
 - multi-driver support
 - passive radiator support
-- distributed losses
 - crossover-network maturity
 
 ### Likely remaining work before release
 
 The exact sequence may change, but likely remaining items are:
 
-1. release governance docs
-2. stale status/planning docs alignment
-3. preserved validation/example asset integration
-4. release checklist and final milestone review
+1. docs/status alignment
+2. preserved validation/example asset integration
+3. final milestone review
+4. release tagging / release-note preparation
 
 ---
 
@@ -90,8 +100,8 @@ They should not redefine project scope.
 
 Likely candidate directions include one of:
 
-- first waveguide-specific exported observable
-- first bounded line / offset-line truth-finding result that is strong enough to support a narrow claim
+- first additional waveguide-specific exported observable beyond the current minimal subset
+- first bounded line / offset-line truth-finding result strong enough to support a narrow claim
 - another tightly scoped topology/observability extension
 
 ### Rule
@@ -134,7 +144,7 @@ Until then, all releases remain intentionally pre-1.0.
 
 ## Current planning caution
 
-The repository already contains more capability than the public release posture suggests.
+The repository already contains more capability than the old public release posture suggested.
 
 That is acceptable.
 

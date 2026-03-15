@@ -1,97 +1,104 @@
-# SESSION HANDOVER
+# Session handover
 
-## Branch
-`feature/p5-patch02-minimal-waveguide-assembly`
+## Branches of record
 
-## Start / end reference
-- Start checkpoint for Session 4 diagnostic cycle: `15b499f`
-- Current docs-aligned checkpoint before this code patch: `cylindrical loss boundary frozen`
+Integration branch:
+- `milestone/v0.1.0-foundation`
 
-## Session 4 outcome
+Current docs-alignment patch branch at the time of this handover:
+- `chore/v0.1.0-docs-alignment`
 
-Session 4 is closed at a corrective checkpoint.
+Recent governance patch branch already integrated into the milestone:
+- `chore/release-governance`
 
-Main technical result:
-- a real solver sign-convention bug was identified in driver acoustic coupling
-- the front / rear acoustic coupling signs were corrected in `src/os_lem/solve.py`
+Important historical debug lineage:
+- `debug/closed-box-mismatch`
+- `debug/closed-box-radiator-fix`
+- `debug/bassreflex-radiation-space`
 
-Validation / test result:
-- frozen numerical reference outputs were refreshed to the corrected solver
-- affected validation tests were updated to remain meaningful under the corrected baseline
-- current known suite result at the end of Phase 4: `54 passed`
+---
 
-## What is now frozen
+## Current repo truth
 
-The corrected solver baseline is the accepted development baseline.
+The project now has an explicit release spine:
 
-Frozen conclusion:
-- Session 4 successfully identified and corrected one real implementation bug
+- `main` is reserved for released/stable history
+- `milestone/v0.1.0-foundation` is the integration branch for the first real release
+- short-lived patch branches should branch from the current milestone
+- release planning is now defined by:
+  - `docs/release_strategy.md`
+  - `docs/release_plan.md`
+  - `docs/capability_matrix.md`
 
-Not frozen as a broad claim:
-- universal Hornresp parity
-- broad external validation across unsupported topologies
+Current known green suite on the development line:
+- `104 passed`
 
-## Current active phase after this checkpoint
+---
 
-- Phase 4: closed
-- Phase 5: current
+## Current validated foundation
 
-## Phase 5 progress now completed
+The current milestone already includes:
 
-The first bounded Phase 5 implementation patch is complete.
+- corrected sealed-box baffled-radiator Struve behavior
+- corrected bass-reflex SPL observation `radiation_space` behavior
+- corrected `ts_classic` canonical `Bl` normalization
+- minimal assembled `waveguide_1d`
+- current minimal waveguide endpoint/profile observability subset
+- minimal cylindrical distributed loss for `waveguide_1d` within the frozen cylindrical-loss boundary
+- provisional `os_lem.api` facade
 
-Delivered:
-- `waveguide_1d` assembles as a branch element
-- the acoustic matrix accepts reduced two-port `waveguide_1d` stamping
-- a minimal coupled solve with `waveguide_1d` is covered by focused tests
+This is enough to justify a first honest release target, but not enough to justify broad external parity or broad product claims.
 
-The next bounded Phase 5 validation follow-up is also complete.
+---
 
-Delivered:
-- internal validation for assembled `waveguide_1d` was strengthened
-- constant-area waveguide behavior is covered by a segmentation-invariance sanity test
-- conical waveguide behavior is covered by a segmentation-refinement sanity test
+## Immediate next patch after this docs patch
 
-The bounded Phase 5 observability follow-ups now also complete are:
+After the current docs-alignment patch is merged, the next bounded patch should be:
 
-Delivered:
-- waveguide endpoint flow export
-- waveguide endpoint particle-velocity export
-- minimal `waveguide_1d` `line_profile` export for `pressure`
-- minimal `waveguide_1d` `line_profile` export for `volume_velocity`
-- minimal `waveguide_1d` `line_profile` export for `particle_velocity`
+- preserve maintained validation/example assets cleanly
+- keep their status explicit as example/prototype/validation-oriented
+- avoid broadening kernel/API/product claims
 
-Current known local suite result after this patch:
-- `98 passed`
+Suggested next patch branch:
+- `chore/v0.1.0-preserve-validation-examples`
 
-## Phase 5 validation follow-up now also complete
+---
 
-Delivered:
-- stronger cross-profile consistency validation for `pressure`, `volume_velocity`, and `particle_velocity`
-- joint endpoint/profile agreement checks for all three profile quantities
-- cylindrical special-case consistency checks for constant-area guides
+## Startup protocol for the next AI session
 
-## Phase 5 cylindrical lossy extension now also complete
+Read in this order:
 
-Delivered:
-- user-specified distributed loss is implemented for cylindrical `waveguide_1d` only
-- `loss = 0` preserves current lossless cylindrical behavior
-- exact cylindrical lossy reference tests now cover entrance behavior and sampled profiles
-- conical lossy support remains deferred
+1. `docs/start_here.md`
+2. `docs/current_scope.md`
+3. `docs/release_strategy.md`
+4. `docs/release_plan.md`
+5. `docs/capability_matrix.md`
+6. `docs/next_patch.md`
+7. `docs/frontend_api.md`
 
-## Recommended next patch target
+Then run:
 
-Resume bounded Phase 5 growth, but do not broaden scope.
+```bash
+git status
+git branch --show-current
+git log --oneline --decorate -n 10
+pytest -q
+```
 
-Recommended order:
-1. keep the corrected solver baseline and current validated lossless and cylindrical-lossy `waveguide_1d` paths fixed
-2. choose one single bounded follow-up lossy-boundary patch
-3. next likely target: freeze the minimal conical lossy boundary before any conical lossy implementation work
+Before proposing changes, reconstruct:
 
-## Cautions for the next session
+- current repo truth
+- current milestone posture
+- whether `docs/next_patch.md` still matches reality
+- one bounded next patch only
 
-- do not casually change driver coupling sign conventions again
-- do not treat refreshed frozen references as proof of broad external parity
-- do not mix waveguide follow-up work with unrelated solver rewrites
-- do not broaden immediately to losses, multi-driver work, or broad AkAbak/Hornresp parity claims
+---
+
+## Important cautions
+
+- do not develop directly on `main`
+- do not confuse implemented subset with released subset
+- do not overstate Hornresp/AkAbak parity
+- do not freeze broad transmission-line claims prematurely
+- do not mix example preservation with kernel redesign
 - keep patches small and reviewable

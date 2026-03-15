@@ -3,11 +3,16 @@
 ## Project intent
 
 `os-lem` is an open, scriptable lumped-element loudspeaker / enclosure simulator
-with a development style inspired by Akabak 2.1-era workflows, but with a clean,
-testable, modern Python implementation.
+with a development style inspired by Akabak-era workflows, but implemented as a clean,
+testable Python codebase with disciplined incremental growth.
 
-The roadmap is phase-based. Each phase has a clear goal, scope boundary, and
-completion criterion.
+The roadmap is both phase-based and release-based:
+
+- phases explain technical evolution
+- releases explain what is honest to expose externally
+
+Current release track:
+- `v0.1.0` foundation milestone on `milestone/v0.1.0-foundation`
 
 ---
 
@@ -17,20 +22,15 @@ completion criterion.
 ### Goal
 Recover a clean, testable baseline and freeze the first validated primitive set.
 
-### Included
-- repository repair
+### Delivered
+- repository recovery
 - parser / normalization scaffold
-- frozen v1 input subset
+- frozen early input subset
 - primitive formulas and tests for:
-  - volume
-  - duct
-  - waveguide_1d
-  - radiator
-
-### Exit criteria
-- stable baseline recovered
-- repaired tests passing
-- primitive behavior frozen sufficiently for coupled development
+  - `volume`
+  - `duct`
+  - `waveguide_1d`
+  - `radiator`
 
 ---
 
@@ -38,37 +38,14 @@ Recover a clean, testable baseline and freeze the first validated primitive set.
 **Status:** completed
 
 ### Goal
-Build the first minimal electromechano-acoustic coupled solver for one driver at
-one frequency point.
+Build the first minimal coupled electro-mechano-acoustic solve for one driver at one frequency.
 
-### Included
+### Delivered
 - deterministic topology assembly
-- acoustic nodal matrix assembly for:
-  - volume
-  - duct
-  - radiator
+- first acoustic nodal matrix assembly
 - driver electrical + mechanical coupling
 - one-frequency complex solve
-- first solved internal state:
-  - node pressures
-  - voice-coil current
-  - cone velocity
-  - cone displacement
-
-### Excluded
-- frequency sweep helper
-- observation framework expansion
-- waveguide assembly
-- broad architecture refactor
-- multi-driver support
-
-### Exit criteria
-- one-frequency coupled solve works
-- tests cover assembly, matrix build, and coupled solve
-- stable checkpoint committed and tagged
-
-### Result
-Completed at milestone tag: `phase1-first-coupled-solve`
+- first solved internal state for current, pressures, and cone motion
 
 ---
 
@@ -76,47 +53,32 @@ Completed at milestone tag: `phase1-first-coupled-solve`
 **Status:** completed
 
 ### Goal
-Extend the one-frequency solver into a frequency sweep and expose the first
-user-relevant outputs.
+Extend the one-frequency solve into a sweep and expose the first user-relevant outputs.
 
-### Delivered outputs
-- input impedance
-- cone velocity
-- cone displacement
-- one-radiator far-field pressure
-- one-radiator SPL
-
-### Delivered work
-- frequency sweep helper implemented
-- solved sweep result container implemented
-- first output helpers implemented
-- frozen numerical reference tests added for the first outputs
-
-### Exit criteria
-- frequency sweep implemented
-- outputs available from solved sweep
-- first frozen numerical reference tests added
-
-### Result
-Phase 2 completed on the current branch state now handed into Phase 3.
+### Delivered
+- frequency sweep helper
+- solved sweep result container
+- first classical outputs:
+  - input impedance
+  - cone velocity
+  - cone displacement
+  - one-radiator far-field pressure
+  - one-radiator SPL
 
 ---
 
 ## Phase 3 — validation of the current solver path
 **Status:** closed
 
-### Result
-Phase 3 closed at commit `15b499f`.
+### Goal
+Strengthen trust in the narrow current solver path before topology expansion.
 
-Delivered:
-- documentation alignment with actual assembled subset
+### Delivered
+- documentation alignment with the then-current assembled subset
 - internal validation sanity tests for the current solver path
 
-Not delivered as frozen validation:
-- external Hornresp parity for the BR comparison
-
-### Closure interpretation
-Phase 3 increased trust in the current narrow solver path, but external comparison remains diagnostically unresolved.
+### Caution
+Phase 3 did not freeze a broad external parity claim.
 
 ---
 
@@ -124,86 +86,103 @@ Phase 3 increased trust in the current narrow solver path, but external comparis
 **Status:** closed
 
 ### Goal
-Localize the source of the Hornresp bass-reflex mismatch before any new feature development.
+Localize major box-model discrepancies before resuming topology growth.
+
+### Delivered
+- diagnosis isolated a real solver sign-convention bug
+- driver front / rear acoustic coupling signs were corrected
+- frozen numerical reference outputs were refreshed
+- affected validation tests were updated to remain meaningful on the corrected baseline
 
 ### Result
-Phase 4 closed at a corrective checkpoint.
-
-Delivered:
-- diagnostic work isolated a real solver sign-convention bug
-- driver front / rear acoustic coupling signs were corrected
-- frozen numerical reference outputs were refreshed to the corrected solver
-- affected validation tests were updated to remain meaningful on the corrected baseline
-- the repository returned to a green baseline with `54 passed`
-
-### Explicit non-claim
-Phase 4 does not freeze a broad external-parity claim. It closes the specific
-diagnostic cycle that identified and corrected one real implementation bug.
-
-### Exit criteria
-- mismatch investigation reached a concrete implementation-level correction
-- corrected baseline re-frozen with passing tests
-- project ready to resume bounded topology expansion
+Phase 4 closed at a corrective checkpoint rather than a broad external-validation claim.
 
 ---
 
 ## Phase 5 — extended acoustic topology support
-**Status:** current
+**Status:** current technical phase
 
 ### Goal
-Resume topology growth after the Phase 4 corrective checkpoint.
+Resume topology growth after the corrected Phase 4 baseline.
 
 ### Delivered so far
 - `waveguide_1d` now assembles as a topology-resolved branch element
 - the acoustic matrix accepts reduced two-port `waveguide_1d` stamping
-- focused assembly and solve tests were added for the first minimal waveguide path
+- focused assembly and solve tests cover the first minimal waveguide path
 - stronger internal validation now covers:
-  - constant-area segmentation-invariance sanity
-  - conical segmentation-refinement sanity
-- first waveguide-specific observability is now delivered:
+  - constant-area segmentation invariance
+  - conical segmentation refinement sanity
+- first waveguide-specific observability is delivered:
   - endpoint flow export
   - endpoint particle-velocity export
   - minimal `line_profile` export for `pressure`
   - minimal `line_profile` export for `volume_velocity`
   - minimal `line_profile` export for `particle_velocity`
 - stronger cross-profile internal validation now covers:
-  - `particle_velocity = volume_velocity / local_area(x)` consistency
-  - joint endpoint/profile agreement for all three profile quantities
-  - cylindrical special-case consistency for constant area
-- the existing `volume` / `duct` / `radiator` solver path remains green
-- repository suite is green at `98 passed` in the local patched state
-- first minimal cylindrical distributed-loss support is implemented for `waveguide_1d` with exact-reference tests inside the frozen cylindrical-loss boundary
+  - endpoint/profile agreement checks
+  - cross-profile consistency checks
+  - cylindrical special-case consistency
+- first minimal cylindrical distributed-loss support is implemented for `waveguide_1d`
+- corrected `ts_classic` canonical `Bl` normalization is integrated into the current baseline
 
-### Remaining likely items inside Phase 5
-- freeze the minimal conical lossy boundary before any conical lossy implementation work
-- limited external overlap checks once lossy and lossless waveguide confidence is stronger
-
-### Explicitly not yet delivered in Phase 5
+### Still not delivered as a broad claim
 - conical lossy `waveguide_1d`
 - thermo-viscous auto-derived losses
+- broad horn / line workflow claims
 - broad external parity claims
 
-### Exit criteria
-- first extended topology path implemented and tested
-- at least one bounded follow-up validation or observability step completed
-- no regression of earlier validated phases
-- docs updated to reflect the new assembled capability
+---
+
+## Post-Phase-5 corrective and integration checkpoints
+**Status:** completed on the current development line
+
+After the main Phase 5 waveguide growth, the current development line also absorbed several bounded corrective/integration checkpoints:
+
+- closed-box baffled-radiator Struve-path fix
+- bass-reflex SPL observation `radiation_space` fix
+- provisional `os_lem.api` frontend facade
+- release-governance and milestone planning docs
+
+These are part of the current `v0.1.0` release track.
+
+---
+
+## v0.1.0 — foundation release
+**Status:** active milestone target
+
+### Intent
+Publish the first honest external release of `os-lem` without overstating scope.
+
+### Intended release character
+- narrow but real
+- validated enough to be usable
+- explicit about what is and is not claimed
+
+### Included direction
+- corrected sealed and vented baseline behavior
+- current one-driver classical output path
+- current minimal waveguide subset
+- current provisional frontend integration facade
+- aligned release/status documentation
+- at least one maintained example path
+
+### Explicit non-claims
+- broad Hornresp parity
+- broad AkAbak parity
+- mature transmission-line support
+- stable long-term public API
+- product-grade GUI/frontend
 
 ---
 
 ## Phase 6 — user-facing maturation
-**Status:** planned
+**Status:** planned after the current foundation release
 
 ### Goal
-Improve usability, examples, and result inspection after the next topology
-extension is stable.
+Improve usability, examples, and result inspection after the foundation release is coherent.
 
 ### Possible items
-- richer examples
-- clearer result objects
-- plotting helpers
-- better reporting / documentation
-
-### Exit criteria
-- examples align with implemented scope
-- docs match actual solver capability
+- richer maintained examples
+- plotting/reporting helpers
+- improved result inspection
+- broader but still disciplined API posture

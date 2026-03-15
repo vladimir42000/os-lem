@@ -2,60 +2,84 @@
 
 ## Status
 
-This file defines the single immediate next patch target for the next development session.
+This file defines the single immediate next patch target for the next development session after the current docs-alignment work is merged.
+
+---
 
 ## Current checkpoint to verify at startup
 
-Expected branch:
-`feature/p5-patch02-minimal-waveguide-assembly`
+Expected integration branch:
+`milestone/v0.1.0-foundation`
 
-Expected current checkpoint:
-latest committed Phase 5 cylindrical-loss implementation checkpoint plus bounded `ts_classic` motor-normalization bug-fix candidate
+Expected current posture:
+- release governance docs landed
+- milestone branch created
+- docs aligned to current repo truth
+- suite green
 
 Expected suite:
-green
+`104 passed` or newer green equivalent
+
+---
 
 ## Candidate next patch after startup verification
 
-**Fix `ts_classic` canonical `Bl` normalization**
+**Preserve maintained validation/example assets for the `v0.1.0` milestone**
+
+Suggested patch branch:
+`chore/v0.1.0-preserve-validation-examples`
+
+---
 
 ## Purpose
 
-Correct the `ts_classic` driver canonicalization bug that underestimates `Bl`. This patch is intentionally limited to the canonical normalization error; the remaining sealed-box impedance mismatch stays on the debug track until verified separately.
+Preserve useful Streamlit / validation example assets in tracked form and document their role honestly.
+
+The goal is to support validation and demonstration workflows without broadening kernel, API, or product claims.
+
+---
 
 ## Required scope
 
 Do exactly these things:
-- fix the `Bl` derivation in `src/os_lem/driver.py`
-- update canonical driver normalization tests so expected `Bl` is computed from the correct T/S relation
-- update only directly affected project docs to reflect the correction checkpoint
+
+- inspect the current tracked example state in `examples/streamlit_frontend/`
+- compare it against preserved local/example branch assets
+- restore only genuinely useful example files needed for validation/demo workflows
+- add a minimal README or note if needed
+- keep example/prototype status explicit
+- prefer the provisional `os_lem.api` facade over raw internal pipeline imports where practical within the bounded patch
+
+---
 
 ## Out of scope
 
-- frontend work
-- bass-reflex diagnosis expansion in the same patch
-- passive radiator
-- multi-driver support
-- broad output framework rewrite
-- broad refactor
-- GUI work
-- broad external parity claims
+- solver/kernel changes
+- parser changes
+- API redesign
+- broad frontend expansion
+- transmission-line feature work
+- broad docs rewrite beyond directly affected example notes
+- broad productization claims
+
+---
 
 ## Acceptance requirement
 
 The chosen patch must:
-- preserve current green tests
-- correct `ts_classic` canonical `Bl` normalization
-- add regression coverage that would have caught the prior canonical normalization bug
-- avoid changing unrelated solver conventions
-- avoid broadening beyond one correctness fix
+
+- preserve useful example assets in tracked form
+- keep their status explicitly prototype/example/validation-oriented
+- avoid reintroducing brittle direct coupling to unstable internal modules where the facade is the intended integration surface
+- preserve the current green suite
+- avoid broadening external claims
+
+---
 
 ## Must-not-change list
 
-- driver coupling sign conventions
-- validated earlier solver behavior outside the corrected `ts_classic` normalization
-- current assembled representation discipline
-- already-landed waveguide pressure-profile behavior
-- already-landed waveguide volume-velocity-profile behavior
-- already-landed waveguide particle-velocity-profile behavior
-- already-landed cylindrical-loss behavior
+- current solver conventions
+- corrected sealed-box and bass-reflex checkpoints
+- current validated waveguide subset
+- current release governance structure
+- current narrow public-claim posture

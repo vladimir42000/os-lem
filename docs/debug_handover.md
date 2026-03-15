@@ -1,118 +1,90 @@
 # Debug handover
 
-## Branches
+## Current posture
 
-Clean branch of record:
+The major debug cycles that were previously active around sealed-box and bass-reflex discrepancies are no longer the primary development track.
 
-- `feature/p5-patch02-minimal-waveguide-assembly`
+Their outcomes are now already integrated into the current development line.
 
-Debug branch:
+Normal development should proceed from:
+
+- `milestone/v0.1.0-foundation`
+
+Historical debug branches remain useful as diagnostic lineage:
 
 - `debug/closed-box-mismatch`
+- `debug/closed-box-radiator-fix`
+- `debug/bassreflex-radiation-space`
 
-Use the clean branch for normal feature work.
-Use the debug branch only for diagnosing the closed-box / loudspeaker kernel mismatch.
+Do not resume normal feature work on those branches.
 
-## Current status
+---
 
-- clean branch is green
-- debug branch is also currently green after reverting a temporary sign experiment
-- debug branch contains reusable comparison assets and investigation notes
-- closed-box mismatch has a localized root cause and a bounded corrective patch path
+## What the debug lineage established
+
+### Closed-box debug result
+
+The closed-box mismatch investigation localized a real low-frequency baffled-radiator reactance problem.
+
+Root cause:
+- bad low-frequency Struve behavior in the baffled-radiator reactance path
+
+Bounded fix:
+- replace the approximation path with `scipy.special.struve(1, z)`
+
+Outcome:
+- sealed-box resonance behavior returned to a physically sensible regime
+- the corrective checkpoint was frozen on the dedicated debug/fix lineage before being incorporated into the main development path
+
+### Bass-reflex debug result
+
+The later bass-reflex deep-null investigation localized a false SPL cancellation mechanism.
+
+Root cause:
+- driver and port could be observed into different radiation spaces in summed SPL
+
+Bounded fix:
+- decouple observation `radiation_space` from the radiator mechanical model
+- preserve explicit observation-space control for `spl` / `spl_sum`
+
+Outcome:
+- the false low-frequency cancellation was removed
+- the main development line now contains the corrected observation-space behavior
+
+---
 
 ## Reproduction assets
 
 Main script:
-
 - `debug/export_closed_box_compare.py`
 
 Reference data:
-
 - `debug/hornresp_closed_box_all.txt`
 
-Generated outputs are intentionally ignored by `debug/.gitignore`.
+Generated outputs remain intentionally ignorable in `debug/`.
 
-## How to rerun the main comparison
+These assets are historical diagnostic tools, not the primary release-validation surface.
 
-From repo root:
+---
 
-~~~bash
-python debug/export_closed_box_compare.py
-~~~
+## When to use the debug branches again
 
-This generates CSV outputs in `debug/` and prints summary comparisons for:
+Only return to dedicated debug branches if a new bounded discrepancy appears that cannot be responsibly handled on a normal feature/fix branch.
 
-- `ts_classic`
-- `em_explicit`
-- `em_explicit_large_back`
+If a new discrepancy appears:
 
-## What has already been ruled out
+1. branch from the current milestone or other current clean integration line
+2. isolate one hypothesis at a time
+3. keep the main milestone branch green
+4. do not mix unrelated topology growth into the debug thread
+5. merge or re-apply only the proven narrow fix
 
-The following were explicitly investigated and are not the main remaining cause:
+---
 
-- frontend-only plotting issue
-- `ts_classic` normalization as the main remaining source of error
-- fully disconnected rear volume
-- solving the wrong matrix instead of the coupled system
-- simple back-EMF sign flip
+## Current caution
 
-## What remains most suspicious
+Do not treat the existence of these debug branches as evidence that the current milestone is unstable.
 
-The strongest remaining suspicion is a shared coupling/convention problem in the loudspeaker kernel, likely involving:
+They are preserved because they contain useful diagnostic lineage and reproducible artifacts.
 
-- driver ↔ acoustic coupling strength
-- pressure/flow convention consistency
-- radiator loading convention
-- acoustic reaction force seen by the diaphragm
-
-## Important process rules
-
-- do not resume normal feature growth on this branch
-- do not mix unrelated waveguide work into this debug thread
-- prefer one small diagnostic experiment at a time
-- revert rejected experiments after learning from them
-- keep the clean branch green and separate
-
-## Recommended next debug step
-
-Suggested next bounded investigation:
-
-- compare the standard front-radiator case with a no-front-radiator diagnostic case
-- inspect whether the radiator shunt model is suppressing or mis-scaling the coupling
-- continue using raw backend exports, not screenshots only
-
-## Restart order for another AI or future session
-
-Read in this order:
-
-1. `docs/debug_closed_box_checkpoint.md`
-2. `docs/debug_handover.md`
-3. `docs/status.md`
-4. `docs/current_scope.md`
-5. `docs/session_handover.md`
-
-Then run:
-
-~~~bash
-python debug/export_closed_box_compare.py
-~~~
-
-and continue from the documented findings instead of restarting the diagnosis from zero.
-
-
-## Localized fix plan
-
-Apply a single bounded patch on a child debug branch from `debug/closed-box-mismatch`:
-
-- code: replace `_struve_h1_aarts_janssen()` body with `scipy.special.struve(1, z)`
-- tests: add a low-`ka` baffled-piston reactance regression and a closed-box regression proving that larger rear volume increases resonance-region excursion again
-- docs: update `docs/radiator_models.md`, `docs/decision_log.md`, and these debug notes
-
-Do not mix this with waveguide work or general repo cleanup.
-
-
-## Follow-on bass-reflex finding
-
-After the closed-box Struve fix, the next localized vented-box mismatch was traced to mixed observation radiation spaces in SPL summation: the driver and port could silently inherit different solid-angle conventions from their radiator models.
-
-The next bounded patch after the closed-box fix should therefore decouple observation `radiation_space` from the radiator mechanical model, preserve legacy fallback defaults for backward compatibility, and warn when `spl_sum` mixes spaces.
+Their key findings are already reflected in the current development baseline.
