@@ -18,6 +18,9 @@ Not as immediate coder.
 1. Read:
 - `docs/start_here.md`
 - `docs/current_scope.md`
+- `docs/release_strategy.md`
+- `docs/release_plan.md`
+- `docs/capability_matrix.md`
 - `docs/next_patch.md`
 
 2. Then ask the user to run and paste:
@@ -33,7 +36,8 @@ Not as immediate coder.
 
 4. Before proposing code:
 - summarize current state
-- verify whether `next_patch.md` still matches repo reality
+- identify the active milestone branch, if one exists
+- verify whether `docs/next_patch.md` still matches repo reality
 - recommend exactly one bounded next patch only
 
 ## Rules
@@ -51,14 +55,25 @@ Not as immediate coder.
 
 1. current tested repo state
 2. current branch and commits
-3. `current_scope.md`
-4. `next_patch.md`
-5. stable backbone docs
-6. historical docs
+3. current milestone branch, if one exists
+4. `docs/current_scope.md`
+5. `docs/release_plan.md`
+6. `docs/capability_matrix.md`
+7. `docs/next_patch.md`
+8. stable backbone docs
+9. historical docs
 
 ## Current strategic posture
 
-- project direction: AkAbak-like open-source kernel
+- project direction: open, scriptable loudspeaker LEM kernel
+- current release target: `v0.1.0` foundation milestone
 - immediate discipline: small validated steps
-- UI ambitions are real, but deferred until kernel maturity justifies them
+- UI ambitions are real, but deferred until kernel maturity justifies broader claims
 
+## Current caution
+
+Do not confuse:
+- implemented subset
+- validated subset
+- released subset
+- future target capabilities
