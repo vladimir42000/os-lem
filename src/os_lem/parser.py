@@ -9,6 +9,7 @@ import yaml
 import numpy as np
 
 from .driver import normalize_driver
+from .elements.radiator import default_radiation_space_for_model, normalize_radiation_space
 from .errors import SchemaError, ValidationError
 from .model import (
     DuctElement,
@@ -78,6 +79,15 @@ def _require_top_level(data: dict[str, Any]) -> None:
 def _require_positive(name: str, value: float) -> None:
     if value <= 0.0:
         raise ValidationError(f"{name} must be > 0, got {value!r}")
+
+
+def _validate_radiation_space_field(space: Any, context: str) -> str:
+    if not isinstance(space, str):
+        raise ValidationError(f"{context} radiation_space must be a string")
+    try:
+        return normalize_radiation_space(space)
+    except ValueError as exc:
+        raise ValidationError(str(exc)) from exc
 
 
 def _normalize_element(raw: dict[str, Any]):
@@ -188,6 +198,12 @@ def _normalize_observation(raw: dict[str, Any]) -> Observation:
 def normalize_model(data: dict[str, Any]) -> tuple[NormalizedModel, list[str]]:
     _require_top_level(data)
 
+    meta = data.get("meta", {})
+    if meta is not None and not isinstance(meta, dict):
+        raise SchemaError("Top-level 'meta' must be a mapping when present")
+    if isinstance(meta, dict) and "radiation_space" in meta:
+        _validate_radiation_space_field(meta["radiation_space"], "meta")
+
     driver_raw = data["driver"]
     if not isinstance(driver_raw, dict):
         raise SchemaError("Top-level 'driver' must be a mapping")
@@ -267,6 +283,7 @@ def normalize_model(data: dict[str, Any]) -> tuple[NormalizedModel, list[str]]:
     )
 
     _validate_observation_references(model)
+    warnings.extend(_collect_observation_warnings(model))
     validate_topology(model)
 
     return model, warnings
@@ -299,19 +316,70 @@ def _validate_observation_references(model: NormalizedModel) -> None:
         elif otype in {"spl", "element_volume_velocity", "element_particle_velocity", "line_profile"}:
             if data.get("target") not in element_ids:
                 raise ValidationError(f"Observation {obs.id!r} references missing element target")
+            if otype == "spl" and "radiation_space" in data:
+                _validate_radiation_space_field(data["radiation_space"], f"observation {obs.id!r}")
 
         elif otype == "group_delay":
             if data.get("target") not in obs_ids:
                 raise ValidationError(f"Observation {obs.id!r} references missing observation target")
 
         elif otype == "spl_sum":
+            if "radiation_space" in data:
+                _validate_radiation_space_field(data["radiation_space"], f"observation {obs.id!r}")
             terms = data.get("terms")
             if not isinstance(terms, list) or not terms:
                 raise ValidationError(f"Observation {obs.id!r} requires non-empty terms")
             for term in terms:
                 if not isinstance(term, dict) or term.get("target") not in element_ids:
                     raise ValidationError(f"Observation {obs.id!r} has invalid spl_sum term target")
+                if "radiation_space" in term:
+                    _validate_radiation_space_field(term["radiation_space"], f"observation {obs.id!r} term {term.get('target')!r}")
 
+
+
+def _resolved_radiation_space_for_term(
+    model: NormalizedModel,
+    target_to_radiator_model: dict[str, str],
+    term: dict[str, Any],
+    parent_space: str | None = None,
+) -> str | None:
+    if "radiation_space" in term:
+        return normalize_radiation_space(str(term["radiation_space"]))
+    if parent_space is not None:
+        return parent_space
+    meta_space = model.metadata.get("radiation_space")
+    if meta_space is not None:
+        return normalize_radiation_space(str(meta_space))
+    target = term.get("target")
+    if isinstance(target, str) and target in target_to_radiator_model:
+        return default_radiation_space_for_model(target_to_radiator_model[target])
+    return None
+
+
+def _collect_observation_warnings(model: NormalizedModel) -> list[str]:
+    warnings: list[str] = []
+    target_to_radiator_model = {r.id: r.model for r in model.radiators}
+
+    for obs in model.observations:
+        if obs.type != "spl_sum":
+            continue
+        data = obs.data
+        parent_space = None
+        if "radiation_space" in data:
+            parent_space = normalize_radiation_space(str(data["radiation_space"]))
+        terms = data.get("terms", [])
+        resolved = []
+        for term in terms:
+            if isinstance(term, dict):
+                space = _resolved_radiation_space_for_term(model, target_to_radiator_model, term, parent_space)
+                if space is not None:
+                    resolved.append(space)
+        if resolved and len(set(resolved)) > 1:
+            warnings.append(
+                f"Observation {obs.id!r} sums sources with different radiation_space values; "
+                "low-frequency summation may be unphysical."
+            )
+    return warnings
 
 def load_and_normalize(path: str | Path) -> tuple[NormalizedModel, list[str]]:
     return normalize_model(load_model(path))

@@ -52,12 +52,45 @@ def radiator_impedance(model: str, omega: float, area_m2: float) -> complex:
     return (Z0 / area_m2) * z
 
 
-def radiator_observation_transfer(model: str, omega: float, distance_m: float) -> complex:
-    k = omega / C0
+_ALLOWED_RADIATION_SPACES = {"4pi", "2pi", "pi", "half_pi"}
+
+
+def default_radiation_space_for_model(model: str) -> str:
     if model in {"infinite_baffle_piston", "flanged_piston"}:
-        coeff = 1j * omega * RHO0 / (2.0 * PI * distance_m)
-    elif model == "unflanged_piston":
-        coeff = 1j * omega * RHO0 / (4.0 * PI * distance_m)
-    else:
-        raise ValueError(f"Unsupported radiator model: {model!r}")
+        return "2pi"
+    if model == "unflanged_piston":
+        return "4pi"
+    raise ValueError(f"Unsupported radiator model: {model!r}")
+
+
+def normalize_radiation_space(space: str) -> str:
+    token = str(space).strip()
+    if token not in _ALLOWED_RADIATION_SPACES:
+        raise ValueError(
+            f"Unsupported radiation_space {space!r}; expected one of {sorted(_ALLOWED_RADIATION_SPACES)!r}"
+        )
+    return token
+
+
+def solid_angle_for_radiation_space(space: str) -> float:
+    token = normalize_radiation_space(space)
+    if token == "4pi":
+        return 4.0 * PI
+    if token == "2pi":
+        return 2.0 * PI
+    if token == "pi":
+        return PI
+    return 0.5 * PI
+
+
+def radiator_observation_transfer(
+    model: str,
+    omega: float,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+) -> complex:
+    k = omega / C0
+    token = default_radiation_space_for_model(model) if radiation_space is None else normalize_radiation_space(radiation_space)
+    coeff = 1j * omega * RHO0 / (solid_angle_for_radiation_space(token) * distance_m)
     return coeff * complex(math.cos(-k * distance_m), math.sin(-k * distance_m))

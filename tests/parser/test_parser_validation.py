@@ -238,3 +238,86 @@ def test_waveguide_loss_rejects_conical_case_and_negative_values():
     )
     with pytest.raises(ValidationError, match="must be >= 0"):
         normalize_model(model)
+
+
+def test_meta_radiation_space_is_accepted_and_invalid_token_rejected():
+    model = _base_model()
+    model["meta"] = {"name": "demo", "radiation_space": "2pi"}
+    normalized, warnings = normalize_model(model)
+    assert normalized.metadata["radiation_space"] == "2pi"
+    assert warnings == []
+
+    model["meta"]["radiation_space"] = "3pi"
+    with pytest.raises(ValidationError, match="Unsupported radiation_space"):
+        normalize_model(model)
+
+
+def test_spl_sum_warns_when_mixed_radiation_spaces_are_resolved():
+    model = _base_model()
+    model["elements"].append(
+        {
+            "id": "port",
+            "type": "duct",
+            "node_a": "rear",
+            "node_b": "mouth",
+            "length": "20 cm",
+            "area": "20 cm2",
+        }
+    )
+    model["elements"].append(
+        {
+            "id": "port_rad",
+            "type": "radiator",
+            "node": "mouth",
+            "model": "unflanged_piston",
+            "area": "20 cm2",
+        }
+    )
+    model["observations"] = [
+        {
+            "id": "spl_total",
+            "type": "spl_sum",
+            "terms": [
+                {"target": "front_rad", "distance": "1 m"},
+                {"target": "port_rad", "distance": "1 m"},
+            ],
+        }
+    ]
+    _, warnings = normalize_model(model)
+    assert any("different radiation_space values" in warning for warning in warnings)
+
+
+def test_spl_sum_parent_radiation_space_suppresses_mixed_space_warning():
+    model = _base_model()
+    model["elements"].append(
+        {
+            "id": "port",
+            "type": "duct",
+            "node_a": "rear",
+            "node_b": "mouth",
+            "length": "20 cm",
+            "area": "20 cm2",
+        }
+    )
+    model["elements"].append(
+        {
+            "id": "port_rad",
+            "type": "radiator",
+            "node": "mouth",
+            "model": "unflanged_piston",
+            "area": "20 cm2",
+        }
+    )
+    model["observations"] = [
+        {
+            "id": "spl_total",
+            "type": "spl_sum",
+            "radiation_space": "2pi",
+            "terms": [
+                {"target": "front_rad", "distance": "1 m"},
+                {"target": "port_rad", "distance": "1 m"},
+            ],
+        }
+    ]
+    _, warnings = normalize_model(model)
+    assert warnings == []

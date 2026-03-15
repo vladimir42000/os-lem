@@ -10,7 +10,12 @@ import numpy as np
 from .assemble import AssembledElement, AssembledSystem
 from .constants import C0, P_REF, RHO0
 from .elements.duct import duct_admittance
-from .elements.radiator import radiator_impedance
+from .elements.radiator import (
+    default_radiation_space_for_model,
+    normalize_radiation_space,
+    radiator_impedance,
+    solid_angle_for_radiation_space,
+)
 from .elements.volume import volume_admittance
 from .elements.waveguide_1d import (
     area_at_position,
@@ -691,17 +696,17 @@ def solve_frequency_sweep(
     )
 
 
-def _radiator_observation_transfer(model_name: str, omega: float, distance_m: float) -> complex:
+def _radiator_observation_transfer(
+    model_name: str,
+    omega: float,
+    distance_m: float,
+    radiation_space: str | None = None,
+) -> complex:
     if distance_m <= 0.0:
         raise ValueError("distance_m must be > 0")
 
-    if model_name in {"infinite_baffle_piston", "flanged_piston"}:
-        scale = 2.0 * np.pi * distance_m
-    elif model_name == "unflanged_piston":
-        scale = 4.0 * np.pi * distance_m
-    else:
-        raise ValueError(f"unsupported radiator model {model_name!r}")
-
+    token = default_radiation_space_for_model(model_name) if radiation_space is None else normalize_radiation_space(radiation_space)
+    scale = solid_angle_for_radiation_space(token) * distance_m
     k = omega / C0
     return (1j * omega * RHO0 / scale) * np.exp(-1j * k * distance_m)
 
@@ -718,6 +723,7 @@ def radiator_observation_pressure(
     system: AssembledSystem,
     radiator_id: str,
     distance_m: float,
+    radiation_space: str | None = None,
 ) -> np.ndarray:
     """Return complex on-axis far-field pressure for one radiator over a sweep."""
 
@@ -731,7 +737,7 @@ def radiator_observation_pressure(
     for idx, (omega, node_pressure) in enumerate(zip(sweep.omega_rad_s, node_pressures, strict=True)):
         z_rad = radiator_impedance(payload.model, float(omega), payload.area_m2)
         q_rad = node_pressure / z_rad
-        h_q = _radiator_observation_transfer(payload.model, float(omega), distance_m)
+        h_q = _radiator_observation_transfer(payload.model, float(omega), distance_m, radiation_space)
         observation_pressure[idx] = h_q * q_rad
 
     return observation_pressure
@@ -742,8 +748,9 @@ def radiator_spl(
     system: AssembledSystem,
     radiator_id: str,
     distance_m: float,
+    radiation_space: str | None = None,
 ) -> np.ndarray:
     """Return one-radiator SPL in dB over a sweep."""
 
-    p_obs = radiator_observation_pressure(sweep, system, radiator_id, distance_m)
+    p_obs = radiator_observation_pressure(sweep, system, radiator_id, distance_m, radiation_space)
     return 20.0 * np.log10(np.abs(p_obs) / P_REF)

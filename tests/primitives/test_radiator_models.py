@@ -15,13 +15,26 @@ def _area_for_ka_target(ka: float, omega: float) -> float:
     return PI * a * a
 
 
-def test_radiator_observation_transfer_half_vs_full_space():
+def test_radiator_observation_transfer_default_half_vs_full_space():
     f = 100.0
     w = 2 * math.pi * f
     r = 1.0
     h_half = radiator_observation_transfer("flanged_piston", w, r)
     h_full = radiator_observation_transfer("unflanged_piston", w, r)
     assert abs(h_half / h_full - 2.0) < 1e-12
+
+
+def test_radiator_observation_transfer_explicit_radiation_space_ratios():
+    f = 100.0
+    w = 2 * math.pi * f
+    r = 1.0
+    h_4pi = radiator_observation_transfer("unflanged_piston", w, r, radiation_space="4pi")
+    h_2pi = radiator_observation_transfer("unflanged_piston", w, r, radiation_space="2pi")
+    h_pi = radiator_observation_transfer("unflanged_piston", w, r, radiation_space="pi")
+    h_half_pi = radiator_observation_transfer("unflanged_piston", w, r, radiation_space="half_pi")
+    assert abs(h_2pi / h_4pi - 2.0) < 1e-12
+    assert abs(h_pi / h_2pi - 2.0) < 1e-12
+    assert abs(h_half_pi / h_pi - 2.0) < 1e-12
 
 
 def test_flanged_and_unflanged_passivity_and_inertive_low_frequency():

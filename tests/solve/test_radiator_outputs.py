@@ -97,3 +97,40 @@ def test_radiator_helpers_reject_nonpositive_distance() -> None:
 
     with pytest.raises(ValueError, match="distance_m must be > 0"):
         radiator_observation_pressure(sweep, system, "port_rad", 0.0)
+
+
+def test_radiator_observation_helpers_accept_explicit_radiation_space_override() -> None:
+    model = _minimal_vented_like_model()
+    system = assemble_system(model)
+
+    sweep = solve_frequency_sweep(model, system, [100.0])
+    p_half = radiator_observation_pressure(sweep, system, "port_rad", 1.0, radiation_space="2pi")
+    p_full = radiator_observation_pressure(sweep, system, "port_rad", 1.0, radiation_space="4pi")
+
+    np.testing.assert_allclose(p_half, 2.0 * p_full)
+
+
+def test_explicit_same_radiation_space_removes_default_mixed_space_notch_direction() -> None:
+    model = NormalizedModel(
+        driver=_driver(),
+        volumes=[VolumeElement(id="rear_vol", node="rear", value_m3=0.035)],
+        ducts=[DuctElement(id="port_duct", node_a="rear", node_b="port", length_m=0.20, area_m2=0.0019634954084936208)],
+        radiators=[
+            RadiatorElement(id="front_rad", node="front", model="infinite_baffle_piston", area_m2=0.0132),
+            RadiatorElement(id="port_rad", node="port", model="unflanged_piston", area_m2=0.0019634954084936208),
+        ],
+        node_order=["front", "rear", "port"],
+        metadata={"name": "vented_box_demo"},
+    )
+    system = assemble_system(model)
+    sweep = solve_frequency_sweep(model, system, [20.0])
+
+    p_driver_default = radiator_observation_pressure(sweep, system, "front_rad", 1.0)
+    p_port_default = radiator_observation_pressure(sweep, system, "port_rad", 1.0)
+    p_driver_same = radiator_observation_pressure(sweep, system, "front_rad", 1.0, radiation_space="2pi")
+    p_port_same = radiator_observation_pressure(sweep, system, "port_rad", 1.0, radiation_space="2pi")
+
+    mixed_mag = np.abs(p_driver_default + p_port_default)[0]
+    same_mag = np.abs(p_driver_same + p_port_same)[0]
+
+    assert same_mag > mixed_mag
