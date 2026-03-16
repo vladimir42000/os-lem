@@ -142,6 +142,24 @@ def _metrics(sim: np.ndarray, ref: np.ndarray) -> dict[str, float]:
     }
 
 
+def _band_metrics(freq: np.ndarray, sim: np.ndarray, ref: np.ndarray, bands: list[tuple[float, float]]) -> dict[str, dict[str, float]]:
+    out: dict[str, dict[str, float]] = {}
+    for f_lo, f_hi in bands:
+        mask = (freq >= f_lo) & (freq < f_hi) & np.isfinite(sim) & np.isfinite(ref)
+        key = f"{f_lo:g}-{f_hi:g}_Hz"
+        if not np.any(mask):
+            out[key] = {"count": 0}
+            continue
+        diff = sim[mask] - ref[mask]
+        out[key] = {
+            "count": int(mask.sum()),
+            "mae": float(np.mean(np.abs(diff))),
+            "rmse": float(np.sqrt(np.mean(diff * diff))),
+            "max_abs_error": float(np.max(np.abs(diff))),
+        }
+    return out
+
+
 def main() -> int:
     here = Path(__file__).resolve()
     repo_candidates = _candidate_repo_roots(here.parent)
@@ -183,27 +201,36 @@ def main() -> int:
 
     result = run_simulation(model_dict, freqs)
 
-    compare_columns: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+    comparisons: dict[str, dict[str, np.ndarray]] = {}
 
     if "zin_mag_ohm" in ref and result.zin_mag_ohm is not None:
-        compare_columns["zin_mag_ohm"] = (np.asarray(result.zin_mag_ohm, dtype=float), ref["zin_mag_ohm"])
+        comparisons["zin_mag_ohm"] = {
+            "sim": np.asarray(result.zin_mag_ohm, dtype=float),
+            "ref": ref["zin_mag_ohm"],
+        }
 
     if "x_mm" in ref and result.cone_excursion_mm is not None:
-        compare_columns["x_mm"] = (np.asarray(result.cone_excursion_mm, dtype=float), ref["x_mm"])
+        x_rms = np.asarray(result.cone_excursion_mm, dtype=float)
+        x_peak = x_rms * np.sqrt(2.0)
+        comparisons["x_peak_mm"] = {
+            "sim": x_peak,
+            "ref": ref["x_mm"],
+            "sim_rms": x_rms,
+        }
 
     if "spl_total_db" in ref and "spl_total" in result.series:
-        compare_columns["spl_total_db"] = (
-            np.asarray(result.series["spl_total"], dtype=float),
-            ref["spl_total_db"],
-        )
+        comparisons["spl_total_db"] = {
+            "sim": np.asarray(result.series["spl_total"], dtype=float),
+            "ref": ref["spl_total_db"],
+        }
 
     if "spl_mouth_db" in ref and "spl_mouth" in result.series:
-        compare_columns["spl_mouth_db"] = (
-            np.asarray(result.series["spl_mouth"], dtype=float),
-            ref["spl_mouth_db"],
-        )
+        comparisons["spl_mouth_db"] = {
+            "sim": np.asarray(result.series["spl_mouth"], dtype=float),
+            "ref": ref["spl_mouth_db"],
+        }
 
-    if not compare_columns:
+    if not comparisons:
         raise ValueError(
             "Reference file does not contain any supported comparison columns.\n"
             "Supported optional columns are: zin_mag_ohm, x_mm, spl_total_db, spl_mouth_db"
@@ -213,19 +240,41 @@ def main() -> int:
     summary_json = outdir / "offset_line_summary.json"
 
     fieldnames = ["frequency_hz"]
-    rows: list[dict[str, Any]] = []
-    for name in compare_columns:
-        fieldnames.extend([f"oslem_{name}", f"hornresp_{name}", f"delta_{name}"])
+    for name, payload in comparisons.items():
+        if name == "x_peak_mm":
+            fieldnames.extend(
+                [
+                    "oslem_x_rms_mm",
+                    "oslem_x_peak_mm",
+                    "hornresp_x_peak_mm",
+                    "delta_x_peak_mm",
+                ]
+            )
+        else:
+            fieldnames.extend([f"oslem_{name}", f"hornresp_{name}", f"delta_{name}"])
 
+    rows: list[dict[str, Any]] = []
     for i, f_hz in enumerate(freqs):
         row: dict[str, Any] = {"frequency_hz": float(f_hz)}
-        for name, (sim, ref_col) in compare_columns.items():
+        for name, payload in comparisons.items():
+            sim = payload["sim"]
+            ref_col = payload["ref"]
             sim_v = float(sim[i]) if np.isfinite(sim[i]) else math.nan
             ref_v = float(ref_col[i]) if np.isfinite(ref_col[i]) else math.nan
             delta = sim_v - ref_v if math.isfinite(sim_v) and math.isfinite(ref_v) else math.nan
-            row[f"oslem_{name}"] = sim_v
-            row[f"hornresp_{name}"] = ref_v
-            row[f"delta_{name}"] = delta
+
+            if name == "x_peak_mm":
+                x_rms = payload["sim_rms"]
+                rms_v = float(x_rms[i]) if np.isfinite(x_rms[i]) else math.nan
+                row["oslem_x_rms_mm"] = rms_v
+                row["oslem_x_peak_mm"] = sim_v
+                row["hornresp_x_peak_mm"] = ref_v
+                row["delta_x_peak_mm"] = delta
+            else:
+                row[f"oslem_{name}"] = sim_v
+                row[f"hornresp_{name}"] = ref_v
+                row[f"delta_{name}"] = delta
+
         rows.append(row)
 
     with comparison_csv.open("w", newline="", encoding="utf-8") as f:
@@ -241,8 +290,17 @@ def main() -> int:
         "warnings": list(result.warnings or []),
     }
 
-    for name, (sim, ref_col) in compare_columns.items():
-        summary["comparisons"][name] = _metrics(sim, ref_col)
+    for name, payload in comparisons.items():
+        summary["comparisons"][name] = _metrics(payload["sim"], payload["ref"])
+
+    if "spl_total_db" in comparisons:
+        bands = [(10.0, 200.0), (200.0, 1000.0), (1000.0, 5000.0), (5000.0, 20000.1)]
+        summary["spl_total_db_bands"] = _band_metrics(
+            freqs,
+            comparisons["spl_total_db"]["sim"],
+            comparisons["spl_total_db"]["ref"],
+            bands,
+        )
 
     summary_json.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
@@ -253,6 +311,11 @@ def main() -> int:
     print("Available comparison metrics:")
     for name, metrics in summary["comparisons"].items():
         print(f"  {name}: {metrics}")
+    if "spl_total_db_bands" in summary:
+        print("")
+        print("Band-limited SPL metrics:")
+        for band, metrics in summary["spl_total_db_bands"].items():
+            print(f"  {band}: {metrics}")
     if summary["warnings"]:
         print("")
         print("os-lem warnings:")

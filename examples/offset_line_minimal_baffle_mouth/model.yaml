@@ -1,5 +1,5 @@
 meta:
-  name: offset_line_minimal
+  name: offset_line_minimal_baffle_mouth
   radiation_space: 2pi
 
 driver:
@@ -45,7 +45,7 @@ elements:
   - id: mouth_rad
     type: radiator
     node: mouth
-    model: unflanged_piston
+    model: infinite_baffle_piston
     area: 132 cm2
 
 observations:
