@@ -14,30 +14,28 @@ The current evidence already shows:
 
 - input impedance is reasonably close
 - cone excursion is extremely close once RMS-vs-peak is handled correctly
-- driver, port, and sum SPL all show similar HF magnitude drift
-- raw phase mismatch is large and similar for driver, port, and sum
+- driver phase largely collapses after 1 m reference removal + polarity flip
+- port phase does **not** collapse nearly as well under that same global normalization
 
-That strongly suggests a comparison-layer phase-reference mismatch.
+That means the next useful question is:
+
+- can the remaining port-phase mismatch be explained by a simple additional mouth-only reference offset?
 
 ---
 
-## Phase-reference isolation workflow
+## Mouth observation contract isolation workflow
 
 Use:
 
-- `debug/export_offset_line_contribution_compare.py`
-- Hornresp FRD exports for driver, port, and sum
+- `debug/export_offset_line_mouth_contract_compare.py`
+- Hornresp FRD exports for driver and port
 
-The updated script now reports:
+The script:
 
-- raw phase metrics
-- normalized phase metrics after:
-  - removing a configurable observation distance
-  - optionally applying a 180° polarity flip
+- keeps the driver normalization fixed
+- applies the same global normalization to the port
+- then scans an additional port-only reference distance offset
+- reports the best-fitting extra distance and resulting phase metrics
 
-Recommended first run for the current hypothesis:
-
-- `--phase-reference-distance-m 1.0`
-- `--phase-polarity-flip`
-
-If normalized phase error collapses strongly, that supports the view that the remaining phase mismatch is observational, not a TL-physics failure.
+This is a comparison-layer test only.
+No kernel math is changed.
