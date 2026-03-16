@@ -10,38 +10,21 @@ The goal is only to determine whether one minimal offset-line case overlaps acce
 
 ---
 
-## Current repo truth before source-spacing isolation
+## Critical implementation detail
 
-The current repository already shows that a minimal offset-line topology can be expressed internally as:
+The source-spacing isolation script must use:
 
-- one closed stub `waveguide_1d`
-- one main `waveguide_1d`
-- shared junction at the driver rear node
-- mouth radiator at the open end
+- `radiator_observation_pressure(...)`
 
-The repo already proves this topology can:
+not:
 
-- parse
-- assemble
-- solve
-- expose internally consistent junction/profile behavior
+- `radiator_spl(...)`
 
-External overlap already looks reasonably credible for:
+Reason:
+- `radiator_observation_pressure(...)` returns complex far-field pressure
+- `radiator_spl(...)` returns already-converted SPL in dB
 
-- input impedance
-- cone excursion, once RMS-vs-peak convention is handled correctly
-
-The remaining large mismatch is concentrated in total SPL, especially at higher frequencies.
-
----
-
-## Current bounded hypothesis
-
-The strongest remaining hypothesis is:
-
-- the current `spl_sum` comparison behaves as if the driver and mouth are co-located
-- Hornresp likely includes an effective source-spacing / phase-of-arrival difference
-- that mismatch should mainly affect total SPL, not `Zin` or excursion
+Only the complex pressure form is valid for applying additional phase delay before summation.
 
 ---
 
@@ -87,16 +70,3 @@ Then the next likely target is a different radiation/directivity/loading convent
 Then the next step is to identify whether the correct path-length offset is different from the current simple guess.
 
 Do not widen claims beyond the evidence.
-
----
-
-## Current caution
-
-This debug thread must remain bounded.
-
-Do not mix into it:
-
-- broad TL implementation work
-- frontend work
-- API redesign
-- unrelated kernel changes

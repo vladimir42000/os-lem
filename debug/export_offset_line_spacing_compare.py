@@ -2,16 +2,12 @@ from __future__ import annotations
 
 import argparse
 import csv
-import inspect
 import json
-import math
 import re
 import sys
 from pathlib import Path
-from typing import Any
 
 import numpy as np
-import yaml
 
 
 def _candidate_repo_roots(start: Path) -> list[Path]:
@@ -161,39 +157,6 @@ def _band_metrics(freq: np.ndarray, sim: np.ndarray, ref: np.ndarray, bands: lis
     return out
 
 
-def _call_radiator_spl(fn, sweep, system, radiator_id: str, distance_m: float, radiation_space: str | None):
-    sig = inspect.signature(fn)
-    params = sig.parameters
-    kwargs: dict[str, Any] = {}
-
-    if "sweep" in params:
-        kwargs["sweep"] = sweep
-    if "solved" in params:
-        kwargs["solved"] = sweep
-    if "system" in params:
-        kwargs["system"] = system
-    if "assembled" in params:
-        kwargs["assembled"] = system
-    if "radiator_id" in params:
-        kwargs["radiator_id"] = radiator_id
-    elif "target" in params:
-        kwargs["target"] = radiator_id
-    if "distance_m" in params:
-        kwargs["distance_m"] = distance_m
-    elif "distance" in params:
-        kwargs["distance"] = distance_m
-    if radiation_space is not None and "radiation_space" in params:
-        kwargs["radiation_space"] = radiation_space
-
-    # If signature names are different from expected, fall back to a positional call.
-    try:
-        return fn(**kwargs)
-    except TypeError:
-        if radiation_space is not None and "radiation_space" in params:
-            return fn(sweep, system, radiator_id, distance_m, radiation_space)
-        return fn(sweep, system, radiator_id, distance_m)
-
-
 def main() -> int:
     here = Path(__file__).resolve()
     repo_candidates = _candidate_repo_roots(here.parent)
@@ -207,7 +170,7 @@ def main() -> int:
     from os_lem.assemble import assemble_system
     from os_lem.constants import C0, P_REF
     from os_lem.parser import load_and_normalize
-    from os_lem.solve import radiator_spl, solve_frequency_sweep
+    from os_lem.solve import radiator_observation_pressure, solve_frequency_sweep
 
     parser = argparse.ArgumentParser(description="Isolate source-spacing SPL effects for the offset-line comparison.")
     parser.add_argument(
@@ -234,7 +197,7 @@ def main() -> int:
     parser.add_argument(
         "--radiation-space",
         default="2pi",
-        help="Observation radiation_space to use when evaluating individual complex radiator SPLs.",
+        help="Observation radiation_space to use when evaluating complex radiator pressures.",
     )
     args = parser.parse_args()
 
@@ -245,32 +208,32 @@ def main() -> int:
 
     ref = _load_reference(reference_path)
     freqs = ref["frequency_hz"]
+    if "spl_total_db" not in ref:
+        raise ValueError("Reference file does not contain Hornresp SPL data (SPL (dB)).")
+    ref_spl = ref["spl_total_db"]
+
     model, warnings = load_and_normalize(model_path)
     system = assemble_system(model)
     sweep = solve_frequency_sweep(model, system, freqs)
 
-    p_driver = _call_radiator_spl(
-        radiator_spl, sweep, system, "front_rad", 1.0, args.radiation_space
+    p_driver = radiator_observation_pressure(
+        sweep, system, "front_rad", 1.0, radiation_space=args.radiation_space
     )
-    p_mouth = _call_radiator_spl(
-        radiator_spl, sweep, system, "mouth_rad", 1.0, args.radiation_space
+    p_mouth = radiator_observation_pressure(
+        sweep, system, "mouth_rad", 1.0, radiation_space=args.radiation_space
     )
 
     omega = 2.0 * np.pi * freqs
     k = omega / C0
     phase_modifier = np.exp(-1j * k * float(args.separation_m))
+
     p_total_colocated = p_driver + p_mouth
     p_total_delayed = p_driver + p_mouth * phase_modifier
 
     spl_colocated_db = 20.0 * np.log10(np.maximum(np.abs(p_total_colocated), 1e-30) / P_REF)
     spl_delayed_db = 20.0 * np.log10(np.maximum(np.abs(p_total_delayed), 1e-30) / P_REF)
 
-    if "spl_total_db" not in ref:
-        raise ValueError("Reference file does not contain Hornresp SPL data (SPL (dB)).")
-
-    ref_spl = ref["spl_total_db"]
     bands = [(10.0, 200.0), (200.0, 1000.0), (1000.0, 5000.0), (5000.0, 20000.1)]
-
     comparison_csv = outdir / "offset_line_spacing_compare.csv"
     summary_json = outdir / "offset_line_spacing_summary.json"
 
@@ -320,6 +283,10 @@ def main() -> int:
     print("Overall SPL metrics:")
     print(f"  colocated: {summary['spl_total_db_colocated']}")
     print(f"  delayed:   {summary['spl_total_db_delayed']}")
+    print("")
+    print("Band-limited SPL metrics (colocated):")
+    for band, metrics in summary["spl_total_db_colocated_bands"].items():
+        print(f"  {band}: {metrics}")
     print("")
     print("Band-limited SPL metrics (delayed):")
     for band, metrics in summary["spl_total_db_delayed_bands"].items():
