@@ -1,5 +1,6 @@
 meta:
   name: offset_line_minimal
+  radiation_space: 2pi
 
 driver:
   id: drv1
@@ -56,11 +57,13 @@ observations:
     type: spl
     target: front_rad
     distance: 1 m
+    radiation_space: 2pi
 
   - id: spl_mouth
     type: spl
     target: mouth_rad
     distance: 1 m
+    radiation_space: 2pi
 
   - id: spl_total
     type: spl_sum

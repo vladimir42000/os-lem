@@ -28,6 +28,17 @@ def _candidate_repo_roots(start: Path) -> list[Path]:
     return uniq
 
 
+def _validate_frequency_axis(freq: np.ndarray) -> None:
+    if freq.ndim != 1 or freq.size == 0:
+        raise ValueError("frequency_hz must be a non-empty 1D column")
+    if np.any(~np.isfinite(freq)):
+        raise ValueError("frequency_hz contains non-finite values")
+    if np.any(freq <= 0.0):
+        raise ValueError("frequency_hz must be > 0")
+    if np.any(np.diff(freq) <= 0.0):
+        raise ValueError("frequency_hz must be strictly increasing")
+
+
 def _load_reference_csv(path: Path) -> dict[str, np.ndarray]:
     with path.open(newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -67,11 +78,11 @@ def _normalize_hornresp_header(name: str) -> str:
 
 
 def _load_reference_hornresp_txt(path: Path) -> dict[str, np.ndarray]:
-    text = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
 
     header_idx = None
     header = None
-    for i, line in enumerate(text):
+    for i, line in enumerate(lines):
         if "Freq (hertz)" in line and "Ze (ohms)" in line:
             header_idx = i
             header = [c.strip() for c in re.split(r"\t+", line.strip()) if c.strip()]
@@ -86,13 +97,12 @@ def _load_reference_hornresp_txt(path: Path) -> dict[str, np.ndarray]:
     norm_header = [_normalize_hornresp_header(h) for h in header]
     columns: dict[str, list[float]] = {h: [] for h in norm_header}
 
-    for line in text[header_idx + 1 :]:
-        line = line.strip()
-        if not line:
+    for line in lines[header_idx + 1 :]:
+        raw = line.strip()
+        if not raw:
             continue
-        parts = [c.strip() for c in re.split(r"\t+", line) if c.strip()]
+        parts = [c.strip() for c in re.split(r"\t+", raw) if c.strip()]
         if len(parts) != len(header):
-            # stop once the regular table structure ends
             continue
         try:
             vals = [float(p) for p in parts]
@@ -119,17 +129,6 @@ def _load_reference(path: Path) -> dict[str, np.ndarray]:
     raise ValueError(f"Unsupported reference file type: {path.suffix}")
 
 
-def _validate_frequency_axis(freq: np.ndarray) -> None:
-    if freq.ndim != 1 or freq.size == 0:
-        raise ValueError("frequency_hz must be a non-empty 1D column")
-    if np.any(~np.isfinite(freq)):
-        raise ValueError("frequency_hz contains non-finite values")
-    if np.any(freq <= 0.0):
-        raise ValueError("frequency_hz must be > 0")
-    if np.any(np.diff(freq) <= 0.0):
-        raise ValueError("frequency_hz must be strictly increasing")
-
-
 def _metrics(sim: np.ndarray, ref: np.ndarray) -> dict[str, float]:
     mask = np.isfinite(sim) & np.isfinite(ref)
     if not np.any(mask):
@@ -153,7 +152,7 @@ def main() -> int:
     if str(repo_root / "src") not in sys.path:
         sys.path.insert(0, str(repo_root / "src"))
 
-    from os_lem.api import run_simulation  # imported after sys.path update
+    from os_lem.api import run_simulation
 
     parser = argparse.ArgumentParser(description="Compare os-lem offset-line outputs against Hornresp reference data.")
     parser.add_argument(
