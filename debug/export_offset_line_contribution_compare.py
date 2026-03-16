@@ -85,9 +85,12 @@ def _metrics(sim: np.ndarray, ref: np.ndarray) -> dict[str, float]:
     }
 
 
-def _phase_diff_deg(sim_deg: np.ndarray, ref_deg: np.ndarray) -> np.ndarray:
-    diff = sim_deg - ref_deg
+def _phase_wrap_deg(diff: np.ndarray) -> np.ndarray:
     return ((diff + 180.0) % 360.0) - 180.0
+
+
+def _phase_diff_deg(sim_deg: np.ndarray, ref_deg: np.ndarray) -> np.ndarray:
+    return _phase_wrap_deg(sim_deg - ref_deg)
 
 
 def _phase_metrics(sim_deg: np.ndarray, ref_deg: np.ndarray) -> dict[str, float]:
@@ -111,10 +114,7 @@ def _band_metrics(freq: np.ndarray, sim: np.ndarray, ref: np.ndarray, bands: lis
         if not np.any(mask):
             out[key] = {"count": 0}
             continue
-        if phase:
-            diff = _phase_diff_deg(sim[mask], ref[mask])
-        else:
-            diff = sim[mask] - ref[mask]
+        diff = _phase_diff_deg(sim[mask], ref[mask]) if phase else (sim[mask] - ref[mask])
         out[key] = {
             "count": int(mask.sum()),
             "mae": float(np.mean(np.abs(diff))),
@@ -122,6 +122,14 @@ def _band_metrics(freq: np.ndarray, sim: np.ndarray, ref: np.ndarray, bands: lis
             "max_abs_error": float(np.max(np.abs(diff))),
         }
     return out
+
+
+def _normalize_phase_reference(phase_deg: np.ndarray, freqs_hz: np.ndarray, distance_m: float, polarity_flip: bool) -> np.ndarray:
+    k_d_deg = 360.0 * freqs_hz * distance_m / 343.0
+    out = phase_deg + k_d_deg
+    if polarity_flip:
+        out = out - 180.0
+    return _phase_wrap_deg(out)
 
 
 def main() -> int:
@@ -139,13 +147,15 @@ def main() -> int:
     from os_lem.parser import load_and_normalize
     from os_lem.solve import radiator_observation_pressure, solve_frequency_sweep
 
-    parser = argparse.ArgumentParser(description="Compare Hornresp vs os-lem driver/mouth/total contributions for the offset-line case.")
+    parser = argparse.ArgumentParser(description="Compare Hornresp vs os-lem driver, port, and total radiated responses.")
     parser.add_argument("--model", default=str(repo_root / "examples" / "offset_line_minimal" / "model.yaml"))
     parser.add_argument("--sum-frd", default=str(repo_root / "debug" / "hornresp_offset_line_sum.frd"))
     parser.add_argument("--drv-frd", default=str(repo_root / "debug" / "hornresp_offset_line_drv.frd"))
     parser.add_argument("--port-frd", default=str(repo_root / "debug" / "hornresp_offset_line_port.frd"))
     parser.add_argument("--outdir", default=str(repo_root / "debug" / "offset_line_contribution_compare_out"))
     parser.add_argument("--radiation-space", default="2pi")
+    parser.add_argument("--phase-reference-distance-m", type=float, default=1.0)
+    parser.add_argument("--phase-polarity-flip", action="store_true")
     args = parser.parse_args()
 
     sum_frd = _load_frd(Path(args.sum_frd))
@@ -173,6 +183,10 @@ def main() -> int:
     phase_port = np.angle(p_port, deg=True)
     phase_sum = np.angle(p_sum, deg=True)
 
+    phase_drv_norm = _normalize_phase_reference(phase_drv, freqs, args.phase_reference_distance_m, args.phase_polarity_flip)
+    phase_port_norm = _normalize_phase_reference(phase_port, freqs, args.phase_reference_distance_m, args.phase_polarity_flip)
+    phase_sum_norm = _normalize_phase_reference(phase_sum, freqs, args.phase_reference_distance_m, args.phase_polarity_flip)
+
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     csv_path = outdir / "offset_line_contribution_compare.csv"
@@ -184,11 +198,11 @@ def main() -> int:
             fieldnames=[
                 "frequency_hz",
                 "hornresp_drv_spl_db", "oslem_drv_spl_db", "delta_drv_spl_db",
-                "hornresp_drv_phase_deg", "oslem_drv_phase_deg", "delta_drv_phase_deg",
+                "hornresp_drv_phase_deg", "oslem_drv_phase_deg", "oslem_drv_phase_norm_deg", "delta_drv_phase_deg", "delta_drv_phase_norm_deg",
                 "hornresp_port_spl_db", "oslem_port_spl_db", "delta_port_spl_db",
-                "hornresp_port_phase_deg", "oslem_port_phase_deg", "delta_port_phase_deg",
+                "hornresp_port_phase_deg", "oslem_port_phase_deg", "oslem_port_phase_norm_deg", "delta_port_phase_deg", "delta_port_phase_norm_deg",
                 "hornresp_sum_spl_db", "oslem_sum_spl_db", "delta_sum_spl_db",
-                "hornresp_sum_phase_deg", "oslem_sum_phase_deg", "delta_sum_phase_deg",
+                "hornresp_sum_phase_deg", "oslem_sum_phase_deg", "oslem_sum_phase_norm_deg", "delta_sum_phase_deg", "delta_sum_phase_norm_deg",
             ],
         )
         writer.writeheader()
@@ -201,19 +215,25 @@ def main() -> int:
                     "delta_drv_spl_db": float(spl_drv[i] - drv_frd["spl_db"][i]),
                     "hornresp_drv_phase_deg": float(drv_frd["phase_deg"][i]),
                     "oslem_drv_phase_deg": float(phase_drv[i]),
+                    "oslem_drv_phase_norm_deg": float(phase_drv_norm[i]),
                     "delta_drv_phase_deg": float(_phase_diff_deg(np.array([phase_drv[i]]), np.array([drv_frd["phase_deg"][i]]))[0]),
+                    "delta_drv_phase_norm_deg": float(_phase_diff_deg(np.array([phase_drv_norm[i]]), np.array([drv_frd["phase_deg"][i]]))[0]),
                     "hornresp_port_spl_db": float(port_frd["spl_db"][i]),
                     "oslem_port_spl_db": float(spl_port[i]),
                     "delta_port_spl_db": float(spl_port[i] - port_frd["spl_db"][i]),
                     "hornresp_port_phase_deg": float(port_frd["phase_deg"][i]),
                     "oslem_port_phase_deg": float(phase_port[i]),
+                    "oslem_port_phase_norm_deg": float(phase_port_norm[i]),
                     "delta_port_phase_deg": float(_phase_diff_deg(np.array([phase_port[i]]), np.array([port_frd["phase_deg"][i]]))[0]),
+                    "delta_port_phase_norm_deg": float(_phase_diff_deg(np.array([phase_port_norm[i]]), np.array([port_frd["phase_deg"][i]]))[0]),
                     "hornresp_sum_spl_db": float(sum_frd["spl_db"][i]),
                     "oslem_sum_spl_db": float(spl_sum[i]),
                     "delta_sum_spl_db": float(spl_sum[i] - sum_frd["spl_db"][i]),
                     "hornresp_sum_phase_deg": float(sum_frd["phase_deg"][i]),
                     "oslem_sum_phase_deg": float(phase_sum[i]),
+                    "oslem_sum_phase_norm_deg": float(phase_sum_norm[i]),
                     "delta_sum_phase_deg": float(_phase_diff_deg(np.array([phase_sum[i]]), np.array([sum_frd["phase_deg"][i]]))[0]),
+                    "delta_sum_phase_norm_deg": float(_phase_diff_deg(np.array([phase_sum_norm[i]]), np.array([sum_frd["phase_deg"][i]]))[0]),
                 }
             )
 
@@ -225,19 +245,21 @@ def main() -> int:
         "port_frd": str(args.port_frd),
         "points": int(freqs.size),
         "radiation_space": args.radiation_space,
+        "phase_reference_distance_m": float(args.phase_reference_distance_m),
+        "phase_polarity_flip": bool(args.phase_polarity_flip),
         "warnings": list(warnings or []),
         "driver_spl_db": _metrics(spl_drv, drv_frd["spl_db"]),
-        "driver_phase_deg": _phase_metrics(phase_drv, drv_frd["phase_deg"]),
+        "driver_phase_deg_raw": _phase_metrics(phase_drv, drv_frd["phase_deg"]),
+        "driver_phase_deg_norm": _phase_metrics(phase_drv_norm, drv_frd["phase_deg"]),
         "port_spl_db": _metrics(spl_port, port_frd["spl_db"]),
-        "port_phase_deg": _phase_metrics(phase_port, port_frd["phase_deg"]),
+        "port_phase_deg_raw": _phase_metrics(phase_port, port_frd["phase_deg"]),
+        "port_phase_deg_norm": _phase_metrics(phase_port_norm, port_frd["phase_deg"]),
         "sum_spl_db": _metrics(spl_sum, sum_frd["spl_db"]),
-        "sum_phase_deg": _phase_metrics(phase_sum, sum_frd["phase_deg"]),
-        "driver_spl_bands": _band_metrics(freqs, spl_drv, drv_frd["spl_db"], bands),
-        "port_spl_bands": _band_metrics(freqs, spl_port, port_frd["spl_db"], bands),
-        "sum_spl_bands": _band_metrics(freqs, spl_sum, sum_frd["spl_db"], bands),
-        "driver_phase_bands": _band_metrics(freqs, phase_drv, drv_frd["phase_deg"], bands, phase=True),
-        "port_phase_bands": _band_metrics(freqs, phase_port, port_frd["phase_deg"], bands, phase=True),
-        "sum_phase_bands": _band_metrics(freqs, phase_sum, sum_frd["phase_deg"], bands, phase=True),
+        "sum_phase_deg_raw": _phase_metrics(phase_sum, sum_frd["phase_deg"]),
+        "sum_phase_deg_norm": _phase_metrics(phase_sum_norm, sum_frd["phase_deg"]),
+        "driver_phase_bands_norm": _band_metrics(freqs, phase_drv_norm, drv_frd["phase_deg"], bands, phase=True),
+        "port_phase_bands_norm": _band_metrics(freqs, phase_port_norm, port_frd["phase_deg"], bands, phase=True),
+        "sum_phase_bands_norm": _band_metrics(freqs, phase_sum_norm, sum_frd["phase_deg"], bands, phase=True),
     }
     json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
@@ -251,9 +273,12 @@ def main() -> int:
     print(f"  sum:    {summary['sum_spl_db']}")
     print("")
     print("Overall phase metrics:")
-    print(f"  driver: {summary['driver_phase_deg']}")
-    print(f"  port:   {summary['port_phase_deg']}")
-    print(f"  sum:    {summary['sum_phase_deg']}")
+    print(f"  driver raw:  {summary['driver_phase_deg_raw']}")
+    print(f"  driver norm: {summary['driver_phase_deg_norm']}")
+    print(f"  port raw:    {summary['port_phase_deg_raw']}")
+    print(f"  port norm:   {summary['port_phase_deg_norm']}")
+    print(f"  sum raw:     {summary['sum_phase_deg_raw']}")
+    print(f"  sum norm:    {summary['sum_phase_deg_norm']}")
 
     return 0
 

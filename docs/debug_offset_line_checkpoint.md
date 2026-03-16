@@ -4,9 +4,7 @@
 
 This document tracks the bounded Hornresp overlap workflow for the first `v0.2.0` offset-line investigation.
 
-The goal is **not** to claim broad transmission-line support.
-
-The goal is to determine whether one minimal offset-line case overlaps acceptably with Hornresp in the current shared subset, and then isolate the remaining SPL mismatch conservatively.
+The goal is to keep the TL kernel frozen while tightening the comparison contract.
 
 ---
 
@@ -16,52 +14,30 @@ The current evidence already shows:
 
 - input impedance is reasonably close
 - cone excursion is extremely close once RMS-vs-peak is handled correctly
-- simple external path-delay injection does not explain the remaining SPL mismatch
+- driver, port, and sum SPL all show similar HF magnitude drift
+- raw phase mismatch is large and similar for driver, port, and sum
 
-That means the next useful question is not "is the line solve broken?"
-
-The next useful question is:
-
-- which radiated contribution is diverging:
-  - driver
-  - mouth/port
-  - or only the final sum?
+That strongly suggests a comparison-layer phase-reference mismatch.
 
 ---
 
-## Contribution-isolation workflow
+## Phase-reference isolation workflow
 
 Use:
 
-- `examples/offset_line_minimal/model.yaml`
 - `debug/export_offset_line_contribution_compare.py`
-- `debug/hornresp_offset_line_sum.frd`
-- `debug/hornresp_offset_line_drv.frd`
-- `debug/hornresp_offset_line_port.frd`
+- Hornresp FRD exports for driver, port, and sum
 
-The script:
+The updated script now reports:
 
-- parses Hornresp FRD amplitude + phase for each contribution
-- computes os-lem complex driver, mouth, and summed pressures
-- compares both SPL magnitude and phase
-- reports overall and band-limited errors
+- raw phase metrics
+- normalized phase metrics after:
+  - removing a configurable observation distance
+  - optionally applying a 180° polarity flip
 
----
+Recommended first run for the current hypothesis:
 
-## Interpretation policy
+- `--phase-reference-distance-m 1.0`
+- `--phase-polarity-flip`
 
-Possible honest outcomes:
-
-### A. Driver matches, port mismatches
-Then the remaining problem is likely in mouth-radiation / line-output observation behavior.
-
-### B. Driver and port both match, sum mismatches
-Then the remaining problem is primarily in summation convention or phase reference.
-
-### C. Port matches, driver mismatches
-Then front-radiator observation behavior is the main target.
-
-### D. All three mismatch
-Then the comparison contract itself still needs tightening before solver conclusions are drawn.
-
-Do not widen claims beyond the evidence.
+If normalized phase error collapses strongly, that supports the view that the remaining phase mismatch is observational, not a TL-physics failure.
