@@ -4,3 +4,6 @@ offset_line_compare_out/
 !hornresp_offset_line_reference_template.csv
 hornresp_offset_line_reference.txt
 hornresp_offset_line_definition.txt
+hornresp_offset_line_sum.frd
+hornresp_offset_line_drv.frd
+hornresp_offset_line_port.frd

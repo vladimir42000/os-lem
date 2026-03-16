@@ -6,53 +6,45 @@ This document tracks the bounded Hornresp overlap workflow for the first `v0.2.0
 
 The goal is **not** to claim broad transmission-line support.
 
-The goal is only to determine whether one minimal offset-line case overlaps acceptably with Hornresp in the current shared subset, and then isolate the remaining SPL mismatch conservatively.
+The goal is to determine whether one minimal offset-line case overlaps acceptably with Hornresp in the current shared subset, and then isolate the remaining SPL mismatch conservatively.
 
 ---
 
-## Critical implementation detail
+## Current conclusion before this patch
 
-The source-spacing isolation script must use:
+The current evidence already shows:
 
-- `radiator_observation_pressure(...)`
+- input impedance is reasonably close
+- cone excursion is extremely close once RMS-vs-peak is handled correctly
+- simple external path-delay injection does not explain the remaining SPL mismatch
 
-not:
+That means the next useful question is not "is the line solve broken?"
 
-- `radiator_spl(...)`
+The next useful question is:
 
-Reason:
-- `radiator_observation_pressure(...)` returns complex far-field pressure
-- `radiator_spl(...)` returns already-converted SPL in dB
-
-Only the complex pressure form is valid for applying additional phase delay before summation.
+- which radiated contribution is diverging:
+  - driver
+  - mouth/port
+  - or only the final sum?
 
 ---
 
-## Source-spacing isolation workflow
+## Contribution-isolation workflow
 
 Use:
 
 - `examples/offset_line_minimal/model.yaml`
-- `debug/export_offset_line_spacing_compare.py`
-- `debug/hornresp_offset_line_reference.txt` or `.csv`
+- `debug/export_offset_line_contribution_compare.py`
+- `debug/hornresp_offset_line_sum.frd`
+- `debug/hornresp_offset_line_drv.frd`
+- `debug/hornresp_offset_line_port.frd`
 
 The script:
 
-- solves the existing os-lem model without changing the kernel
-- extracts the complex front and mouth radiator pressures separately
-- computes:
-  - co-located sum
-  - delayed mouth sum with an extra path-length phase shift
-- compares both against Hornresp SPL
-
-The separation is supplied as:
-
-- `--separation-m <value>`
-
-Recommended first values:
-
-- `0.0`
-- `1.15`
+- parses Hornresp FRD amplitude + phase for each contribution
+- computes os-lem complex driver, mouth, and summed pressures
+- compares both SPL magnitude and phase
+- reports overall and band-limited errors
 
 ---
 
@@ -60,13 +52,16 @@ Recommended first values:
 
 Possible honest outcomes:
 
-### A. Delayed summation substantially improves HF SPL
-This strongly supports the view that the remaining mismatch is mostly source-spacing / phase-summation related.
+### A. Driver matches, port mismatches
+Then the remaining problem is likely in mouth-radiation / line-output observation behavior.
 
-### B. Delayed summation does not materially help
-Then the next likely target is a different radiation/directivity/loading convention mismatch.
+### B. Driver and port both match, sum mismatches
+Then the remaining problem is primarily in summation convention or phase reference.
 
-### C. Delayed summation improves only a narrow band
-Then the next step is to identify whether the correct path-length offset is different from the current simple guess.
+### C. Port matches, driver mismatches
+Then front-radiator observation behavior is the main target.
+
+### D. All three mismatch
+Then the comparison contract itself still needs tightening before solver conclusions are drawn.
 
 Do not widen claims beyond the evidence.
