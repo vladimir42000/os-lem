@@ -90,7 +90,6 @@ def radiator_observation_transfer(
     *,
     radiation_space: str | None = None,
 ) -> complex:
-    k = omega / C0
     token = default_radiation_space_for_model(model) if radiation_space is None else normalize_radiation_space(radiation_space)
     coeff = 1j * omega * RHO0 / (solid_angle_for_radiation_space(token) * distance_m)
-    return coeff * complex(math.cos(-k * distance_m), math.sin(-k * distance_m))
+    return coeff

@@ -707,8 +707,7 @@ def _radiator_observation_transfer(
 
     token = default_radiation_space_for_model(model_name) if radiation_space is None else normalize_radiation_space(radiation_space)
     scale = solid_angle_for_radiation_space(token) * distance_m
-    k = omega / C0
-    return (1j * omega * RHO0 / scale) * np.exp(-1j * k * distance_m)
+    return 1j * omega * RHO0 / scale
 
 
 def _find_radiator_element(system: AssembledSystem, radiator_id: str) -> AssembledElement:

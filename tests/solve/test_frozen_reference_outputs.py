@@ -155,9 +155,9 @@ def test_frozen_reference_radiator_outputs_for_minimal_vented_like_model() -> No
     # Normal test execution
     expected_observation_pressure = np.array(
         [
-            np.complex128(-0.03598507681455985+0.0479256951548576j),
-            np.complex128(0.15448876405895218-0.32613256918030475j),
-            np.complex128(-0.35429215562646177+0.0653343579038632j),
+            np.complex128(-0.05075833233504779+0.03186518018136655j),
+            np.complex128(0.27546250476724654+0.23313009108213284j),
+            np.complex128(0.33993236119811343+0.11932099426098665j),
         ],
         dtype=np.complex128,
     )

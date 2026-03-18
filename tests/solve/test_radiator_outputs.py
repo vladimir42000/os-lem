@@ -63,7 +63,7 @@ def test_radiator_observation_pressure_matches_frozen_transfer_relation() -> Non
     omega = sweep.omega_rad_s[0]
     z_rad = radiator_impedance("flanged_piston", omega, 0.01)
     q_rad = node_pressure / z_rad
-    h_q = (1j * omega * RHO0 / (2.0 * np.pi * 1.0)) * np.exp(-1j * (omega / C0) * 1.0)
+    h_q = 1j * omega * RHO0 / (2.0 * np.pi * 1.0)
 
     np.testing.assert_allclose(p_obs[0], h_q * q_rad)
 
