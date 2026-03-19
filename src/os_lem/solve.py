@@ -730,12 +730,10 @@ def radiator_observation_pressure(
     payload = element.payload
     assert isinstance(payload, RadiatorElement)
 
-    node_pressures = sweep.pressures[:, element.node_a]
-    observation_pressure = np.empty_like(node_pressures)
+    observation_pressure = np.empty(len(sweep.frequency_hz), dtype=np.complex128)
 
-    for idx, (omega, node_pressure) in enumerate(zip(sweep.omega_rad_s, node_pressures, strict=True)):
-        z_rad = radiator_impedance(payload.model, float(omega), payload.area_m2)
-        q_rad = node_pressure / z_rad
+    for idx, omega in enumerate(sweep.omega_rad_s):
+        q_rad = sweep.cone_velocity[idx] * payload.area_m2
         h_q = _radiator_observation_transfer(payload.model, float(omega), distance_m, radiation_space)
         observation_pressure[idx] = h_q * q_rad
 
