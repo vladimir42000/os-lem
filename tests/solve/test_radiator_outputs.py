@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 from os_lem.assemble import assemble_system
-from os_lem.constants import C0, P_REF, RHO0
+from os_lem.constants import P_REF, RHO0
+from os_lem.elements.radiator import radiator_impedance
 from os_lem.model import (
     Driver,
     DuctElement,
@@ -58,8 +59,10 @@ def test_radiator_observation_pressure_matches_frozen_transfer_relation() -> Non
     sweep = solve_frequency_sweep(model, system, [100.0])
     p_obs = radiator_observation_pressure(sweep, system, "port_rad", 1.0)
 
+    node_pressure = sweep.pressures[0, 2]
     omega = sweep.omega_rad_s[0]
-    q_rad = sweep.cone_velocity[0] * 0.01
+    z_rad = radiator_impedance("flanged_piston", omega, 0.01)
+    q_rad = node_pressure / z_rad
     h_q = 1j * omega * RHO0 / (2.0 * np.pi * 1.0)
 
     np.testing.assert_allclose(p_obs[0], h_q * q_rad)

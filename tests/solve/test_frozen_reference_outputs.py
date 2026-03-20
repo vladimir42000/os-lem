@@ -155,17 +155,17 @@ def test_frozen_reference_radiator_outputs_for_minimal_vented_like_model() -> No
     # Normal test execution
     expected_observation_pressure = np.array(
         [
-            np.complex128(-0.039044871026959804+0.024511677062589627j),
-            np.complex128(0.21189423443634348+0.1793308392939483j),
-            np.complex128(0.26148643169085634+0.09178538020075899j),
+            np.complex128(-0.05075833233504779+0.03186518018136655j),
+            np.complex128(0.27546250476724654+0.23313009108213284j),
+            np.complex128(0.33993236119811343+0.11932099426098665j),
         ],
         dtype=np.complex128,
     )
     expected_spl = np.array(
         [
-            np.float64(67.2536520948731),
-            np.float64(82.84761779795964),
-            np.float64(82.83299588656416),
+            np.float64(69.53251914100984),
+            np.float64(85.12648484409638),
+            np.float64(85.11186293270089),
         ],
         dtype=np.float64,
     )

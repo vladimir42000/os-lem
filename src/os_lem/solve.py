@@ -730,10 +730,20 @@ def radiator_observation_pressure(
     payload = element.payload
     assert isinstance(payload, RadiatorElement)
 
+    node_pressures = sweep.pressures[:, element.node_a]
     observation_pressure = np.empty(len(sweep.frequency_hz), dtype=np.complex128)
 
-    for idx, omega in enumerate(sweep.omega_rad_s):
-        q_rad = sweep.cone_velocity[idx] * payload.area_m2
+    use_driver_front_kinematics = element.node_a == system.driver_front_index
+
+    for idx, (omega, node_pressure) in enumerate(zip(sweep.omega_rad_s, node_pressures, strict=True)):
+        if use_driver_front_kinematics:
+            # Driver-front radiator follows the diaphragm kinematics directly.
+            q_rad = sweep.cone_velocity[idx] * payload.area_m2
+        else:
+            # Passive mouth / port / terminus radiators must use the local
+            # acoustic-node state, not the driver cone velocity.
+            z_rad = radiator_impedance(payload.model, float(omega), payload.area_m2)
+            q_rad = node_pressure / z_rad
         h_q = _radiator_observation_transfer(payload.model, float(omega), distance_m, radiation_space)
         observation_pressure[idx] = h_q * q_rad
 
