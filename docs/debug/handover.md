@@ -6,9 +6,10 @@ The major debug cycles that were previously active around sealed-box and bass-re
 
 Their outcomes are now already integrated into the current development line.
 
-Normal development should proceed from:
+Historical note:
 
-- `milestone/v0.1.0-foundation`
+- this document was originally written when `milestone/v0.1.0-foundation` was the active integration line
+- future normal development should instead follow the current repo governance docs and current milestone plan
 
 Historical debug branches remain useful as diagnostic lineage:
 

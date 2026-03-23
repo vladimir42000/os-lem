@@ -1,7 +1,6 @@
 # os-lem development policy
 
-This file defines the working discipline for `os-lem` so development remains
-coherent across sessions, branches, and handoffs.
+This file defines the working discipline for `os-lem` so development remains coherent across sessions, branches, and handoffs.
 
 ## 1. Source of truth
 
@@ -10,9 +9,11 @@ The repository is the primary source of truth.
 Priority order:
 1. current tested repository state
 2. current branch and commit history
-3. repository docs (`status.md`, `roadmap.md`, `decision_log.md`)
-4. session handoff notes
-5. older chat discussions
+3. governance docs in the repo
+4. stable technical docs in the repo
+5. debug archive docs in the repo
+6. book companion
+7. older chat discussions
 
 If older planning text disagrees with the current tested repo state, the repo wins.
 
@@ -40,14 +41,17 @@ Every patch should have:
 ## 3. Branch discipline
 
 Branch roles:
-- `main`: stable, checkpoint-quality branch
-- `feature/...`: active development branch for a defined phase
-- optional `repair/...`: targeted repair branch when needed
+- `main`: stable, released branch
+- `milestone/*`: release integration branch
+- `feature/*`: bounded feature branch
+- `fix/*`: bounded corrective branch
+- `debug/*`: fault-isolation / truth-finding branch
+- `chore/*`: governance, docs, examples, maintenance
 
 Rules:
 - do not develop directly on `main`
 - do not merge unfinished work into `main`
-- keep feature branches focused on one phase
+- keep patch branches focused on one purpose
 - push meaningful checkpoints to GitHub
 
 ---
@@ -83,24 +87,24 @@ When a test fails:
 
 ---
 
-## 6. Phase discipline
+## 6. Milestone discipline
 
-Development proceeds in explicit phases.
+Development proceeds through explicit release stories, not just ad hoc patch sequences.
 
-Each phase must define:
+Each milestone must define:
 - goal
 - in-scope items
 - out-of-scope items
 - completion criteria
 
-Do not expand phase scope casually.
-If a useful idea belongs to a later phase, record it and postpone it.
+Do not expand milestone scope casually.
+If a useful idea belongs to a later release, record it and postpone it.
 
 ---
 
 ## 7. Handoff discipline between sessions
 
-A new session should start from a handoff bundle, not from memory.
+A new session should start from the repo and current handoff docs, not from memory.
 
 Preferred handoff bundle:
 1. current repo tarball
@@ -124,24 +128,22 @@ The handoff markdown should include:
 
 Repository docs are the long-term project memory.
 
-The following files should be kept current at meaningful checkpoints:
-- `docs/status.md`
-- `docs/roadmap.md`
-- `docs/decision_log.md`
+The main documentation layers are:
+- governance / operational truth
+- stable technical reference
+- debug archive
+- book companion
 
-This file (`docs/development_policy.md`) defines how work is conducted.
+Use `docs/doc_index.md` to navigate them.
+
+Update the smallest correct set of docs for each patch.
+Do not let docs drift for several sessions.
 
 ---
 
 ## 9. Milestones and tags
 
 Use commits for implementation history and tags for recovery anchors.
-
-Examples:
-- recovered baseline
-- acoustic matrix complete
-- first coupled solve complete
-- first sweep complete
 
 Tags should mark states that are known to be valuable recovery points.
 
@@ -169,7 +171,7 @@ When continuing development in a new session:
 - prefer copy-pasteable shell blocks for changes
 - keep changes small enough to verify immediately
 
-If context is missing, reconstruct it from the repo and handoff docs first.
+If context is missing, reconstruct it from the repo and docs first.
 
 ---
 
@@ -187,14 +189,17 @@ When in doubt:
 ## Session startup rule
 
 Each new session must begin by reading:
-
+- `docs/doc_index.md`
+- `docs/start_here.md`
+- `docs/current_scope.md`
 - `docs/status.md`
-- `docs/decision_log.md`
-- `docs/session_handover.md`
+- `docs/milestone_charter.md`
+- `docs/next_patch.md`
 
 Then inspect:
 - `git status`
 - current branch
 - recent commits
+- `pytest -q`
 
 No implementation should begin before the next patch objective is frozen.

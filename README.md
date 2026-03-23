@@ -2,18 +2,22 @@
 
 Open, scriptable loudspeaker and enclosure simulator with a disciplined, test-first development style inspired by classic Akabak-era LEM workflows.
 
-## Release status
+## Release posture
 
-Current release target:
-- `v0.1.0` foundation release
+Latest released version:
+- `v0.1.0` on `main`
 
-This repository now contains a real, tested foundation release candidate.
+Current active planning target:
+- `v0.2.0` — offset-line observation-contract stabilization
 
-It supports a narrow but useful coupled loudspeaker/enclosure kernel and is intentionally conservative about broader claims.
+Current green suite on the uploaded working line:
+- `108 passed`
+
+This repository already contains a real released foundation. Current work is focused on turning the long observation/debug cycle into one bounded, documented next milestone rather than opening broad new feature scope.
 
 ## What `v0.1.0` includes
 
-Current validated foundation:
+Released foundation:
 
 - one-driver coupled electro-mechano-acoustic solve
 - frequency sweep
@@ -37,11 +41,22 @@ Current validated foundation:
 - cylindrical distributed loss for `waveguide_1d` within the currently frozen cylindrical-loss boundary
 - provisional `os_lem.api` integration facade
 - maintained Streamlit example path in `examples/streamlit_frontend/app.py`
-- preserved prototype/example frontend artifact in `examples/streamlit_frontend/app2.py`
 
-## Explicit non-claims for `v0.1.0`
+## Current `v0.2.0` planning intent
 
-`os-lem` `v0.1.0` does **not** claim:
+The current repo truth from the extended debug line is:
+
+- `front/raw` is broadly credible
+- the remaining mismatch is localized to `mouth/port` observable semantics
+- the next supported move is one bounded observation-layer patch
+- the preferred first candidate is `mouth_directivity_only`
+- `front` semantics must remain unchanged during that patch
+
+This is not yet a released claim. It is the current development hypothesis that defines the next bounded technical patch.
+
+## Explicit non-claims for the current project state
+
+`os-lem` still does **not** claim:
 
 - broad Hornresp parity
 - broad AkAbak parity
@@ -71,19 +86,19 @@ Examples live under:
 - `examples/vented_box/model.yaml`
 - `examples/streamlit_frontend/app.py`
 
-The Streamlit example is the maintained example path for the current release target and is intended to use the provisional `os_lem.api` facade.
-
-`examples/streamlit_frontend/app2.py` is preserved as a prototype/example artifact and should not be interpreted as a frozen supported frontend surface.
+The Streamlit example is the maintained example path for the current released baseline and uses the provisional `os_lem.api` facade.
 
 ## Documentation entry points
 
 Start with:
+- `docs/doc_index.md`
 - `docs/start_here.md`
 - `docs/current_scope.md`
+- `docs/milestone_charter.md`
 - `docs/release_strategy.md`
 - `docs/release_plan.md`
 - `docs/capability_matrix.md`
-- `docs/frontend_api.md`
+- `docs/book_contract.md`
 
 ## Development model
 
@@ -93,8 +108,11 @@ This project uses:
 - green tests before and after changes
 - milestone integration before release
 - conservative capability claims
+- repo docs as long-term project memory
+- the parallel book as explanatory companion, not repo truth
 
-Current integration branch for the first release:
-- `milestone/v0.1.0-foundation`
+Recommended next governance branch:
+- `chore/v0.2.0-docs-reset`
 
-`main` is reserved for released/stable history.
+Recommended next technical patch after this docs reset:
+- `fix/v0.2.0-mouth-directivity-only`

@@ -2,8 +2,7 @@
 
 ## Purpose
 
-This document defines how `os-lem` moves from patch work to milestone integration
-to tagged releases.
+This document defines how `os-lem` moves from patch work to milestone integration to tagged releases.
 
 The goal is to keep development disciplined while making project status visible.
 
@@ -18,6 +17,7 @@ The source of truth is, in this order:
 3. current milestone branch, if one exists
 4. release planning docs
 5. older planning / handover text
+6. parallel book commentary
 
 Tarballs are backup or handover artifacts.
 They are not the primary source of truth when they disagree with the live repo.
@@ -43,8 +43,11 @@ Rules:
 - short-lived patch branches should normally branch from the active milestone branch
 - milestone branches collect validated, bounded patches for one release target
 
-Current milestone:
+Latest completed milestone lineage:
 - `milestone/v0.1.0-foundation`
+
+Recommended next milestone branch:
+- `milestone/v0.2.0-offset-line-observation`
 
 ### Short-lived patch branches
 Use short-lived branches for bounded work:
@@ -66,7 +69,7 @@ Rules:
 Default flow:
 
 1. inspect repo truth
-2. branch from the active milestone branch
+2. branch from the active milestone branch when it exists
 3. implement one bounded patch
 4. run tests
 5. align directly affected docs only
@@ -88,9 +91,9 @@ Preferred direction:
 
 However:
 - a debug branch is not automatically release history
-- if a debug branch contains experimental or messy investigation history, do not merge it blindly
-- either merge it only if it is already clean and bounded
-- or re-apply the proven fix on a fresh narrow patch branch
+- if a debug branch contains long experimental lineage, do not merge it blindly
+- either extract the proven narrow fix on a fresh patch branch
+- or merge only the clean bounded part that has become milestone truth
 
 The purpose of a debug branch is to discover repo truth, not to justify broad cleanup.
 
@@ -98,7 +101,7 @@ The purpose of a debug branch is to discover repo truth, not to justify broad cl
 
 ## 5. Versioning policy
 
-`os-lem` now uses pre-1.0 semantic versioning.
+`os-lem` uses pre-1.0 semantic versioning.
 
 Format:
 - `v0.1.0`
@@ -111,9 +114,6 @@ Interpretation:
 - `0.x.0` = meaningful capability or maturity milestone
 - `0.x.y` = stabilization / bugfix / docs / example hardening release on top of an existing milestone
 - `1.0.0` = first coherent, intentionally supported release with stable enough scope and documentation
-
-Old historical tags remain valid as internal recovery anchors.
-They are not retroactively renamed.
 
 ---
 
@@ -155,16 +155,16 @@ A milestone is eligible for release when:
 
 The following docs define release posture and should remain aligned:
 
+- `docs/doc_index.md`
 - `docs/start_here.md`
 - `docs/current_scope.md`
+- `docs/status.md`
+- `docs/milestone_charter.md`
 - `docs/release_strategy.md`
 - `docs/release_plan.md`
 - `docs/capability_matrix.md`
 
-Planning docs such as `docs/next_patch.md`, `docs/status.md`, and `docs/roadmap.md`
-must be verified against repo reality before being trusted.
-
-If they are stale, say so explicitly.
+Planning docs such as `docs/next_patch.md`, `docs/patch_registry.md`, and `docs/session_handover.md` must be verified against repo reality before being trusted.
 
 ---
 
@@ -182,13 +182,16 @@ Rules:
 
 ## 10. Current release posture
 
-The current project goal is to prepare a first honest release:
+Latest released baseline:
+- `v0.1.0`
 
-- foundation milestone: `v0.1.0`
-- focus: narrow but real loudspeaker kernel capability
-- no broad Hornresp parity claim
-- no broad AkAbak parity claim
-- no mature transmission-line claim yet
-- no frozen long-term public API yet
+Current active planning target:
+- `v0.2.0`
 
-This strategy should be revisited only through small, explicit governance updates.
+Current intended release story:
+- `offset-line observation-contract stabilization`
+
+Current best-supported opening move after the docs reset:
+- one bounded observation-layer patch implementing or testing `mouth_directivity_only`
+- keep `front` unchanged
+- validate narrowly against the existing offset-line case

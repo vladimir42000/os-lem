@@ -2,50 +2,44 @@
 
 ## Released baseline
 
-The repository now has a real released baseline:
+The repository has a real released baseline:
 
 - latest released version: `v0.1.0`
 - released branch of record: `main`
 
-That release was cut after:
-
-- governance docs were introduced
-- milestone structure was formalized
-- milestone docs were aligned to repo truth
-- validation/example assets were preserved
-- release metadata and release notes were prepared
-
-Current known green suite on the released baseline:
-- `104 passed`
+That release remains the public floor.
 
 ---
 
-## Branch posture after the first release
+## Current working snapshot
 
-- `main` is now the stable/released branch
-- `milestone/v0.1.0-foundation` remains as historical integration lineage
-- new work should not continue on the old `v0.1.0` milestone branch
-- the next release cycle should start from `main`
+Observed current working branch in the uploaded repo:
+- `debug/v0.2.0-hf-rolloff-fit-study`
+
+Observed green suite on that snapshot:
+- `108 passed`
+
+Observed caveat:
+- the working tree contains untracked debug/docs/frontend support files
+
+This means the next healthy move is governance alignment plus a clean milestone restart, not broad new debugging.
 
 ---
 
 ## Current planning direction
 
-The next planned target is:
-
+The next intended milestone is:
 - `v0.2.0`
 
-That target should begin conservatively.
+Recommended release story:
+- `offset-line observation-contract stabilization`
 
-Recommended opening move:
-- create a `v0.2.0` milestone branch
-- run one bounded line / offset-line truth-finding investigation
-- decide from evidence whether the next claim is:
-  - support already present
-  - partial support
-  - unsupported
-
-Do not jump directly to broad transmission-line implementation claims.
+Current best-supported technical interpretation:
+- `front/raw` is broadly credible
+- the remaining mismatch is localized to `mouth/port` observable semantics
+- best next move is a bounded observation-layer patch
+- preferred first candidate is `mouth_directivity_only`
+- `front` must remain unchanged during that patch
 
 ---
 
@@ -53,13 +47,18 @@ Do not jump directly to broad transmission-line implementation claims.
 
 Read in this order:
 
-1. `docs/start_here.md`
-2. `docs/current_scope.md`
-3. `docs/release_strategy.md`
-4. `docs/release_plan.md`
-5. `docs/capability_matrix.md`
-6. `docs/next_patch.md`
-7. `docs/frontend_api.md`
+1. `docs/doc_index.md`
+2. `docs/start_here.md`
+3. `docs/current_scope.md`
+4. `docs/status.md`
+5. `docs/milestone_charter.md`
+6. `docs/release_strategy.md`
+7. `docs/release_plan.md`
+8. `docs/patch_registry.md`
+9. `docs/next_patch.md`
+10. `docs/capability_matrix.md`
+11. `docs/book_contract.md`
+12. `docs/frontend_api.md`
 
 Then run:
 
@@ -71,17 +70,19 @@ pytest -q
 ```
 
 Before proposing changes, reconstruct:
-
-- current released baseline
-- whether the user is working from `main` or a child branch
+- released truth
+- current working-line truth
+- whether the user is on a debug, patch, milestone, or release branch
 - whether `docs/next_patch.md` still matches reality
-- one bounded next patch only
+- exactly one bounded next patch only
 
 ---
 
 ## Important cautions
 
-- do not continue normal development on `milestone/v0.1.0-foundation`
+- do not restart broad debugging
+- do not continue normal development directly on the long debug branch
 - do not broaden post-release claims impulsively
 - do not mix new capability work with broad cleanup
-- preserve the release discipline that produced `v0.1.0`
+- preserve the discipline that produced `v0.1.0`
+- treat the book as companion material, not repo truth

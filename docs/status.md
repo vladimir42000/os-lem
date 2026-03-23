@@ -1,93 +1,75 @@
 # os-lem status
 
-## Current development status
+## Released baseline
 
 - latest released version: `v0.1.0`
 - released branch of record: `main`
-- current known green suite on the released baseline: `104 passed`
 
-The `v0.1.0` foundation release is now complete and tagged.
-
-That release established:
-- a real released `main`
-- pre-1.0 semantic versioning
-- milestone-based integration before release
-- conservative capability/release vocabulary
+The `v0.1.0` foundation release is still the public baseline.
 
 ---
 
-## Current released foundation (`v0.1.0`)
+## Current working snapshot observed in this repo
 
-The released foundation includes:
+Observed working branch in the uploaded repository:
+- `debug/v0.2.0-hf-rolloff-fit-study`
 
-- one-driver coupled electro-mechano-acoustic solve
-- frequency sweep
-- assembled `volume`, `duct`, `radiator`, and minimal `waveguide_1d`
-- classical outputs:
-  - input impedance
-  - cone velocity
-  - cone displacement
-  - one-radiator far-field pressure
-  - one-radiator SPL
-- waveguide outputs:
-  - endpoint flow
-  - endpoint particle velocity
-  - minimal `line_profile` for `pressure`
-  - minimal `line_profile` for `volume_velocity`
-  - minimal `line_profile` for `particle_velocity`
-- cylindrical distributed loss for `waveguide_1d` within the currently frozen cylindrical-loss boundary
-- provisional `os_lem.api` integration facade
-- maintained example path in `examples/streamlit_frontend/app.py`
-- preserved prototype/example path in `examples/streamlit_frontend/app2.py`
+Observed green suite on this working line:
+- `108 passed`
+
+Observed local working-tree caveat in the uploaded repo snapshot:
+- several untracked debug/docs/frontend support files are present
+
+That means the project is no longer missing technical direction.
+The missing piece is governance alignment after a long debug cycle.
 
 ---
 
-## Current interpretation
+## Current interpretation of the debug lineage
 
-`v0.1.0` is a narrow but real foundation release.
+The long observation/debug period now supports a narrower conclusion than the older planning docs:
 
-It is intentionally conservative and does **not** imply:
-- broad Hornresp parity
-- broad AkAbak parity
-- mature transmission-line support
-- broad horn / line workflow coverage
-- stable long-term public API
-- product-grade GUI/frontend
+- `front/raw` is broadly credible
+- the remaining mismatch is localized to `mouth/port` observable semantics
+- the next useful move is not broad debugging restart
+- the next useful move is one bounded observation-layer development patch
+
+Current preferred candidate:
+- `mouth_directivity_only`
+
+This is a working-line conclusion, not yet a released claim.
 
 ---
 
-## Next release target
+## Current active release target
 
-The next planned release target is:
-
+The next release target should be:
 - `v0.2.0`
 
-The purpose of `v0.2.0` is **not** to become a broad feature bucket.
+Recommended release story:
+- `offset-line observation-contract stabilization`
 
-It should deliver exactly one coherent next capability step beyond the `v0.1.0` foundation.
+`v0.2.0` should not become a broad feature bucket.
+It should package one coherent next capability step beyond `v0.1.0`.
 
 ---
 
-## Immediate next objective
+## Immediate project-management objective
 
-The immediate next objective is to prepare the `v0.2.0` cycle with a bounded truth-finding step:
+Before new technical growth, the project should:
 
-- create a `v0.2.0` milestone branch
-- investigate current repository truth for a minimal transmission-line / offset-line case
-- determine whether current support is:
-  - already present
-  - partial
-  - or absent
-
-Only after that should the first real `v0.2.0` implementation claim be chosen.
+- reset governance/docs so they match repo truth
+- separate release-story integration from long debug lineage
+- open a clean `v0.2.0` milestone branch
+- then land one bounded observation-layer patch
 
 ---
 
 ## Explicitly out of scope right now
 
-- broad refactor
-- broad post-release cleanup
 - broad transmission-line marketing claims
+- broad parity claims against Hornresp or AkAbak
 - multi-driver expansion
 - passive radiator support
 - GUI productization
+- broad cleanup mixed with technical work

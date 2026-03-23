@@ -54,31 +54,37 @@ The next active planning target is `v0.2.0`.
 
 ---
 
-## v0.2.0 — next bounded capability milestone
+## v0.2.0 — offset-line observation-contract stabilization
 **Status:** planned
 
 ### Intent
 
-`v0.2.0` should introduce exactly one coherent next-level capability step beyond the `v0.1.0` foundation.
+`v0.2.0` should introduce exactly one coherent next-level step beyond the `v0.1.0` foundation:
 
-The first step in this cycle should be a bounded truth-finding investigation, not an immediate broad implementation promise.
+- turn the long observation/debug cycle into one bounded milestone outcome
+- promote only a narrow observation-layer improvement
+- document the result honestly
 
-### Planned opening move
+### Current repo truth supporting this plan
 
-Start by determining repository truth for a minimal transmission-line / offset-line case:
+The working-line evidence now says:
 
-- define one minimal reproducible case
-- compare expected versus actual behavior
-- classify current support as:
-  - already supported
-  - partially supported
-  - unsupported
+- `front/raw` is broadly credible
+- the remaining mismatch is localized to `mouth/port` observable semantics
+- broad debugging restart is no longer the best opening move
 
-### Why this is the right opening move
+### Planned opening sequence
 
-Because `v0.1.0` deliberately avoided broad line / transmission-line claims.
+1. docs/governance reset
+2. open a clean `v0.2.0` milestone branch
+3. land one bounded mouth-observable patch
+4. validate narrowly
+5. align docs and release notes
 
-Before choosing the next implementation milestone, the project should first determine what the current kernel already does and does not support.
+### Preferred first technical patch
+
+- candidate: `mouth_directivity_only`
+- constraint: keep `front` unchanged
 
 ### Rule
 
@@ -87,17 +93,36 @@ It must not become a broad “everything after v0.1” bucket.
 
 ---
 
-## v0.3.0 and later
+## v0.3.0 — observability and API maturity
+**Status:** provisional planning only
 
-Further releases should continue capability-based growth, such as:
+Potential direction:
+- strengthen user-facing observability around already delivered waveguide functionality
+- expose currently-nearby outputs more cleanly
+- harden the provisional API and maintained examples
 
-- stronger line / waveguide maturity
-- broader validation
-- cleaner examples
-- more coherent user-facing workflows
-- tighter API posture when warranted
+This should only start after `v0.2.0` closes cleanly.
 
-These items must only be scheduled when validated maturity supports them.
+---
+
+## v0.4.0 — waveguide physics maturity
+**Status:** provisional planning only
+
+Potential direction:
+- conical-loss maturity
+- stronger loss-model boundaries
+- more disciplined line-workflow claims
+
+---
+
+## v0.5.0 and later
+
+Choose one major capability family per milestone, for example:
+- passive radiator support
+- richer electrical network support
+- multi-driver support
+
+Do not mix several of these into one release.
 
 ---
 
@@ -106,7 +131,6 @@ These items must only be scheduled when validated maturity supports them.
 `v1.0.0` should not be defined by time or patch count.
 
 It should be defined by release quality:
-
 - coherent supported core use-cases
 - honest and stable capability boundaries
 - strong enough regression confidence
@@ -115,14 +139,3 @@ It should be defined by release quality:
 - clear documentation of both supported and unsupported areas
 
 Until then, all releases remain intentionally pre-1.0.
-
----
-
-## Current planning caution
-
-The correct next move after a first release is not to broaden claims impulsively.
-
-The correct next move is to preserve discipline:
-- small bounded patches
-- milestone integration
-- evidence before claims

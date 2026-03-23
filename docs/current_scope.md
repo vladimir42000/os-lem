@@ -1,10 +1,9 @@
 # os-lem current scope
 
-## Current released baseline
+## Released public baseline
 
 - latest released version: `v0.1.0`
 - released branch of record: `main`
-- current known green suite on the released baseline: `104 passed`
 
 The current public baseline is the tagged `v0.1.0` foundation release.
 
@@ -12,7 +11,7 @@ The current public baseline is the tagged `v0.1.0` foundation release.
 
 ## Current implemented kernel subset
 
-At the current released checkpoint, the implemented assembled subset is:
+At the current working checkpoint, the implemented assembled subset is:
 
 - `volume`
 - `duct`
@@ -52,7 +51,7 @@ Current integration support also includes:
 
 ---
 
-## Current validated/released scope
+## Released / validated confidence scope
 
 The released `v0.1.0` confidence scope covers:
 
@@ -73,27 +72,39 @@ The released `v0.1.0` confidence scope covers:
 
 ---
 
-## Current deferred capabilities
+## Current working-line conclusion beyond the released baseline
 
-Not yet implemented, not yet frozen, or not yet claimed as released project scope:
+The working repo has advanced beyond the `v0.1.0` release story through the later debug lineage.
 
-- passive radiator
-- multi-driver support
-- crossover / electrical-network expansion
-- conical lossy `waveguide_1d`
-- thermo-viscous auto-derived losses
-- broad horn / transmission-line workflow claims
-- broad AkAbak parity claims
-- broad Hornresp parity claims
-- frozen long-term public frontend/API contract
-- broad GUI / interactive frontend product claims
+Current best-supported interpretation:
+
+- `front/raw` is broadly credible on the current observation debug line
+- the remaining mismatch is localized to `mouth/port` observable semantics
+- the best next patch is a bounded observation-layer change
+- current preferred candidate: `mouth_directivity_only`
+- `front` must remain unchanged during that patch
+
+This section describes current working-line truth, not an already released capability claim.
 
 ---
 
-## Current next-step caution
+## Current deferred capabilities
 
-The current scope document describes the released `v0.1.0` baseline.
+Not yet released or still intentionally deferred:
 
-It does **not** claim that the next release target is already implemented.
+- broad transmission-line workflow claims
+- broad Hornresp parity claims
+- broad AkAbak parity claims
+- conical lossy `waveguide_1d`
+- thermo-viscous auto-derived losses
+- passive radiator support
+- multi-driver support
+- stable long-term public API
+- product-grade frontend
 
-The next release cycle must re-establish repo truth through a bounded investigation before widening claims.
+---
+
+## Scope rule for the next patch
+
+The next technical patch must not reopen broad debugging.
+It must stay at the observation layer and preserve the already-credible `front` path.

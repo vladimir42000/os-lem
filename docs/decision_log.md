@@ -300,3 +300,51 @@ The SPL observation radiation space is now an explicit contract separate from th
 - `spl` and `spl_sum` may resolve `radiation_space` explicitly
 - legacy model-based space inference remains only as a backward-compatible fallback
 - mixed-space `spl_sum` cases should surface a parser warning because low-frequency summation may be unphysical
+
+---
+
+## D-0022 — `v0.2.0` is an observation-contract milestone, not a fresh truth-check cycle
+**Status:** accepted
+
+The long debug cycle already moved the project beyond the older `v0.2.0 line truth` planning language.
+
+### Consequence
+The next release story is no longer "start by asking whether line truth exists at all".
+It is now:
+- keep `front/raw` unchanged
+- localize work to `mouth/port` observable semantics
+- land one bounded observation-layer patch
+- document the resulting contract honestly
+
+---
+
+## D-0023 — repository docs are split into governance, technical reference, debug archive, and book companion
+**Status:** accepted
+
+A long debug period made the old flat docs layout too easy to misread.
+
+### Consequence
+The documentation is now structured conceptually into four layers:
+- governance / operational truth
+- stable technical reference
+- debug archive
+- parallel book companion
+
+Future sessions should use `docs/doc_index.md` to navigate those layers.
+
+---
+
+## D-0024 — the parallel book is explanatory companion material, not source of truth
+**Status:** accepted
+
+The os-lem book can preserve valuable rationale, debugging lessons, and implementation explanations.
+However, it must not override the tested repo or the repo governance docs.
+
+### Consequence
+Use precedence:
+1. code/tests
+2. repo governance docs
+3. repo technical docs
+4. repo debug archive
+5. book
+6. chat memory

@@ -2,40 +2,38 @@
 
 ## Status
 
-This file defines the single immediate next patch target for the next development session after the post-`v0.1.0` planning patch is merged.
+This file defines the single immediate next patch target after the docs/governance reset is merged.
 
 ---
 
 ## Current checkpoint to verify at startup
 
-Expected base branch:
-`main`
+Expected release baseline:
+- `v0.1.0` on `main`
 
-Expected current posture:
-- `v0.1.0` is already released and tagged
-- release docs and metadata reflect the released baseline
-- suite green
-
-Expected suite:
-`104 passed` or newer green equivalent
+Expected working-line reality:
+- recent observation debug work already happened
+- `front/raw` is broadly credible
+- remaining mismatch is localized to `mouth/port` observable semantics
+- green suite is `108 passed` or newer green equivalent
 
 ---
 
-## Candidate next patch after startup verification
+## Immediate next patch target
 
-**Open the `v0.2.0` cycle with a bounded minimal line/offset-line truth check**
+**Land one bounded observation-layer development patch implementing the `mouth_directivity_only` candidate while keeping `front` unchanged.**
 
-Suggested milestone branch:
-`milestone/v0.2.0-line-truth`
+Recommended clean milestone branch:
+- `milestone/v0.2.0-offset-line-observation`
 
-Suggested first technical patch branch:
-`debug/v0.2.0-offset-line-truth-check`
+Recommended patch branch:
+- `fix/v0.2.0-mouth-directivity-only`
 
 ---
 
 ## Purpose
 
-Determine actual repository truth for one minimal transmission-line / offset-line case before any broader support claim is made.
+Turn the current best-supported debug conclusion into one disciplined development step without reopening broad debugging.
 
 ---
 
@@ -43,24 +41,21 @@ Determine actual repository truth for one minimal transmission-line / offset-lin
 
 Do exactly these things:
 
-- define one minimal reproducible line / offset-line model
-- inspect current kernel behavior on that case
-- compare expected vs actual behavior
-- classify current support as:
-  - already supported
-  - partially supported
-  - unsupported
-- document the result honestly
+- keep the current `front` semantics unchanged
+- implement only the mouth-observable candidate path needed for `mouth_directivity_only`
+- add or update focused regression protection for `front`
+- validate narrowly on the existing offset-line case
+- update only directly affected docs
 
 ---
 
 ## Out of scope
 
 - broad transmission-line implementation work
-- API freeze for line workflows
+- broad observation-layer redesign
+- solver refactor
 - frontend expansion
-- broad docs rewrite
-- broad roadmap revision
+- broad docs rewrite beyond directly affected files
 - unrelated kernel work
 
 ---
@@ -69,15 +64,16 @@ Do exactly these things:
 
 The patch is complete only if:
 
-- one bounded test/investigation case is defined
-- current repo truth is stated clearly
-- no broad unsupported claim is introduced
+- the change is bounded to the observation layer
+- `front` remains unchanged by evidence, not assumption
 - the suite remains green
+- the docs state the resulting contract honestly
 
 ---
 
 ## Must-not-change list
 
 - the released `v0.1.0` baseline
-- current conservative release posture
-- `main` as the stable released branch
+- broad capability vocabulary
+- unrelated waveguide or solver internals
+- the small-patch discipline
