@@ -377,6 +377,39 @@ Typical fields:
 - `type: node_pressure`
 - `target`
 
+### `element_volume_velocity`
+Observe one element through-flow using the frozen reporting sign convention.
+
+Required fields:
+- `id`
+- `type: element_volume_velocity`
+- `target`
+
+Supported targets:
+- `duct`
+- `radiator`
+- `waveguide_1d`
+
+Additional rule for `waveguide_1d` targets:
+- `location: a` or `location: b` is required
+
+### `element_particle_velocity`
+Observe one element particle velocity using the same flow convention divided by
+the relevant local area.
+
+Required fields:
+- `id`
+- `type: element_particle_velocity`
+- `target`
+
+Supported targets:
+- `duct`
+- `radiator`
+- `waveguide_1d`
+
+Additional rule for `waveguide_1d` targets:
+- `location: a` or `location: b` is required
+
 ### `line_profile`
 Observe a sampled distribution along one line object at one chosen frequency.
 

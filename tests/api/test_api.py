@@ -7,6 +7,8 @@ import pytest
 import yaml
 
 from os_lem.api import LineProfileResult, run_simulation
+from os_lem.elements.duct import duct_admittance
+from os_lem.elements.radiator import radiator_impedance
 from os_lem.assemble import assemble_system
 from os_lem.parser import load_model, normalize_model
 from os_lem.solve import radiator_observation_pressure, solve_frequency_sweep
@@ -191,3 +193,72 @@ def test_run_simulation_surfaces_mouth_area_consistency_error_for_candidate_cont
 
     with pytest.raises(ValueError, match="connected aperture area"):
         run_simulation(model_dict, [100.0])
+
+
+def test_run_simulation_exposes_element_observables_for_duct_and_radiator_targets() -> None:
+    model_dict = load_model(Path("examples/vented_box/model.yaml"))
+    model_dict["observations"] = [
+        {"id": "port_q", "type": "element_volume_velocity", "target": "port"},
+        {"id": "port_v", "type": "element_particle_velocity", "target": "port"},
+        {"id": "port_rad_q", "type": "element_volume_velocity", "target": "port_rad"},
+        {"id": "port_rad_v", "type": "element_particle_velocity", "target": "port_rad"},
+    ]
+    frequencies = np.array([20.0, 30.0, 50.0, 80.0])
+
+    result = run_simulation(model_dict, frequencies)
+
+    normalized, _ = normalize_model(model_dict)
+    system = assemble_system(normalized)
+    sweep = solve_frequency_sweep(normalized, system, frequencies)
+
+    port = normalized.ducts[0]
+    p_rear = sweep.pressures[:, system.node_index[port.node_a]]
+    p_mouth = sweep.pressures[:, system.node_index[port.node_b]]
+    port_y = np.array(
+        [duct_admittance(float(omega), port.length_m, port.area_m2) for omega in sweep.omega_rad_s],
+        dtype=np.complex128,
+    )
+    expected_port_q = port_y * (p_rear - p_mouth)
+
+    port_rad = normalized.radiators[1]
+    p_port_node = sweep.pressures[:, system.node_index[port_rad.node]]
+    port_rad_z = np.array(
+        [radiator_impedance(port_rad.model, float(omega), port_rad.area_m2) for omega in sweep.omega_rad_s],
+        dtype=np.complex128,
+    )
+    expected_port_rad_q = p_port_node / port_rad_z
+
+    np.testing.assert_allclose(result.series["port_q"], expected_port_q)
+    np.testing.assert_allclose(result.series["port_v"], expected_port_q / port.area_m2)
+    np.testing.assert_allclose(result.series["port_rad_q"], expected_port_rad_q)
+    np.testing.assert_allclose(result.series["port_rad_v"], expected_port_rad_q / port_rad.area_m2)
+    assert result.units["port_q"] == "m^3/s"
+    assert result.units["port_v"] == "m/s"
+    assert result.units["port_rad_q"] == "m^3/s"
+    assert result.units["port_rad_v"] == "m/s"
+
+
+def test_run_simulation_exposes_waveguide_element_observables_with_frozen_endpoint_signs() -> None:
+    model_dict = load_model(Path("examples/line_basic/model.yaml"))
+    model_dict["observations"] = [
+        {"id": "rear_q_a", "type": "element_volume_velocity", "target": "rear_line", "location": "a"},
+        {"id": "rear_q_b", "type": "element_volume_velocity", "target": "rear_line", "location": "b"},
+        {"id": "rear_v_a", "type": "element_particle_velocity", "target": "rear_line", "location": "a"},
+        {"id": "rear_v_b", "type": "element_particle_velocity", "target": "rear_line", "location": "b"},
+    ]
+    frequencies = np.array([50.0, 100.0, 200.0])
+
+    result = run_simulation(model_dict, frequencies)
+
+    normalized, _ = normalize_model(model_dict)
+    system = assemble_system(normalized)
+    sweep = solve_frequency_sweep(normalized, system, frequencies)
+
+    np.testing.assert_allclose(result.series["rear_q_a"], sweep.waveguide_endpoint_flow["rear_line"].node_a)
+    np.testing.assert_allclose(result.series["rear_q_b"], -sweep.waveguide_endpoint_flow["rear_line"].node_b)
+    np.testing.assert_allclose(result.series["rear_v_a"], sweep.waveguide_endpoint_velocity["rear_line"].node_a)
+    np.testing.assert_allclose(result.series["rear_v_b"], -sweep.waveguide_endpoint_velocity["rear_line"].node_b)
+    assert result.units["rear_q_a"] == "m^3/s"
+    assert result.units["rear_q_b"] == "m^3/s"
+    assert result.units["rear_v_a"] == "m/s"
+    assert result.units["rear_v_b"] == "m/s"

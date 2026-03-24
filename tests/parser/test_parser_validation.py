@@ -321,3 +321,56 @@ def test_spl_sum_parent_radiation_space_suppresses_mixed_space_warning():
     ]
     _, warnings = normalize_model(model)
     assert warnings == []
+
+
+def test_element_observable_rejects_volume_target():
+    model = _base_model()
+    model["observations"] = [
+        {"id": "rear_q", "type": "element_volume_velocity", "target": "rear_box"},
+    ]
+    with pytest.raises(ValidationError, match="requires target element type duct, radiator, or waveguide_1d"):
+        normalize_model(model)
+
+
+def test_waveguide_element_observable_requires_explicit_location():
+    model = _base_model()
+    model["elements"].append(
+        {
+            "id": "rear_line",
+            "type": "waveguide_1d",
+            "node_a": "rear",
+            "node_b": "mouth",
+            "length": "1.6 m",
+            "area_start": "132 cm2",
+            "area_end": "132 cm2",
+            "profile": "conical",
+            "segments": 8,
+        }
+    )
+    model["elements"].append(
+        {
+            "id": "mouth_rad",
+            "type": "radiator",
+            "node": "mouth",
+            "model": "unflanged_piston",
+            "area": "132 cm2",
+        }
+    )
+    model["observations"] = [
+        {"id": "rear_q", "type": "element_volume_velocity", "target": "rear_line"},
+    ]
+    with pytest.raises(ValidationError, match="requires location 'a' or 'b'"):
+        normalize_model(model)
+
+    model["observations"][0]["location"] = "c"
+    with pytest.raises(ValidationError, match="requires location 'a' or 'b'"):
+        normalize_model(model)
+
+
+def test_non_waveguide_element_observable_rejects_location():
+    model = _base_model()
+    model["observations"] = [
+        {"id": "front_v", "type": "element_particle_velocity", "target": "front_rad", "location": "a"},
+    ]
+    with pytest.raises(ValidationError, match="does not accept location"):
+        normalize_model(model)

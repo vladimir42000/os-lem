@@ -53,3 +53,13 @@ observations:
     frequency: 200 Hz
     quantity: pressure
     points: 100
+
+  - id: rear_line_q_a
+    type: element_volume_velocity
+    target: rear_line
+    location: a
+
+  - id: rear_line_v_b
+    type: element_particle_velocity
+    target: rear_line
+    location: b

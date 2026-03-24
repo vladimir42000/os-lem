@@ -54,14 +54,12 @@ Currently exposed by `os_lem.api`:
 - `spl_sum`
 - `line_profile`
 - `group_delay`
-
-Not yet exposed through the facade at this checkpoint:
-
 - `element_volume_velocity`
 - `element_particle_velocity`
 
-Those remain kernel-level capabilities that may be added later once their
-frontend-facing contract is better frozen.
+For `waveguide_1d` element observables, the current supported facade contract
+requires `location: a` or `location: b` so the exported sign and local area are
+explicit.
 
 ## Strategic caution
 

@@ -22,6 +22,8 @@
 | Minimal assembled `waveguide_1d` | Released | implemented assembly path and released baseline | v0.1.0 | not a broad horn / line support claim |
 | Waveguide endpoint flow export | Released | implemented output path and released baseline | v0.1.0 | narrow waveguide observability claim only |
 | Waveguide endpoint particle-velocity export | Released | implemented output path and released baseline | v0.1.0 | narrow waveguide observability claim only |
+| Element volume-velocity export through `os_lem.api` | Implemented | promoted facade path with regression coverage on current milestone line | v0.3.0 | supported target types remain narrow |
+| Element particle-velocity export through `os_lem.api` | Implemented | promoted facade path with regression coverage on current milestone line | v0.3.0 | supported target types remain narrow |
 | Minimal `line_profile` export for `pressure` | Released | implemented output path and released baseline | v0.1.0 | current claim remains minimal |
 | Minimal `line_profile` export for `volume_velocity` | Released | implemented output path and released baseline | v0.1.0 | current claim remains minimal |
 | Minimal `line_profile` export for `particle_velocity` | Released | implemented output path and released baseline | v0.1.0 | current claim remains minimal |

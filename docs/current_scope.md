@@ -37,6 +37,8 @@ Current available outputs include:
 - one-radiator SPL
 - waveguide endpoint flow export
 - waveguide endpoint particle-velocity export
+- element volume-velocity export for `duct`, `radiator`, and `waveguide_1d` endpoints
+- element particle-velocity export for `duct`, `radiator`, and `waveguide_1d` endpoints
 - minimal `waveguide_1d` `line_profile` export for `pressure`
 - minimal `waveguide_1d` `line_profile` export for `volume_velocity`
 - minimal `waveguide_1d` `line_profile` export for `particle_velocity`

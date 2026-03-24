@@ -20,8 +20,10 @@ from typing import Any, Mapping, Sequence
 
 import numpy as np
 
-from .assemble import AssembledSystem, assemble_system
-from .model import NormalizedModel, Observation, RadiatorElement
+from .assemble import AssembledElement, AssembledSystem, assemble_system
+from .elements.duct import duct_admittance
+from .elements.radiator import radiator_impedance
+from .model import DuctElement, NormalizedModel, Observation, RadiatorElement, Waveguide1DElement
 from .parser import normalize_model
 from .units import parse_value
 from .solve import (
@@ -206,6 +208,9 @@ def _evaluate_observation(
             )
         return 20.0 * np.log10(np.maximum(np.abs(total), 1.0e-30) / 2.0e-5), "dB"
 
+    if otype in {"element_volume_velocity", "element_particle_velocity"}:
+        return _evaluate_element_observation(system, sweep, data, quantity=otype)
+
     if otype == "line_profile":
         frequency_hz = _parse_frequency_hz(data["frequency"])
         point = solve_frequency_point(model, system, frequency_hz)
@@ -245,6 +250,93 @@ def _evaluate_observation(
         f"Observation type {otype!r} is not yet exposed by the provisional os_lem.api facade"
     )
 
+
+
+def _evaluate_element_observation(
+    system: AssembledSystem,
+    sweep: SolvedFrequencySweep,
+    data: Mapping[str, Any],
+    *,
+    quantity: str,
+) -> tuple[np.ndarray, str]:
+    target = str(data["target"])
+    location = _resolve_waveguide_location(data.get("location"))
+    element = _find_element(system, target)
+
+    if element.kind == "duct":
+        if location is not None:
+            raise ValueError(f"{quantity} does not accept location for duct target {target!r}")
+        payload = element.payload
+        assert isinstance(payload, DuctElement)
+        assert element.node_b is not None
+        pa = sweep.pressures[:, element.node_a]
+        pb = sweep.pressures[:, element.node_b]
+        admittance = np.array(
+            [duct_admittance(float(omega), payload.length_m, payload.area_m2) for omega in sweep.omega_rad_s],
+            dtype=np.complex128,
+        )
+        values = admittance * (pa - pb)
+        if quantity == "element_particle_velocity":
+            values = values / payload.area_m2
+            return values, "m/s"
+        return values, "m^3/s"
+
+    if element.kind == "radiator":
+        if location is not None:
+            raise ValueError(f"{quantity} does not accept location for radiator target {target!r}")
+        payload = element.payload
+        assert isinstance(payload, RadiatorElement)
+        pressure = sweep.pressures[:, element.node_a]
+        impedance = np.array(
+            [radiator_impedance(payload.model, float(omega), payload.area_m2) for omega in sweep.omega_rad_s],
+            dtype=np.complex128,
+        )
+        values = pressure / impedance
+        if quantity == "element_particle_velocity":
+            values = values / payload.area_m2
+            return values, "m/s"
+        return values, "m^3/s"
+
+    if element.kind == "waveguide_1d":
+        if location is None:
+            raise ValueError(f"{quantity} requires location 'a' or 'b' for waveguide_1d target {target!r}")
+        payload = element.payload
+        assert isinstance(payload, Waveguide1DElement)
+        if quantity == "element_volume_velocity":
+            values = (
+                sweep.waveguide_endpoint_flow[target].node_a
+                if location == "a"
+                else -sweep.waveguide_endpoint_flow[target].node_b
+            )
+            return values.copy(), "m^3/s"
+        values = (
+            sweep.waveguide_endpoint_velocity[target].node_a
+            if location == "a"
+            else -sweep.waveguide_endpoint_velocity[target].node_b
+        )
+        return values.copy(), "m/s"
+
+    raise NotImplementedError(
+        f"Observation type {quantity!r} does not support target element kind {element.kind!r} in os_lem.api"
+    )
+
+
+def _find_element(system: AssembledSystem, element_id: str) -> AssembledElement:
+    for element in (*system.branch_elements, *system.shunt_elements):
+        if element.id == element_id:
+            return element
+    raise ValueError(f"unknown element id {element_id!r}")
+
+
+def _resolve_waveguide_location(local_value: Any) -> str | None:
+    if local_value is None:
+        return None
+    token = str(local_value).strip()
+    if token == "":
+        return None
+    if token not in {"a", "b"}:
+        raise ValueError(f"Unsupported waveguide location {local_value!r}; expected one of ['a', 'b']")
+    return token
 
 
 def _resolve_observable_contract(local_value: Any) -> str | None:
