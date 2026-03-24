@@ -17,10 +17,10 @@ Current active integration branch:
 - `milestone/v0.2.0-offset-line-observation`
 
 Current bounded development patch branch:
-- `fix/v0.2.0-mouth-directivity-only`
+- `fix/v0.2.0-mouth-observable-normalization-check`
 
 Observed green suite on this patch snapshot:
-- `114 passed`
+- `117 passed`
 
 Observed local-workflow caveat:
 - unrelated scratch/debug/frontend files should remain stashed or untracked and must not be mixed into bounded patch branches
@@ -38,10 +38,12 @@ Current release story:
 Current best-supported technical interpretation:
 - `front/raw` remains broadly credible
 - the remaining mismatch is localized to `mouth/port` observable semantics
-- the `mouth_directivity_only` candidate is now implemented as an opt-in observation-layer contract
+- the `mouth_directivity_only` candidate is implemented as an opt-in observation-layer contract
 - that contract is available for passive `spl` observations and term-level `spl_sum` usage
-- the patch intentionally rejects driver-front use of `mouth_directivity_only`
-- the likely remaining issue is now a narrow mouth-path amplitude / area / normalization residual
+- the contract intentionally rejects driver-front use of `mouth_directivity_only`
+- the contract now also requires the passive radiator area to match the unique connected duct / waveguide endpoint area
+- the same physical mouth area is therefore frozen for both passive mouth flow semantics and `D(ka_mouth)`
+- the likely remaining issue is now a narrow residual compare / observable-definition problem, not a broad missing-area ambiguity inside the current candidate contract
 
 ---
 

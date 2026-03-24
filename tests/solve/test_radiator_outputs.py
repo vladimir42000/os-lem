@@ -12,6 +12,7 @@ from os_lem.model import (
     NormalizedModel,
     RadiatorElement,
     VolumeElement,
+    Waveguide1DElement,
 )
 from os_lem.solve import (
     radiator_observation_pressure,
@@ -174,6 +175,67 @@ def test_default_radiator_observation_pressure_remains_raw_without_contract() ->
     )
 
     np.testing.assert_allclose(p_default, p_raw)
+
+
+def test_mouth_directivity_only_contract_requires_matching_connected_aperture_area() -> None:
+    model = NormalizedModel(
+        driver=_driver(),
+        volumes=[VolumeElement(id="rear_vol", node="rear", value_m3=0.020)],
+        ducts=[DuctElement(id="port_duct", node_a="rear", node_b="port", length_m=0.12, area_m2=0.008)],
+        radiators=[RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.01)],
+        node_order=["front", "rear", "port"],
+    )
+    system = assemble_system(model)
+    sweep = solve_frequency_sweep(model, system, [100.0])
+
+    with pytest.raises(ValueError, match="connected aperture area"):
+        radiator_observation_pressure(
+            sweep,
+            system,
+            "port_rad",
+            1.0,
+            radiation_space="2pi",
+            observable_contract="mouth_directivity_only",
+        )
+
+
+def test_mouth_directivity_only_contract_supports_waveguide_terminus_with_matching_area() -> None:
+    model = NormalizedModel(
+        driver=_driver(),
+        volumes=[VolumeElement(id="rear_vol", node="rear", value_m3=0.030)],
+        waveguides=[
+            Waveguide1DElement(
+                id="line",
+                node_a="rear",
+                node_b="mouth",
+                length_m=0.50,
+                area_start_m2=0.01,
+                area_end_m2=0.01,
+                profile="conical",
+                segments=4,
+            )
+        ],
+        radiators=[RadiatorElement(id="mouth_rad", node="mouth", model="flanged_piston", area_m2=0.01)],
+        node_order=["front", "rear", "mouth"],
+    )
+    system = assemble_system(model)
+    sweep = solve_frequency_sweep(model, system, [80.0, 200.0])
+
+    p_raw = radiator_observation_pressure(sweep, system, "mouth_rad", 1.0, radiation_space="2pi")
+    p_candidate = radiator_observation_pressure(
+        sweep,
+        system,
+        "mouth_rad",
+        1.0,
+        radiation_space="2pi",
+        observable_contract="mouth_directivity_only",
+    )
+    directivity = np.array(
+        [on_axis_circular_piston_directivity(float(omega), 0.01) for omega in sweep.omega_rad_s],
+        dtype=np.complex128,
+    )
+
+    np.testing.assert_allclose(p_candidate, p_raw * directivity)
 
 
 def test_mouth_directivity_only_contract_rejects_driver_front_radiator() -> None:

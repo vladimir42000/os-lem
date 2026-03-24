@@ -65,15 +65,28 @@ Pack name:
 - branch: `fix/v0.2.0-mouth-directivity-only`
 - purpose: align patch-tracking docs with the landed candidate contract
 
-### P-007 — mouth amplitude / normalization micro-check
-- status: planned
-- branch: `fix/v0.2.0-mouth-amplitude-microcheck`
-- purpose: examine the remaining residual as a narrow mouth-path amplitude / area issue
+### P-007 — mouth observable normalization check
+- status: merged
+- branch: `fix/v0.2.0-mouth-observable-normalization-check`
+- purpose: freeze one narrow mouth-path amplitude / area invariant without changing raw behavior
+- delivered:
+  - explicit connected-aperture area helper for passive mouth/port radiators
+  - bounded guard that `mouth_directivity_only` uses the same physical area for mouth flow semantics and `D(ka_mouth)`
+  - regression protection for mismatched duct area and supported waveguide terminus use
+  - API-level failure coverage for inconsistent candidate-contract models
 - validation:
   - `pytest -q`
-  - one focused compare or invariant check only
+  - one focused invariant check only
 
-### P-008 — `v0.2.0` release-note draft
+### P-008 — offset-line compare harness refresh
+- status: planned
+- branch: `fix/v0.2.0-offset-line-compare-harness`
+- purpose: add one maintained comparison fixture that exercises the bounded mouth observation contracts
+- validation:
+  - `pytest -q`
+  - no broad solver changes
+
+### P-009 — `v0.2.0` release-note draft
 - status: planned
 - branch: `chore/v0.2.0-release-notes-draft`
 - purpose: prepare the final milestone wording early

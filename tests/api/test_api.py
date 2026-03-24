@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
 import yaml
 
 from os_lem.api import LineProfileResult, run_simulation
@@ -160,3 +161,33 @@ def test_run_simulation_supports_term_level_mouth_directivity_only_contract() ->
     expected = 20.0 * np.log10(np.maximum(np.abs(p_front + p_port), 1.0e-30) / 2.0e-5)
 
     np.testing.assert_allclose(result.series["spl_total_candidate"], expected)
+
+
+def test_run_simulation_surfaces_mouth_area_consistency_error_for_candidate_contract() -> None:
+    model_dict = {
+        "meta": {"name": "mismatch_demo", "radiation_space": "2pi"},
+        "driver": {
+            "id": "drv1",
+            "model": "ts_classic",
+            "Re": "5.8 ohm",
+            "Le": "0.35 mH",
+            "Fs": "34 Hz",
+            "Qes": 0.42,
+            "Qms": 4.1,
+            "Vas": "55 l",
+            "Sd": "132 cm2",
+            "node_front": "front",
+            "node_rear": "rear",
+        },
+        "elements": [
+            {"id": "rear_box", "type": "volume", "node": "rear", "value": "20 l"},
+            {"id": "port_duct", "type": "duct", "node_a": "rear", "node_b": "port", "length": "12 cm", "area": "80 cm2"},
+            {"id": "port_rad", "type": "radiator", "node": "port", "model": "flanged_piston", "area": "100 cm2"},
+        ],
+        "observations": [
+            {"id": "spl_port_candidate", "type": "spl", "target": "port_rad", "distance": "1 m", "radiation_space": "2pi", "observable_contract": "mouth_directivity_only"},
+        ],
+    }
+
+    with pytest.raises(ValueError, match="connected aperture area"):
+        run_simulation(model_dict, [100.0])

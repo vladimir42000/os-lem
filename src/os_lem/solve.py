@@ -718,6 +718,45 @@ def _find_radiator_element(system: AssembledSystem, radiator_id: str) -> Assembl
     raise ValueError(f"unknown radiator id {radiator_id!r}")
 
 
+def _connected_aperture_area_for_passive_radiator(system: AssembledSystem, element: AssembledElement) -> tuple[float, str]:
+    """Return the unique connected branch endpoint area for one passive radiator node."""
+
+    connected: list[tuple[float, str]] = []
+    for branch in system.branch_elements:
+        if branch.kind == "duct":
+            payload = branch.payload
+            assert isinstance(payload, DuctElement)
+            if branch.node_a == element.node_a or branch.node_b == element.node_a:
+                connected.append((payload.area_m2, branch.id))
+        elif branch.kind == "waveguide_1d":
+            payload = branch.payload
+            assert isinstance(payload, Waveguide1DElement)
+            if branch.node_a == element.node_a:
+                connected.append((payload.area_start_m2, branch.id))
+            if branch.node_b == element.node_a:
+                connected.append((payload.area_end_m2, branch.id))
+
+    if len(connected) != 1:
+        raise ValueError(
+            "observable_contract='mouth_directivity_only' requires exactly one connected duct/waveguide endpoint"
+        )
+
+    return connected[0]
+
+
+def _validate_mouth_observable_area_consistency(system: AssembledSystem, element: AssembledElement, payload: RadiatorElement) -> float:
+    """Return the physical mouth area used by the bounded mouth observation contract."""
+
+    connected_area_m2, branch_id = _connected_aperture_area_for_passive_radiator(system, element)
+    if not np.isclose(connected_area_m2, payload.area_m2, rtol=1.0e-9, atol=1.0e-12):
+        raise ValueError(
+            "observable_contract='mouth_directivity_only' requires radiator area to match connected aperture area; "
+            f"radiator {payload.id!r} area={payload.area_m2:.12g} m^2, "
+            f"branch {branch_id!r} endpoint area={connected_area_m2:.12g} m^2"
+        )
+    return float(connected_area_m2)
+
+
 def radiator_observation_pressure(
     sweep: SolvedFrequencySweep,
     system: AssembledSystem,
@@ -743,8 +782,11 @@ def radiator_observation_pressure(
     observation_pressure = np.empty(len(sweep.frequency_hz), dtype=np.complex128)
 
     use_driver_front_kinematics = element.node_a == system.driver_front_index
-    if contract == "mouth_directivity_only" and use_driver_front_kinematics:
-        raise ValueError("observable_contract='mouth_directivity_only' is only supported for passive mouth/port radiators")
+    directivity_area_m2 = payload.area_m2
+    if contract == "mouth_directivity_only":
+        if use_driver_front_kinematics:
+            raise ValueError("observable_contract='mouth_directivity_only' is only supported for passive mouth/port radiators")
+        directivity_area_m2 = _validate_mouth_observable_area_consistency(system, element, payload)
 
     for idx, (omega, node_pressure) in enumerate(zip(sweep.omega_rad_s, node_pressures, strict=True)):
         if use_driver_front_kinematics:
@@ -758,7 +800,7 @@ def radiator_observation_pressure(
         h_q = _radiator_observation_transfer(payload.model, float(omega), distance_m, radiation_space)
         p_obs = h_q * q_rad
         if contract == "mouth_directivity_only":
-            p_obs = p_obs * on_axis_circular_piston_directivity(float(omega), payload.area_m2)
+            p_obs = p_obs * on_axis_circular_piston_directivity(float(omega), directivity_area_m2)
         observation_pressure[idx] = p_obs
 
     return observation_pressure
