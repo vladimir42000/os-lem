@@ -30,7 +30,7 @@ The post-release transition was intentionally split into:
 2. branch review / retention plan
 3. next-milestone seed patch
 
-These transition steps are now complete, and the next milestone has been opened intentionally.
+These transition steps are complete, and the next milestone is active.
 
 ---
 
@@ -42,15 +42,16 @@ These transition steps are now complete, and the next milestone has been opened 
 Integration branch:
 - `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
-First landed feature patch on the active milestone line:
+Landed patches on the active milestone line so far:
 - `feat/v0.3.0-element-observable-api-surface`
+- `chore/v0.3.0-first-patch-bookkeeping`
 
-Observed active milestone validation after the first landed patch:
+Observed active milestone validation after the landed patch set so far:
 - `123 passed`
 
-Immediate next bookkeeping patch:
-- `chore/v0.3.0-first-patch-bookkeeping`
+Recommended next regression patch:
+- `test/v0.3.0-element-observable-facade-error-contract`
 
 Planning principle for `v0.3.0`:
 - promote and harden already-existing observable capabilities before adding new solver physics
-- keep milestone expansion conservative until docs and handover state match the landed first patch
+- keep milestone expansion conservative until the promoted observable surface is regression-hardened end to end

@@ -13,15 +13,16 @@
 - milestone: `v0.3.0`
 - title: `waveguide observability and API maturity`
 - active integration branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-- observed green suite on the active milestone line after the first landed patch: `123 passed`
+- observed green suite on the active milestone line after the first landed patch set: `123 passed`
 
 Current milestone state:
-- the seeded `v0.3.0` integration branch is now open
+- the seeded `v0.3.0` integration branch is open and active
 - the first bounded `v0.3.0` feature patch has landed on the milestone line
-- the milestone should remain intentionally conservative until the promoted observable surface is fully documented and stabilized
+- the first bounded `v0.3.0` bookkeeping patch has also landed on the milestone line
+- the milestone should remain intentionally conservative until the promoted observable surface is regression-hardened and fully settled
 
 Current recommended work type:
-- do a bounded bookkeeping/docs patch that records the landed first patch honestly
+- choose the next technical step from the active milestone branch, not from old seed-state docs
 - keep the next technical step narrow and regression-led
 - do not reopen broad solver debugging or broad API redesign
 
@@ -37,17 +38,18 @@ Current recommended work type:
 
 ---
 
-## What the first `v0.3.0` patch established
+## What the first `v0.3.0` patch set established
 
 - supported API/output surface now exposes `element_volume_velocity`
 - supported API/output surface now exposes `element_particle_velocity`
 - promoted contract covers `duct`, `radiator`, and `waveguide_1d` endpoint targets
 - parser validation now rejects incomplete promoted observable requests early
 - docs and examples now show the promoted supported path
+- milestone governance docs now record `v0.3.0` as active rather than merely seeded
 
 ---
 
 ## Current recommended next patch
 
-- `chore/v0.3.0-first-patch-bookkeeping`
-- purpose: align milestone docs, release planning, and handover text to the actual landed first `v0.3.0` patch
+- `test/v0.3.0-element-observable-facade-error-contract`
+- purpose: add end-to-end negative-path regression coverage for the promoted element-observable facade contract without changing solver physics or broad API scope

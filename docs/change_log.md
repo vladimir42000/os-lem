@@ -16,9 +16,10 @@ Completed summary:
 - next milestone seeded explicitly as `v0.3.0`
 - recommended `v0.3.0` integration branch opened
 - first bounded `v0.3.0` feature patch landed on the milestone line
+- first bounded `v0.3.0` bookkeeping patch landed on the milestone line
 
 Outcome:
-- `v0.3.0` is no longer only a seeded plan; it is now an active milestone
+- `v0.3.0` is no longer only a seeded plan; it is now an active milestone with its first landed patch set
 
 ---
 
@@ -31,12 +32,14 @@ Planned title:
 Milestone summary so far:
 - opened integration branch `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 - landed `feat/v0.3.0-element-observable-api-surface`
+- landed `chore/v0.3.0-first-patch-bookkeeping`
 - exposed promoted element observables through the supported API/output surface
-- kept milestone scope conservative after the first landed patch
+- kept parser-side promoted-observable validation aligned with the supported contract
+- kept milestone scope conservative after the first landed patch set
 - observed active milestone line green at `123 passed`
 
 Immediate next action:
-- land the bounded bookkeeping/docs patch that aligns milestone planning and handover docs to the current active state
+- land the bounded regression patch that hardens end-to-end facade error coverage for promoted element observables
 
 Milestone reference:
 - `docs/v0_3_0_seed_plan.md`
