@@ -8,20 +8,22 @@
 
 ---
 
-## Current project posture
+## Active development milestone
 
-The `v0.2.0` milestone is complete and released.
-The post-release transition is sufficiently complete to open the next milestone intentionally.
-The repo now has:
-- release-aligned docs
-- a housekeeping checklist
-- a branch review / retention plan
-- an explicit `v0.3.0` seed plan
+- milestone: `v0.3.0`
+- title: `waveguide observability and API maturity`
+- active integration branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+- observed green suite on the active milestone line after the first landed patch: `123 passed`
+
+Current milestone state:
+- the seeded `v0.3.0` integration branch is now open
+- the first bounded `v0.3.0` feature patch has landed on the milestone line
+- the milestone should remain intentionally conservative until the promoted observable surface is fully documented and stabilized
 
 Current recommended work type:
-- create the seeded `v0.3.0` integration branch from `main`
-- begin the first bounded `v0.3.0` feature patch
-- keep the next milestone conservative until the promoted observable surface is stable
+- do a bounded bookkeeping/docs patch that records the landed first patch honestly
+- keep the next technical step narrow and regression-led
+- do not reopen broad solver debugging or broad API redesign
 
 ---
 
@@ -35,9 +37,17 @@ Current recommended work type:
 
 ---
 
-## Seeded next milestone
+## What the first `v0.3.0` patch established
 
-- `v0.3.0`
-- title: `waveguide observability and API maturity`
-- recommended integration branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-- recommended first feature patch: `feat/v0.3.0-element-observable-api-surface`
+- supported API/output surface now exposes `element_volume_velocity`
+- supported API/output surface now exposes `element_particle_velocity`
+- promoted contract covers `duct`, `radiator`, and `waveguide_1d` endpoint targets
+- parser validation now rejects incomplete promoted observable requests early
+- docs and examples now show the promoted supported path
+
+---
+
+## Current recommended next patch
+
+- `chore/v0.3.0-first-patch-bookkeeping`
+- purpose: align milestone docs, release planning, and handover text to the actual landed first `v0.3.0` patch

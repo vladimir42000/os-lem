@@ -86,11 +86,10 @@ Its role is defined in:
 Latest release:
 - `v0.2.0` on `main`
 
-Seeded next milestone:
+Active milestone:
 - `v0.3.0` — `waveguide observability and API maturity`
+- integration branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+- first landed patch: `feat/v0.3.0-element-observable-api-surface`
 
-Recommended next integration branch:
-- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-
-Recommended next feature branch:
-- `feat/v0.3.0-element-observable-api-surface`
+Recommended next patch branch:
+- `chore/v0.3.0-first-patch-bookkeeping`

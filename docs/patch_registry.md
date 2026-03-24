@@ -27,25 +27,36 @@ Result:
 
 ---
 
-## Seeded next milestone
+## Active `v0.3.0` milestone
 
 ### `v0.3.0` — `waveguide observability and API maturity`
-**Status:** seeded
+**Status:** active
 
-Recommended integration branch:
+Integration branch:
 - `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
-### Current planned first feature patch
+Observed green suite on the active milestone line after the first landed patch:
+- `123 passed`
 
-#### `feat/v0.3.0-element-observable-api-surface`
+### Completed so far
+
+1. `feat/v0.3.0-element-observable-api-surface` — landed
+
+Result so far:
+- active milestone line exposes promoted element observables through the supported API/output surface
+- active milestone line remains conservative in scope
+- active milestone line is green at `123 passed`
+
+### Current planned next patch
+
+#### `chore/v0.3.0-first-patch-bookkeeping`
 **Status:** planned
 
 Purpose:
-- begin `v0.3.0` with a conservative promotion of already-existing element observables
-- expose them through the supported API/output surface
-- avoid drifting immediately into broader physics expansion
+- align milestone docs, release planning, and handover text to the actual landed first `v0.3.0` patch
+- prevent future sessions from treating `v0.3.0` as only a seed state
 
 Expected scope:
-- bounded API/output-surface work
-- narrow regression coverage
-- small doc/example refresh only
+- bounded governance/docs updates only
+- no solver or API behavior changes
+- no unrelated cleanup mixed into the patch

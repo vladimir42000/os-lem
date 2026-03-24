@@ -6,6 +6,13 @@
 - Planned title: `waveguide observability and API maturity`
 - Recommended integration branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
+## Current state
+
+- Status: active
+- Integration branch is open
+- First bounded patch landed: `feat/v0.3.0-element-observable-api-surface`
+- Observed green suite on the active milestone line after the first landed patch: `123 passed`
+
 ## Why this is the right successor to `v0.2.0`
 
 `v0.2.0` intentionally solved a bounded observation-contract problem without reopening broad solver development.
@@ -31,31 +38,21 @@ Use `v0.3.0` to make waveguide and element observability more usable from the su
 - frontend productization
 - broad API redesign unrelated to the promoted observable surface
 
-## First bounded patch recommendation
+## First bounded patch
 
 ### Branch
 - `feat/v0.3.0-element-observable-api-surface`
 
-### Goal
-Expose already-existing element observables such as volume velocity and particle velocity through the supported API/output surface without changing default existing behaviors.
+### Status
+- landed on the active milestone line
 
-### Patch boundary
-Allowed:
-- bounded API/output-surface changes
-- narrow regression coverage
-- small example/doc refresh tied directly to the promoted observable surface
+### Delivered intent
+- exposed already-existing element observables such as volume velocity and particle velocity through the supported API/output surface without changing default existing behaviors
 
-Not allowed:
-- new acoustical models
-- topology growth
-- broad refactors
-- branch cleanup mixed into the feature patch
+## Suggested next bounded patch
 
-## Suggested first patch pack
-
-1. `feat/v0.3.0-element-observable-api-surface`
-2. `test/v0.3.0-element-observable-regressions`
-3. `chore/v0.3.0-example-and-doc-refresh`
+1. `chore/v0.3.0-first-patch-bookkeeping`
+2. next bounded milestone follow-up to be chosen after bookkeeping lands
 
 ## Exit idea for `v0.3.0`
 

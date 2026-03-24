@@ -6,33 +6,39 @@ It complements Git history; it does not replace it.
 ---
 
 ## Post-`v0.2.0` housekeeping
-**Status:** seeded for close
+**Status:** completed
 
-Completed so far:
+Completed summary:
 - release-aligned housekeeping docs landed on `main`
 - companion-book linkage made explicit
 - post-release housekeeping checklist added
 - post-release branch review and retention plan added
 - next milestone seeded explicitly as `v0.3.0`
+- recommended `v0.3.0` integration branch opened
+- first bounded `v0.3.0` feature patch landed on the milestone line
 
-Immediate next action:
-- open the recommended `v0.3.0` integration branch
-- start the first bounded `v0.3.0` feature patch from that branch
+Outcome:
+- `v0.3.0` is no longer only a seeded plan; it is now an active milestone
 
 ---
 
 ## `v0.3.0`
-**Status:** seeded
+**Status:** active
 
 Planned title:
 - `waveguide observability and API maturity`
 
-Seed summary:
-- use `v0.3.0` to promote already-existing observability capabilities into a cleaner supported user-facing contract
-- prefer API/output-surface hardening over new solver physics
-- keep the first patch bounded to exposing existing element observables cleanly
+Milestone summary so far:
+- opened integration branch `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+- landed `feat/v0.3.0-element-observable-api-surface`
+- exposed promoted element observables through the supported API/output surface
+- kept milestone scope conservative after the first landed patch
+- observed active milestone line green at `123 passed`
 
-Seed reference:
+Immediate next action:
+- land the bounded bookkeeping/docs patch that aligns milestone planning and handover docs to the current active state
+
+Milestone reference:
 - `docs/v0_3_0_seed_plan.md`
 
 ---
