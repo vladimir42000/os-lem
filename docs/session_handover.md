@@ -13,33 +13,35 @@ That release remains the public floor.
 
 ## Current working snapshot
 
-Observed current working branch in the uploaded repo:
-- `debug/v0.2.0-hf-rolloff-fit-study`
+Current active integration branch:
+- `milestone/v0.2.0-offset-line-observation`
 
-Observed green suite on that snapshot:
-- `108 passed`
+Current bounded development patch branch:
+- `fix/v0.2.0-mouth-directivity-only`
 
-Observed caveat:
-- the working tree contains untracked debug/docs/frontend support files
+Observed green suite on this patch snapshot:
+- `114 passed`
 
-This means the next healthy move is governance alignment plus a clean milestone restart, not broad new debugging.
+Observed local-workflow caveat:
+- unrelated scratch/debug/frontend files should remain stashed or untracked and must not be mixed into bounded patch branches
 
 ---
 
 ## Current planning direction
 
-The next intended milestone is:
+The current milestone is:
 - `v0.2.0`
 
-Recommended release story:
+Current release story:
 - `offset-line observation-contract stabilization`
 
 Current best-supported technical interpretation:
-- `front/raw` is broadly credible
+- `front/raw` remains broadly credible
 - the remaining mismatch is localized to `mouth/port` observable semantics
-- best next move is a bounded observation-layer patch
-- preferred first candidate is `mouth_directivity_only`
-- `front` must remain unchanged during that patch
+- the `mouth_directivity_only` candidate is now implemented as an opt-in observation-layer contract
+- that contract is available for passive `spl` observations and term-level `spl_sum` usage
+- the patch intentionally rejects driver-front use of `mouth_directivity_only`
+- the likely remaining issue is now a narrow mouth-path amplitude / area / normalization residual
 
 ---
 
@@ -71,8 +73,8 @@ pytest -q
 
 Before proposing changes, reconstruct:
 - released truth
-- current working-line truth
-- whether the user is on a debug, patch, milestone, or release branch
+- current milestone truth
+- whether the user is on the milestone branch or a bounded patch branch
 - whether `docs/next_patch.md` still matches reality
 - exactly one bounded next patch only
 
@@ -81,7 +83,7 @@ Before proposing changes, reconstruct:
 ## Important cautions
 
 - do not restart broad debugging
-- do not continue normal development directly on the long debug branch
+- do not merge to `main` before the milestone exit criteria are actually met
 - do not broaden post-release claims impulsively
 - do not mix new capability work with broad cleanup
 - preserve the discipline that produced `v0.1.0`

@@ -5,7 +5,7 @@ import pytest
 
 from os_lem.assemble import assemble_system
 from os_lem.constants import P_REF, RHO0
-from os_lem.elements.radiator import radiator_impedance
+from os_lem.elements.radiator import on_axis_circular_piston_directivity, radiator_impedance
 from os_lem.model import (
     Driver,
     DuctElement,
@@ -134,3 +134,64 @@ def test_explicit_same_radiation_space_removes_default_mixed_space_notch_directi
     same_mag = np.abs(p_driver_same + p_port_same)[0]
 
     assert same_mag > mixed_mag
+
+
+def test_mouth_directivity_only_contract_multiplies_raw_passive_radiator_pressure() -> None:
+    model = _minimal_vented_like_model()
+    system = assemble_system(model)
+
+    sweep = solve_frequency_sweep(model, system, [30.0, 100.0, 500.0])
+    p_raw = radiator_observation_pressure(sweep, system, "port_rad", 1.0, radiation_space="2pi")
+    p_candidate = radiator_observation_pressure(
+        sweep,
+        system,
+        "port_rad",
+        1.0,
+        radiation_space="2pi",
+        observable_contract="mouth_directivity_only",
+    )
+    directivity = np.array(
+        [on_axis_circular_piston_directivity(float(omega), 0.01) for omega in sweep.omega_rad_s],
+        dtype=np.complex128,
+    )
+
+    np.testing.assert_allclose(p_candidate, p_raw * directivity)
+
+
+def test_default_radiator_observation_pressure_remains_raw_without_contract() -> None:
+    model = _minimal_vented_like_model()
+    system = assemble_system(model)
+
+    sweep = solve_frequency_sweep(model, system, [100.0])
+    p_default = radiator_observation_pressure(sweep, system, "port_rad", 1.0, radiation_space="2pi")
+    p_raw = radiator_observation_pressure(
+        sweep,
+        system,
+        "port_rad",
+        1.0,
+        radiation_space="2pi",
+        observable_contract="raw",
+    )
+
+    np.testing.assert_allclose(p_default, p_raw)
+
+
+def test_mouth_directivity_only_contract_rejects_driver_front_radiator() -> None:
+    model = NormalizedModel(
+        driver=_driver(),
+        volumes=[VolumeElement(id="rear_vol", node="rear", value_m3=0.018)],
+        radiators=[RadiatorElement(id="front_rad", node="front", model="infinite_baffle_piston", area_m2=0.0132)],
+        node_order=["front", "rear"],
+    )
+    system = assemble_system(model)
+    sweep = solve_frequency_sweep(model, system, [100.0])
+
+    with pytest.raises(ValueError, match="passive mouth/port radiators"):
+        radiator_observation_pressure(
+            sweep,
+            system,
+            "front_rad",
+            1.0,
+            radiation_space="2pi",
+            observable_contract="mouth_directivity_only",
+        )

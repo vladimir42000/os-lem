@@ -177,21 +177,32 @@ def _evaluate_observation(
         target = str(data["target"])
         distance_m = _parse_distance_m(data.get("distance", 1.0))
         radiation_space = _resolve_radiation_space(model, data.get("radiation_space"))
-        return radiator_spl(sweep, system, target, distance_m, radiation_space=radiation_space), "dB"
+        observable_contract = _resolve_observable_contract(data.get("observable_contract"))
+        return radiator_spl(
+            sweep,
+            system,
+            target,
+            distance_m,
+            radiation_space=radiation_space,
+            observable_contract=observable_contract,
+        ), "dB"
 
     if otype == "spl_sum":
         total = np.zeros_like(sweep.frequency_hz, dtype=np.complex128)
         parent_space = _resolve_radiation_space(model, data.get("radiation_space"))
+        parent_contract = _resolve_observable_contract(data.get("observable_contract"))
         for term in data["terms"]:
             target = str(term["target"])
             distance_m = _parse_distance_m(term.get("distance", 1.0))
             term_space = term.get("radiation_space", parent_space)
+            term_contract = _resolve_observable_contract(term.get("observable_contract", parent_contract))
             total = total + radiator_observation_pressure(
                 sweep,
                 system,
                 target,
                 distance_m,
                 radiation_space=term_space,
+                observable_contract=term_contract,
             )
         return 20.0 * np.log10(np.maximum(np.abs(total), 1.0e-30) / 2.0e-5), "dB"
 
@@ -234,6 +245,13 @@ def _evaluate_observation(
         f"Observation type {otype!r} is not yet exposed by the provisional os_lem.api facade"
     )
 
+
+
+def _resolve_observable_contract(local_value: Any) -> str | None:
+    if local_value is None:
+        return None
+    token = str(local_value).strip()
+    return None if token == "" else token
 
 
 def _resolve_radiation_space(model: NormalizedModel, local_value: Any) -> str | None:

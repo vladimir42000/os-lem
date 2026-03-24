@@ -16,6 +16,23 @@ def piston_radius_from_area(area_m2: float) -> float:
     return math.sqrt(area_m2 / PI)
 
 
+def on_axis_circular_piston_directivity(omega: float, area_m2: float) -> complex:
+    """Return the on-axis circular-piston directivity factor 2*J1(ka)/ka.
+
+    This is a bounded observation-layer helper for expert-guided mouth/port
+    observation candidates. The small-ka limit is exactly 1.
+    """
+
+    if area_m2 <= 0.0:
+        raise ValueError("area_m2 must be > 0")
+
+    a = piston_radius_from_area(area_m2)
+    ka = (omega / C0) * a
+    if abs(ka) < 1.0e-10:
+        return 1.0 + 0.0j
+    return complex(2.0 * j1(ka) / ka, 0.0)
+
+
 def _struve_h1_aarts_janssen(z: float) -> float:
     return float(struve(1, z))
 

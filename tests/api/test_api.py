@@ -124,3 +124,39 @@ def test_run_simulation_group_delay_uses_preceding_complex_observation() -> None
     assert result.series["zin_gd"].shape == (4,)
     assert result.units["zin_gd"] == "s"
     assert np.all(np.isfinite(result.series["zin_gd"]))
+
+
+def test_run_simulation_supports_term_level_mouth_directivity_only_contract() -> None:
+    model_dict = load_model(Path("examples/vented_box/model.yaml"))
+    model_dict["observations"] = [
+        {"id": "spl_front_raw", "type": "spl", "target": "front_rad", "distance": "1 m", "radiation_space": "2pi"},
+        {"id": "spl_port_candidate", "type": "spl", "target": "port_rad", "distance": "1 m", "radiation_space": "2pi", "observable_contract": "mouth_directivity_only"},
+        {
+            "id": "spl_total_candidate",
+            "type": "spl_sum",
+            "radiation_space": "2pi",
+            "terms": [
+                {"target": "front_rad", "distance": "1 m"},
+                {"target": "port_rad", "distance": "1 m", "observable_contract": "mouth_directivity_only"},
+            ],
+        },
+    ]
+    frequencies = np.array([20.0, 30.0, 50.0, 80.0])
+
+    result = run_simulation(model_dict, frequencies)
+
+    normalized, _ = normalize_model(model_dict)
+    system = assemble_system(normalized)
+    sweep = solve_frequency_sweep(normalized, system, frequencies)
+    p_front = radiator_observation_pressure(sweep, system, "front_rad", 1.0, radiation_space="2pi")
+    p_port = radiator_observation_pressure(
+        sweep,
+        system,
+        "port_rad",
+        1.0,
+        radiation_space="2pi",
+        observable_contract="mouth_directivity_only",
+    )
+    expected = 20.0 * np.log10(np.maximum(np.abs(p_front + p_port), 1.0e-30) / 2.0e-5)
+
+    np.testing.assert_allclose(result.series["spl_total_candidate"], expected)

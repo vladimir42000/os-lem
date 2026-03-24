@@ -4,6 +4,7 @@ import numpy as np
 
 from os_lem.constants import C0, PI, RHO0, Z0
 from os_lem.elements.radiator import (
+    on_axis_circular_piston_directivity,
     piston_radius_from_area,
     radiator_impedance,
     radiator_observation_transfer,
@@ -93,3 +94,16 @@ def test_baffled_piston_formula_is_stable_at_small_ka():
     z = radiator_impedance("infinite_baffle_piston", w, area)
     assert np.isfinite(z.real)
     assert np.isfinite(z.imag)
+
+
+def test_on_axis_circular_piston_directivity_has_small_ka_limit_of_unity():
+    directivity = on_axis_circular_piston_directivity(0.0, 132e-4)
+    assert directivity == 1.0 + 0.0j
+
+
+def test_on_axis_circular_piston_directivity_is_finite_and_not_greater_than_unity_on_axis():
+    directivity = on_axis_circular_piston_directivity(2.0 * math.pi * 2000.0, 132e-4)
+    assert np.isfinite(directivity.real)
+    assert np.isfinite(directivity.imag)
+    assert abs(directivity.imag) < 1e-12
+    assert abs(directivity) <= 1.0 + 1e-12

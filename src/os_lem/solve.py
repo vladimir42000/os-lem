@@ -13,6 +13,7 @@ from .elements.duct import duct_admittance
 from .elements.radiator import (
     default_radiation_space_for_model,
     normalize_radiation_space,
+    on_axis_circular_piston_directivity,
     radiator_impedance,
     solid_angle_for_radiation_space,
 )
@@ -723,6 +724,8 @@ def radiator_observation_pressure(
     radiator_id: str,
     distance_m: float,
     radiation_space: str | None = None,
+    *,
+    observable_contract: str | None = None,
 ) -> np.ndarray:
     """Return complex on-axis far-field pressure for one radiator over a sweep."""
 
@@ -730,10 +733,18 @@ def radiator_observation_pressure(
     payload = element.payload
     assert isinstance(payload, RadiatorElement)
 
+    contract = "raw" if observable_contract is None else str(observable_contract).strip()
+    if contract not in {"raw", "mouth_directivity_only"}:
+        raise ValueError(
+            f"Unsupported observable_contract {observable_contract!r}; expected one of ['mouth_directivity_only', 'raw']"
+        )
+
     node_pressures = sweep.pressures[:, element.node_a]
     observation_pressure = np.empty(len(sweep.frequency_hz), dtype=np.complex128)
 
     use_driver_front_kinematics = element.node_a == system.driver_front_index
+    if contract == "mouth_directivity_only" and use_driver_front_kinematics:
+        raise ValueError("observable_contract='mouth_directivity_only' is only supported for passive mouth/port radiators")
 
     for idx, (omega, node_pressure) in enumerate(zip(sweep.omega_rad_s, node_pressures, strict=True)):
         if use_driver_front_kinematics:
@@ -745,7 +756,10 @@ def radiator_observation_pressure(
             z_rad = radiator_impedance(payload.model, float(omega), payload.area_m2)
             q_rad = node_pressure / z_rad
         h_q = _radiator_observation_transfer(payload.model, float(omega), distance_m, radiation_space)
-        observation_pressure[idx] = h_q * q_rad
+        p_obs = h_q * q_rad
+        if contract == "mouth_directivity_only":
+            p_obs = p_obs * on_axis_circular_piston_directivity(float(omega), payload.area_m2)
+        observation_pressure[idx] = p_obs
 
     return observation_pressure
 
@@ -756,8 +770,17 @@ def radiator_spl(
     radiator_id: str,
     distance_m: float,
     radiation_space: str | None = None,
+    *,
+    observable_contract: str | None = None,
 ) -> np.ndarray:
     """Return one-radiator SPL in dB over a sweep."""
 
-    p_obs = radiator_observation_pressure(sweep, system, radiator_id, distance_m, radiation_space)
+    p_obs = radiator_observation_pressure(
+        sweep,
+        system,
+        radiator_id,
+        distance_m,
+        radiation_space,
+        observable_contract=observable_contract,
+    )
     return 20.0 * np.log10(np.abs(p_obs) / P_REF)
