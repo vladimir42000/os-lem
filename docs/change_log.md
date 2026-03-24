@@ -19,31 +19,34 @@ Completed summary:
 - first bounded `v0.3.0` bookkeeping patch landed on the milestone line
 
 Outcome:
-- `v0.3.0` is no longer only a seeded plan; it is now an active milestone with its first landed patch set
+- `v0.3.0` is no longer only a seeded plan; it progressed to a completed milestone branch
 
 ---
 
 ## `v0.3.0`
-**Status:** active
+**Status:** complete on milestone branch
 
-Planned title:
+Title:
 - `waveguide observability and API maturity`
 
-Milestone summary so far:
+Milestone summary:
 - opened integration branch `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 - landed `feat/v0.3.0-element-observable-api-surface`
 - landed `chore/v0.3.0-first-patch-bookkeeping`
 - landed `test/v0.3.0-element-observable-facade-error-contract`
 - landed `chore/v0.3.0-post-regression-bookkeeping`
+- landed `chore/v0.3.0-close-prep`
 - exposed promoted element observables through the supported API/output surface
 - kept parser-side promoted-observable validation aligned with the supported contract
 - added end-to-end negative-path facade regression coverage for promoted element observables
 - aligned milestone governance docs, capability wording, and handover text to the current regression-hardened state
-- kept milestone scope conservative after the current landed patch set
-- observed active milestone line green at `128 passed`
+- kept milestone scope conservative throughout the patch pack
+- observed milestone line green at `128 passed`
 
-Immediate next action:
-- land the bounded close-prep patch that freezes the current milestone state and prepares an explicit close decision from repo truth
+Current decision:
+- `v0.3.0` is complete on its milestone branch
+- no further `v0.3.0` patch is recommended by default
+- any continuation should be explicit release-promotion planning rather than reopened milestone growth
 
 Milestone reference:
 - `docs/v0_3_0_seed_plan.md`

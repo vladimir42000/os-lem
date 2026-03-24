@@ -7,30 +7,28 @@
 - release title: `offset-line observation-contract stabilization`
 - observed green suite on the release line: `118 passed`
 
-Active development milestone:
+Completed milestone branch:
 - `v0.3.0` — `waveguide observability and API maturity`
-- integration branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-- observed green suite on the active milestone line after the current landed patch set: `128 passed`
+- milestone branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+- observed green suite on the milestone close-decision line: `128 passed`
 
 ## What just finished
 
-The seeded `v0.3.0` milestone has been opened intentionally.
-The first bounded milestone feature patch, `feat/v0.3.0-element-observable-api-surface`, has landed on the milestone line.
-The first bounded milestone bookkeeping patch, `chore/v0.3.0-first-patch-bookkeeping`, has landed on the milestone line.
-The bounded regression patch, `test/v0.3.0-element-observable-facade-error-contract`, has also landed on the milestone line.
-The bounded post-regression bookkeeping patch, `chore/v0.3.0-post-regression-bookkeeping`, has also landed on the milestone line.
-Future sessions should continue from the active milestone branch, freeze final close-prep from repo truth, and decide explicitly whether the milestone is ready to close.
+The `v0.3.0` milestone patch pack has been completed on the milestone branch.
+The branch is green, the promoted observable surface is regression-hardened, and the milestone governance/docs layer is aligned to that state.
+Future sessions should not reopen `v0.3.0` milestone scope by default.
 
 ## Startup protocol for the next session
 
-1. start from `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-2. run:
+1. decide first whether the session is about release-promotion work or unrelated new work
+2. if the session is about `v0.3.0` release-promotion work, start from `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+3. run:
    - `git branch --show-current`
    - `git status --short`
    - `git log --oneline --decorate -n 8`
    - `pytest -q`
-3. confirm the tree is clean and the active milestone line is green
-4. read:
+4. confirm the tree is clean and the milestone branch is green
+5. read:
    - `docs/status.md`
    - `docs/next_patch.md`
    - `docs/patch_registry.md`
@@ -38,14 +36,16 @@ Future sessions should continue from the active milestone branch, freeze final c
    - `docs/release_plan.md`
    - `docs/change_log.md`
    - `docs/doc_index.md`
-5. open the next bounded patch from the active milestone branch
 6. do **not** resume old debug work by default
-7. do **not** widen milestone scope by default
+7. do **not** reopen closed `v0.3.0` scope by default
 
 ## Recommended immediate next branches
 
-Integration branch:
+Current completed milestone branch:
 - `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
-Recommended next patch branch:
-- `chore/v0.3.0-close-prep`
+Default next patch:
+- none inside closed `v0.3.0`
+
+If explicit continuation is requested:
+- choose a bounded release-promotion planning branch rather than another `v0.3.0` feature/regression patch
