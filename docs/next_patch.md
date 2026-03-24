@@ -1,89 +1,67 @@
-# os-lem next patch
+# Next patch
 
-## Status
+## Current state
 
-The `v0.2.0` release-note draft now exists and the milestone has reached its close-preparation phase.
+The `v0.2.0` milestone has completed its intended bounded patch sequence for
+**offset-line observation-contract stabilization**.
 
-Current post-patch reality:
-- `front/raw` remains unchanged by default
-- passive `mouth/port` radiators can still opt into `observable_contract: mouth_directivity_only`
-- the bounded area-consistency guard remains active for that candidate
-- the repository contains one maintained offset-line compare harness that reports:
-  - `front_raw`
-  - `mouth_raw`
-  - `mouth_candidate`
-  - `sum_raw`
-  - `sum_candidate`
-- the release-note draft now states the intended `v0.2.0` claim and non-claims explicitly
-- the suite should remain green at `118 passed` on this branch snapshot
+The current milestone spine is:
 
----
+1. docs/governance reset
+2. `mouth_directivity_only` observation contract
+3. mouth observable normalization guard
+4. offset-line compare harness
+5. `v0.2.0` release-notes draft
 
-## Immediate next patch target
+The compare harness and release-note draft mean the project is no longer in an
+open-ended “what should we try next?” state inside `v0.2.0`.
 
-**Do one final `v0.2.0` scope-and-claim alignment pass before any merge to `main`.**
+## There is no default next development patch inside `v0.2.0`
 
-Recommended clean patch branch after this patch merges:
-- `chore/v0.2.0-release-candidate-close`
+The next action is now a **release-candidate review and release decision**.
 
----
+That decision should explicitly answer:
 
-## Purpose
+- Are the current `v0.2.0` claims honest and bounded?
+- Are the milestone docs aligned with the actual repository state?
+- Is the release-notes draft accurate enough to ship with minimal edits?
+- Is there any remaining issue that truly requires another bounded patch before release?
 
-The milestone now has its bounded implementation work and a release-note draft.
+## Allowed outcomes from the release-candidate review
 
-The next useful patch should therefore be a final close pass:
-- make sure governance docs all tell the same release story
-- remove any stale wording that still suggests the milestone is merely planned
-- confirm that the release claim stays narrow and honest
-- prepare the branch for the eventual merge/tag decision without performing that merge yet
+### Outcome A — release now
 
----
+If the claims remain bounded and the release-story is coherent, the next step is:
 
-## Required scope
+- merge `milestone/v0.2.0-offset-line-observation` into `main`
+- tag `v0.2.0`
+- publish the release notes
 
-Do exactly these things:
+### Outcome B — one final bounded close patch
 
-- keep solver behavior unchanged
-- keep the compare harness unchanged unless a direct wording bug is found
-- align release-facing and governance docs to the same narrow `v0.2.0` story
-- keep the patch documentation-focused and bounded
-- update only directly affected docs
+Only if the release-candidate review surfaces a concrete and narrow issue should
+one final patch be opened.
 
----
+That patch must stay inside one of these categories:
 
-## Out of scope
+- wording/claim correction
+- release-note correction
+- one tiny milestone-close validation/doc correction
 
-- broad transmission-line implementation work
-- broad observation-layer redesign
-- solver refactor
-- frontend expansion
-- new capability work
-- unrelated kernel work
-- broad restart of the debug tree
-- actual merge to `main`
-- release tag creation in the same patch
+It must **not** reopen broad debugging.
 
----
+## Strict non-goals
 
-## Acceptance requirement
+Do not open a new default patch for:
 
-The next patch is complete only if:
+- matrix assembly changes
+- driver coupling changes
+- broad radiator model redesign
+- waveguide topology expansion
+- frontend/UI work
+- cleanup of old historical debug branches
 
-- it stays bounded to wording and final milestone-close preparation
-- docs no longer disagree about whether `v0.2.0` is active, in close phase, or still unopened
-- it makes no unsupported parity claims
-- the suite remains green
-- the milestone is ready for a separate merge/tag decision after that close pass
+## Startup rule for the next session
 
----
-
-## Must-not-change list
-
-- the released `v0.1.0` baseline
-- the bounded `mouth_directivity_only` contract
-- the mouth-area consistency guard
-- the maintained compare harness semantics
-- broad capability vocabulary
-- unrelated waveguide or solver internals
-- the small-patch discipline
+A new session should start by treating the milestone as **release-candidate ready**,
+not as an open debugging branch.

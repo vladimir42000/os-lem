@@ -1,120 +1,46 @@
 # Milestone charter
 
-## Current milestone
+## Milestone
 
-- milestone name: `v0.2.0`
-- working title: `offset-line observation-contract stabilization`
-- current status: active / in progress
-- active integration branch: `milestone/v0.2.0-offset-line-observation`
+- Name: `v0.2.0`
+- Branch: `milestone/v0.2.0-offset-line-observation`
 
----
+## Milestone definition
 
-## Why this milestone exists
+`v0.2.0` is a bounded milestone for:
 
-The repository completed a long debug cycle on observation semantics.
+**offset-line observation-contract stabilization**
 
-That work changed the situation from:
-- "we need a general line truth check"
+## In-scope deliverables
 
-to:
-- `front/raw` is broadly credible
-- the remaining mismatch is localized to `mouth/port` observable semantics
-- the next useful move is a bounded observation-layer patch, not broad solver rework
-
-So `v0.2.0` packages one coherent next step:
-turn the debug conclusion into a narrow, documented milestone outcome.
-
----
-
-## Release intent
-
-`v0.2.0` is intended to deliver:
-- one bounded mouth-observable candidate contract
-- regression protection that `front` remains unchanged
-- one maintained offset-line compare harness around the bounded candidates
-- aligned documentation and release wording that state the result honestly
-
-This milestone is about observation-contract stabilization.
-It is not a broad transmission-line release.
-
----
-
-## Landed milestone work so far
-
-The milestone branch now contains:
-
-1. docs/governance reset and debug-archive restructuring
-2. clean milestone-branch promotion away from the long debug line
-3. opt-in `mouth_directivity_only` support for passive `spl` and term-level `spl_sum`
-4. explicit rejection of driver-front use of that bounded contract
-5. connected-aperture area consistency guard for the mouth candidate
-6. maintained offset-line compare harness with regression coverage
-
-Observed green suite on the current milestone snapshot:
-- `118 passed`
-
----
-
-## In scope
-
-Allowed items for `v0.2.0`:
-
-- governance/docs reset needed to restart disciplined progress
-- bounded observation-layer development
-- `mouth_directivity_only` candidate implementation and guardrails
-- focused regression tests around `front` invariance and mouth semantics
-- narrow comparison tooling or validation notes directly supporting the above
-- release-note preparation and final claim-tightening for the resulting bounded release
-
----
+- bounded observation-layer improvement for mouth/port handling
+- explicit candidate contract for `mouth_directivity_only`
+- normalization guard for the candidate path
+- narrow compare harness supporting offset-line review
+- coherent milestone docs and release-note draft
 
 ## Out of scope
 
-Not allowed in `v0.2.0`:
+- broad transmission-line feature expansion
+- general topology growth
+- solver architecture refactor
+- multi-driver and passive-radiator roadmap growth
+- frontend/productization work
 
-- broad transmission-line marketing claims
-- broad Hornresp parity claims
-- broad AkAbak parity claims
-- multi-driver support
-- passive radiator support
-- conical lossy `waveguide_1d`
-- major frontend expansion
-- public API freeze beyond the current provisional facade
-- unrelated cleanup or refactor
+## Current milestone state
 
----
+The intended bounded milestone work is complete enough to move to
+**release-candidate review**.
 
-## Acceptance criteria
+## Exit criteria
 
-The milestone is complete only if:
+The milestone exits when all of the following are true:
 
-- the active milestone branch remains green
-- the selected mouth-observable work stays small and well bounded
-- `front` behavior is explicitly preserved
-- the compare harness and regression coverage remain maintained
-- docs distinguish clearly between released truth and current working-line conclusions
-- the resulting release notes make no unsupported parity claim
+- docs accurately describe the bounded `v0.2.0` claim
+- release notes are ready with only minimal wording edits, if any
+- compare harness and test suite are green on the milestone branch
+- no remaining issue requires more than a tiny close patch
 
----
+## Next action
 
-## Remaining close work
-
-Still needed before merging to `main`:
-
-1. `v0.2.0` release-note draft
-2. final scope-and-claim alignment pass
-3. explicit merge/tag decision once the wording is stable
-
-Recommended next patch after this draft lands:
-- `chore/v0.2.0-release-candidate-close`
-
----
-
-## Exit condition
-
-At the end of `v0.2.0`, the repo should be able to say:
-
-- the released baseline remains `v0.1.0`
-- the next milestone advanced in a bounded, test-preserving way
-- the observation-layer story is cleaner, better guarded, and better documented
-- no unsupported broad parity claim was introduced
+The default next action is now a **release decision**, not another default patch.

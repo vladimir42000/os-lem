@@ -1,95 +1,39 @@
 # Session handover
 
-## Released baseline
+## Current branch of truth
 
-The repository has a real released baseline:
+- Active milestone branch: `milestone/v0.2.0-offset-line-observation`
+- `main` remains untouched by the in-progress `v0.2.0` line
 
-- latest released version: `v0.1.0`
-- released branch of record: `main`
+## Current milestone state
 
-That release remains the public floor.
+The `v0.2.0` line is now in **release-candidate** posture.
 
----
+Landed milestone spine:
 
-## Current working snapshot
+1. docs/governance reset
+2. `mouth_directivity_only` observation contract
+3. mouth observable normalization guard
+4. offset-line compare harness
+5. `v0.2.0` release-notes draft
 
-Current active integration branch:
-- `milestone/v0.2.0-offset-line-observation`
+## Validation state
 
-Current bounded development patch branch:
-- `chore/v0.2.0-release-notes-draft`
+- test suite expected state on the milestone line: `118 passed`
+- compare harness exists for offset-line observation comparison
+- release notes exist as a draft, not yet as a published release artifact
 
-Observed green suite on this patch snapshot:
-- `118 passed`
+## Operator rule for next sessions
 
-Observed local-workflow caveat:
-- unrelated scratch/debug/frontend files should remain stashed or untracked and must not be mixed into bounded patch branches
+Start from the milestone branch and treat the repository as a **release-candidate**,
+not as a free-form debug branch.
 
----
+The next action is a release decision unless a very small, explicit close patch is
+still justified.
 
-## Current planning direction
+## What not to do
 
-The current milestone is:
-- `v0.2.0`
-
-Current release story:
-- `offset-line observation-contract stabilization`
-
-Current best-supported technical interpretation:
-- `front/raw` remains broadly credible
-- the remaining mismatch is localized to `mouth/port` observable semantics
-- the `mouth_directivity_only` candidate is implemented as an opt-in observation-layer contract
-- that contract is available for passive `spl` observations and term-level `spl_sum` usage
-- the contract intentionally rejects driver-front use of `mouth_directivity_only`
-- the contract also requires the passive radiator area to match the unique connected duct / waveguide endpoint area
-- the same physical mouth area is therefore frozen for both passive mouth flow semantics and `D(ka_mouth)`
-- the repository contains one maintained offset-line compare harness that reports raw and candidate mouth-path outcomes without changing solver behavior
-- the repository now also contains a draft `v0.2.0` release note that states the intended claim and non-claims explicitly
-- the likely remaining work is one final scope-and-claim alignment pass before any merge/tag decision
-
----
-
-## Startup protocol for the next AI session
-
-Read in this order:
-
-1. `docs/doc_index.md`
-2. `docs/start_here.md`
-3. `docs/current_scope.md`
-4. `docs/status.md`
-5. `docs/milestone_charter.md`
-6. `docs/release_strategy.md`
-7. `docs/release_plan.md`
-8. `docs/patch_registry.md`
-9. `docs/next_patch.md`
-10. `docs/capability_matrix.md`
-11. `docs/book_contract.md`
-12. `docs/frontend_api.md`
-13. `docs/v0_2_0_release_notes_draft.md`
-
-Then run:
-
-```bash
-git status
-git branch --show-current
-git log --oneline --decorate -n 10
-pytest -q
-```
-
-Before proposing changes, reconstruct:
-- released truth
-- current milestone truth
-- whether the user is on the milestone branch or a bounded patch branch
-- whether `docs/next_patch.md` still matches reality
-- exactly one bounded next patch only
-
----
-
-## Important cautions
-
-- do not restart broad debugging
-- do not merge to `main` before the milestone exit criteria are actually met
-- do not broaden post-release claims impulsively
-- do not mix new capability work with broad cleanup
-- preserve the discipline that produced `v0.1.0`
-- treat the book as companion material, not repo truth
+- do not reopen broad debugging
+- do not restore unrelated local scratch into milestone work
+- do not merge to `main` casually
+- do not broaden `v0.2.0` scope into general transmission-line development

@@ -1,118 +1,45 @@
 # Patch registry
 
-This file tracks the current planned patch pack at a human-readable level.
+## Active milestone
 
-Status legend:
-- planned
-- active
-- merged
-- blocked
-- deferred
+- Milestone: `v0.2.0`
+- Milestone branch: `milestone/v0.2.0-offset-line-observation`
+- Intent: offset-line observation-contract stabilization
+- Status: **release-candidate ready**
 
----
+## Landed milestone patches
 
-## Current patch pack
+| Order | Branch | Commit intent | Status |
+|---|---|---|---|
+| 0 | `chore/v0.2.0-docs-reset` | Reset `v0.2.0` docs and restructure debug archive | landed on milestone |
+| 1 | `fix/v0.2.0-mouth-directivity-only` | Add `mouth_directivity_only` observation contract | landed on milestone |
+| 2 | `fix/v0.2.0-mouth-observable-normalization-check` | Add mouth observable normalization guard | landed on milestone |
+| 3 | `fix/v0.2.0-offset-line-compare-harness` | Add offset-line compare harness | landed on milestone |
+| 4 | `chore/v0.2.0-release-notes-draft` | Draft `v0.2.0` release notes | landed on milestone |
+| 5 | `chore/v0.2.0-release-candidate-close` | Close milestone into release-candidate state | active / to land |
 
-Pack name:
-- `v0.2.0 observation-contract restart`
+## Current milestone assessment
 
-### P-001 — docs reset and documentation restructuring
-- status: merged
-- branch: `chore/v0.2.0-docs-reset`
-- purpose: align governance docs with current repo truth and create a clearer documentation hierarchy
-- validation:
-  - `pytest -q`
-  - manual doc-path sanity
+The planned bounded `v0.2.0` work is now effectively complete. The remaining work
+is release-candidate close and release decision support.
 
-### P-002 — open clean `v0.2.0` milestone branch
-- status: merged
-- branch: `milestone/v0.2.0-offset-line-observation`
-- purpose: separate release-story integration from long debug lineage
-- validation:
-  - clean milestone branch created from a green post-docs-reset state
+## No default technical follow-up patch
 
-### P-003 — mouth directivity helper / invariant prep
-- status: merged
-- branch: `fix/v0.2.0-mouth-directivity-only`
-- purpose: isolate the helper needed for `mouth_directivity_only`
-- delivered:
-  - on-axis circular piston directivity helper
-  - explicit small-`ka` limit handling
-  - focused primitive regression coverage
+There is intentionally **no default next technical patch** queued after the
+release-candidate close patch.
 
-### P-004 — implement `mouth_directivity_only`
-- status: merged
-- branch: `fix/v0.2.0-mouth-directivity-only`
-- purpose: bounded observation-layer candidate implementation
-- delivered:
-  - opt-in `observable_contract: mouth_directivity_only`
-  - solve-layer support for passive mouth/port radiators
-  - API support for `spl` and term-level `spl_sum`
-- validation:
-  - `pytest -q`
-  - raw/default path preserved by regression coverage
+Any further patch before release must be justified as one of:
 
-### P-005 — regression guard for `front` invariance
-- status: merged
-- branch: `fix/v0.2.0-mouth-directivity-only`
-- purpose: freeze that the patch does not perturb the already-credible `front/raw` path
-- validation:
-  - dedicated regression tests
-  - contract rejects driver-front use of `mouth_directivity_only`
+- a claim-correction patch
+- a release-note correction patch
+- a tiny final validation/doc correction
 
-### P-006 — observation-contract docs alignment
-- status: merged
-- branch: `fix/v0.2.0-mouth-directivity-only`
-- purpose: align patch-tracking docs with the landed candidate contract
+## Deferred after `v0.2.0`
 
-### P-007 — mouth observable normalization check
-- status: merged
-- branch: `fix/v0.2.0-mouth-observable-normalization-check`
-- purpose: freeze one narrow mouth-path amplitude / area invariant without changing raw behavior
-- delivered:
-  - explicit connected-aperture area helper for passive mouth/port radiators
-  - bounded guard that `mouth_directivity_only` uses the same physical area for mouth flow semantics and `D(ka_mouth)`
-  - regression protection for mismatched duct area and supported waveguide terminus use
-  - API-level failure coverage for inconsistent candidate-contract models
-- validation:
-  - `pytest -q`
-  - one focused invariant check only
+The following topics belong to later milestones, not this one:
 
-### P-008 — offset-line compare harness refresh
-- status: merged
-- branch: `fix/v0.2.0-offset-line-compare-harness`
-- purpose: add one maintained comparison fixture that exercises the bounded mouth observation contracts
-- delivered:
-  - debug compare harness for `front_raw`, `mouth_raw`, `mouth_candidate`, `sum_raw`, and `sum_candidate`
-  - one regression test that runs the harness and validates its summary artifacts
-  - gitignore coverage for the harness output directory
-- validation:
-  - `pytest -q`
-  - no broad solver changes
-
-### P-009 — `v0.2.0` release-note draft
-- status: merged
-- branch: `chore/v0.2.0-release-notes-draft`
-- purpose: prepare the final milestone wording early
-- delivered:
-  - draft release notes for `v0.2.0`
-  - milestone-close wording across status/plan/charter docs
-  - explicit release claim and non-claim language
-- validation:
-  - `pytest -q`
-  - no unsupported claim language
-
-### P-010 — release-candidate close pass
-- status: planned
-- branch: `chore/v0.2.0-release-candidate-close`
-- purpose: perform one final scope-and-claim alignment pass before the merge/tag decision
-- validation:
-  - no stale milestone wording remains
-
----
-
-## Registry maintenance rule
-
-Keep this file brief.
-Do not turn it into a full issue tracker.
-Only track the current session/milestone patch pack here.
+- broader transmission-line maturity work
+- richer waveguide physics growth
+- passive-radiator and multi-driver growth
+- API/productization expansion
+- large repository branch cleanup
