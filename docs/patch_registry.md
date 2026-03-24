@@ -79,9 +79,13 @@ Pack name:
   - one focused invariant check only
 
 ### P-008 — offset-line compare harness refresh
-- status: planned
+- status: merged
 - branch: `fix/v0.2.0-offset-line-compare-harness`
 - purpose: add one maintained comparison fixture that exercises the bounded mouth observation contracts
+- delivered:
+  - debug compare harness for `front_raw`, `mouth_raw`, `mouth_candidate`, `sum_raw`, and `sum_candidate`
+  - one regression test that runs the harness and validates its summary artifacts
+  - gitignore coverage for the harness output directory
 - validation:
   - `pytest -q`
   - no broad solver changes

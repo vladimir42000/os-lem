@@ -7,3 +7,4 @@ hornresp_offset_line_definition.txt
 hornresp_offset_line_sum.frd
 hornresp_offset_line_drv.frd
 hornresp_offset_line_port.frd
+offset_line_compare_harness_out/

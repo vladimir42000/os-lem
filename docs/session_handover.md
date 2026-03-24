@@ -17,10 +17,10 @@ Current active integration branch:
 - `milestone/v0.2.0-offset-line-observation`
 
 Current bounded development patch branch:
-- `fix/v0.2.0-mouth-observable-normalization-check`
+- `fix/v0.2.0-offset-line-compare-harness`
 
 Observed green suite on this patch snapshot:
-- `117 passed`
+- `118 passed`
 
 Observed local-workflow caveat:
 - unrelated scratch/debug/frontend files should remain stashed or untracked and must not be mixed into bounded patch branches
@@ -43,7 +43,8 @@ Current best-supported technical interpretation:
 - the contract intentionally rejects driver-front use of `mouth_directivity_only`
 - the contract now also requires the passive radiator area to match the unique connected duct / waveguide endpoint area
 - the same physical mouth area is therefore frozen for both passive mouth flow semantics and `D(ka_mouth)`
-- the likely remaining issue is now a narrow residual compare / observable-definition problem, not a broad missing-area ambiguity inside the current candidate contract
+- the repository now contains one maintained offset-line compare harness that reports raw and candidate mouth-path outcomes without changing solver behavior
+- the likely remaining issue is now a bounded release-wording / milestone-close problem, not an uncontrolled solver or observable-contract ambiguity
 
 ---
 
