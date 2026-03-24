@@ -22,13 +22,18 @@ Summary:
 ---
 
 ## `v0.2.0`
-**Status:** planned
+**Status:** in progress
 
 Working title:
 - `offset-line observation-contract stabilization`
 
-Planned summary:
-- convert long observation debug work into one bounded release step
-- preserve the already-credible `front/raw` path
-- localize new work to `mouth/port` observable semantics
-- preferred first candidate: `mouth_directivity_only`
+Current milestone summary:
+- converted the long observation/debug cycle into one bounded milestone branch
+- preserved the already-credible `front/raw` path
+- added opt-in `mouth_directivity_only` support for passive mouth/port observation only
+- added a connected-aperture area consistency guard for that bounded candidate
+- added one maintained offset-line compare harness with regression coverage
+- moved the milestone into release-wording and close-preparation phase
+
+Current milestone draft notes:
+- `docs/v0_2_0_release_notes_draft.md`

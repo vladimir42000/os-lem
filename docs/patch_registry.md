@@ -91,11 +91,23 @@ Pack name:
   - no broad solver changes
 
 ### P-009 — `v0.2.0` release-note draft
-- status: planned
+- status: merged
 - branch: `chore/v0.2.0-release-notes-draft`
 - purpose: prepare the final milestone wording early
+- delivered:
+  - draft release notes for `v0.2.0`
+  - milestone-close wording across status/plan/charter docs
+  - explicit release claim and non-claim language
 - validation:
+  - `pytest -q`
   - no unsupported claim language
+
+### P-010 — release-candidate close pass
+- status: planned
+- branch: `chore/v0.2.0-release-candidate-close`
+- purpose: perform one final scope-and-claim alignment pass before the merge/tag decision
+- validation:
+  - no stale milestone wording remains
 
 ---
 

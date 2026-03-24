@@ -2,43 +2,41 @@
 
 ## Status
 
-The bounded offset-line compare harness has now been added around the current mouth observation contracts.
+The `v0.2.0` release-note draft now exists and the milestone has reached its close-preparation phase.
 
 Current post-patch reality:
 - `front/raw` remains unchanged by default
 - passive `mouth/port` radiators can still opt into `observable_contract: mouth_directivity_only`
 - the bounded area-consistency guard remains active for that candidate
-- the repository now contains one maintained offset-line compare harness that reports:
+- the repository contains one maintained offset-line compare harness that reports:
   - `front_raw`
   - `mouth_raw`
   - `mouth_candidate`
   - `sum_raw`
   - `sum_candidate`
-- the compare harness keeps solver behavior unchanged and makes the remaining residual explicit instead of speculative
-- the suite is green at `118 passed` on this branch snapshot
+- the release-note draft now states the intended `v0.2.0` claim and non-claims explicitly
+- the suite should remain green at `118 passed` on this branch snapshot
 
 ---
 
 ## Immediate next patch target
 
-**Prepare the `v0.2.0` release-note draft and milestone-close wording while keeping unsupported claims out.**
+**Do one final `v0.2.0` scope-and-claim alignment pass before any merge to `main`.**
 
 Recommended clean patch branch after this patch merges:
-- `chore/v0.2.0-release-notes-draft`
+- `chore/v0.2.0-release-candidate-close`
 
 ---
 
 ## Purpose
 
-The current milestone now has:
-- the opt-in `mouth_directivity_only` candidate
-- an explicit mouth-area consistency guard for that candidate
-- one maintained compare harness for the offset-line case
+The milestone now has its bounded implementation work and a release-note draft.
 
-The next useful patch should therefore move from implementation to release wording:
-- draft the `v0.2.0` release notes early
-- state clearly what was stabilized
-- state clearly what remains a bounded residual or deferred topic
+The next useful patch should therefore be a final close pass:
+- make sure governance docs all tell the same release story
+- remove any stale wording that still suggests the milestone is merely planned
+- confirm that the release claim stays narrow and honest
+- prepare the branch for the eventual merge/tag decision without performing that merge yet
 
 ---
 
@@ -46,9 +44,9 @@ The next useful patch should therefore move from implementation to release wordi
 
 Do exactly these things:
 
-- keep the current raw path unchanged
-- keep the current compare harness unchanged unless a direct wording bug is found
-- draft release-note language and milestone-close wording only
+- keep solver behavior unchanged
+- keep the compare harness unchanged unless a direct wording bug is found
+- align release-facing and governance docs to the same narrow `v0.2.0` story
 - keep the patch documentation-focused and bounded
 - update only directly affected docs
 
@@ -60,9 +58,11 @@ Do exactly these things:
 - broad observation-layer redesign
 - solver refactor
 - frontend expansion
-- broad docs rewrite beyond directly affected files
+- new capability work
 - unrelated kernel work
 - broad restart of the debug tree
+- actual merge to `main`
+- release tag creation in the same patch
 
 ---
 
@@ -70,11 +70,11 @@ Do exactly these things:
 
 The next patch is complete only if:
 
-- it stays bounded to release wording and milestone close preparation
+- it stays bounded to wording and final milestone-close preparation
+- docs no longer disagree about whether `v0.2.0` is active, in close phase, or still unopened
 - it makes no unsupported parity claims
-- the current bounded `v0.2.0` scope is described honestly
 - the suite remains green
-- the release-note draft is clear enough to support the eventual merge to `main`
+- the milestone is ready for a separate merge/tag decision after that close pass
 
 ---
 

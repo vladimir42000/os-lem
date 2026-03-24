@@ -50,12 +50,12 @@ Post-`v0.1.0` patch releases may contain:
 They should not redefine project scope.
 
 At the current moment, no `v0.1.1` patch is planned.
-The next active planning target is `v0.2.0`.
+The active milestone remains `v0.2.0`.
 
 ---
 
 ## v0.2.0 — offset-line observation-contract stabilization
-**Status:** planned
+**Status:** active / in progress
 
 ### Intent
 
@@ -67,29 +67,36 @@ The next active planning target is `v0.2.0`.
 
 ### Current repo truth supporting this plan
 
-The working-line evidence now says:
+The current milestone branch now supports these statements:
 
-- `front/raw` is broadly credible
+- `front/raw` remains broadly credible
 - the remaining mismatch is localized to `mouth/port` observable semantics
-- broad debugging restart is no longer the best opening move
+- `mouth_directivity_only` exists as an opt-in observation-layer contract for passive mouth/port usage only
+- that candidate now carries a connected-aperture area consistency guard
+- one maintained compare harness now reports `front_raw`, `mouth_raw`, `mouth_candidate`, `sum_raw`, and `sum_candidate`
+- the bounded compare harness makes the remaining residual explicit without reopening broad solver work
 
-### Planned opening sequence
+### Current milestone sequence
 
+Completed so far:
 1. docs/governance reset
-2. open a clean `v0.2.0` milestone branch
-3. land one bounded mouth-observable patch
-4. validate narrowly
-5. align docs and release notes
+2. clean `v0.2.0` milestone branch opened
+3. bounded `mouth_directivity_only` patch landed
+4. mouth normalization/area guard landed
+5. maintained offset-line compare harness landed
 
-### Preferred first technical patch
-
-- candidate: `mouth_directivity_only`
-- constraint: keep `front` unchanged
+Remaining close work:
+1. draft the `v0.2.0` release notes
+2. perform one final scope-and-claim alignment pass
+3. decide milestone merge and tag timing
 
 ### Rule
 
 `v0.2.0` must preserve the small-patch philosophy.
-It must not become a broad “everything after v0.1” bucket.
+It must not become a broad “everything after v0.1.0” bucket.
+
+The draft milestone wording lives in:
+- `docs/v0_2_0_release_notes_draft.md`
 
 ---
 

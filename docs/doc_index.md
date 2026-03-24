@@ -120,5 +120,5 @@ Latest release:
 Current planned milestone:
 - `v0.2.0` — offset-line observation-contract stabilization
 
-Immediate next technical patch after the docs reset:
-- `fix/v0.2.0-mouth-directivity-only`
+Immediate next patch after the compare-harness checkpoint:
+- `chore/v0.2.0-release-notes-draft`

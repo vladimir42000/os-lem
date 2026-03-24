@@ -17,7 +17,7 @@ Current active integration branch:
 - `milestone/v0.2.0-offset-line-observation`
 
 Current bounded development patch branch:
-- `fix/v0.2.0-offset-line-compare-harness`
+- `chore/v0.2.0-release-notes-draft`
 
 Observed green suite on this patch snapshot:
 - `118 passed`
@@ -41,10 +41,11 @@ Current best-supported technical interpretation:
 - the `mouth_directivity_only` candidate is implemented as an opt-in observation-layer contract
 - that contract is available for passive `spl` observations and term-level `spl_sum` usage
 - the contract intentionally rejects driver-front use of `mouth_directivity_only`
-- the contract now also requires the passive radiator area to match the unique connected duct / waveguide endpoint area
+- the contract also requires the passive radiator area to match the unique connected duct / waveguide endpoint area
 - the same physical mouth area is therefore frozen for both passive mouth flow semantics and `D(ka_mouth)`
-- the repository now contains one maintained offset-line compare harness that reports raw and candidate mouth-path outcomes without changing solver behavior
-- the likely remaining issue is now a bounded release-wording / milestone-close problem, not an uncontrolled solver or observable-contract ambiguity
+- the repository contains one maintained offset-line compare harness that reports raw and candidate mouth-path outcomes without changing solver behavior
+- the repository now also contains a draft `v0.2.0` release note that states the intended claim and non-claims explicitly
+- the likely remaining work is one final scope-and-claim alignment pass before any merge/tag decision
 
 ---
 
@@ -64,6 +65,7 @@ Read in this order:
 10. `docs/capability_matrix.md`
 11. `docs/book_contract.md`
 12. `docs/frontend_api.md`
+13. `docs/v0_2_0_release_notes_draft.md`
 
 Then run:
 

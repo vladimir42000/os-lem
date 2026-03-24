@@ -9,59 +9,48 @@ The `v0.1.0` foundation release is still the public baseline.
 
 ---
 
-## Current working snapshot observed in this repo
+## Current working snapshot
 
-Observed working branch in the uploaded repository:
-- `debug/v0.2.0-hf-rolloff-fit-study`
+Active integration branch:
+- `milestone/v0.2.0-offset-line-observation`
 
-Observed green suite on this working line:
-- `108 passed`
+Observed green suite on the current milestone snapshot:
+- `118 passed`
 
-Observed local working-tree caveat in the uploaded repo snapshot:
-- several untracked debug/docs/frontend support files are present
-
-That means the project is no longer missing technical direction.
-The missing piece is governance alignment after a long debug cycle.
+Observed working-tree discipline requirement:
+- unrelated scratch/debug/frontend files should remain stashed or untracked and must not be mixed into bounded patch branches
 
 ---
 
-## Current interpretation of the debug lineage
+## Current milestone interpretation
 
-The long observation/debug period now supports a narrower conclusion than the older planning docs:
+The current milestone branch supports this bounded conclusion:
 
-- `front/raw` is broadly credible
+- `front/raw` remains broadly credible
 - the remaining mismatch is localized to `mouth/port` observable semantics
-- the next useful move is not broad debugging restart
-- the next useful move is one bounded observation-layer development patch
+- the repository now ships an opt-in `observable_contract: mouth_directivity_only` for passive mouth/port usage only
+- that bounded candidate now carries a connected-aperture area consistency guard
+- one maintained compare harness now reports raw and candidate mouth-path outcomes without changing solver behavior
+- the remaining work is now release wording and final claim-tightening, not broad solver rework
 
-Current preferred candidate:
-- `mouth_directivity_only`
-
-This is a working-line conclusion, not yet a released claim.
+This is current milestone truth.
+It is not yet a released public claim.
 
 ---
 
 ## Current active release target
 
-The next release target should be:
+Current active release target:
 - `v0.2.0`
 
-Recommended release story:
+Current release story:
 - `offset-line observation-contract stabilization`
 
-`v0.2.0` should not become a broad feature bucket.
-It should package one coherent next capability step beyond `v0.1.0`.
-
----
-
-## Immediate project-management objective
-
-Before new technical growth, the project should:
-
-- reset governance/docs so they match repo truth
-- separate release-story integration from long debug lineage
-- open a clean `v0.2.0` milestone branch
-- then land one bounded observation-layer patch
+The milestone is now in its close phase.
+The remaining work should stay bounded to:
+- release-note drafting
+- final scope-and-claim alignment
+- release decision prep
 
 ---
 
