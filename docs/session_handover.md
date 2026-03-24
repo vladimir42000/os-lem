@@ -9,8 +9,8 @@
 
 ## What just finished
 
-The long observation/debug cycle was converted into a bounded release sequence and shipped.
-The milestone branch is no longer the primary source of truth; `main` now is.
+The first post-release housekeeping patch landed, and the branch-review plan is now documented.
+The repo is not ready for arbitrary new technical work yet; it still needs one explicit next-milestone seed patch.
 
 ## Startup protocol for the next session
 
@@ -20,13 +20,13 @@ The milestone branch is no longer the primary source of truth; `main` now is.
    - `git log --oneline --decorate -n 8`
    - `pytest -q`
 3. confirm the tree is clean and the release line is green
-4. do **not** resume old debug work by default
-5. do **not** reopen `v0.2.0` technical scope unless a specific post-release issue is proven
+4. read:
+   - `docs/post_v0_2_0_housekeeping_checklist.md`
+   - `docs/post_v0_2_0_branch_review.md`
+   - `docs/next_patch.md`
+5. do **not** resume old debug work by default
+6. do **not** open new technical scope until the next-milestone seed patch is landed
 
 ## Recommended immediate next branch
 
-- `chore/post-v0.2.0-housekeeping`
-
-## After housekeeping
-
-Only then define the next milestone branch and next technical patch pack.
+- `chore/post-v0.2.0-next-milestone-seed`

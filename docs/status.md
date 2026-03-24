@@ -11,12 +11,16 @@
 ## Current project posture
 
 The `v0.2.0` milestone is complete and released.
-There is no active technical milestone branch that should supersede `main` as the primary truth source.
+Post-release housekeeping is in progress.
+The repo now has:
+- release-aligned docs
+- a housekeeping checklist
+- a branch review / retention plan
 
 Current recommended work type:
-- post-release housekeeping
-- branch/tag hygiene review
-- next-milestone planning
+- finish the post-release transition
+- seed the next milestone explicitly
+- only then resume new technical development
 
 ---
 
@@ -33,6 +37,6 @@ Current recommended work type:
 ## Immediate next patch
 
 Recommended next branch:
-- `chore/post-v0.2.0-housekeeping`
+- `chore/post-v0.2.0-next-milestone-seed`
 
 That patch should stay docs/governance only.

@@ -19,15 +19,22 @@ Result:
 
 ---
 
+## Completed post-release patches
+
+1. `chore/post-v0.2.0-housekeeping` — landed
+2. `chore/post-v0.2.0-branch-review-plan` — landed
+
+---
+
 ## Current planned post-release patch
 
-### `chore/post-v0.2.0-housekeeping`
+### `chore/post-v0.2.0-next-milestone-seed`
 **Status:** planned
 
 Purpose:
-- leave the repo in a clean post-release state
-- make future handover safer
-- separate housekeeping from next-milestone technical planning
+- finish the post-release transition cleanly
+- open the next milestone intentionally instead of drifting into ad hoc development
+- define the next integration branch and first patch pack before new solver work resumes
 
 Expected scope:
 - docs/governance only

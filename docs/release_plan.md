@@ -13,9 +13,7 @@ Observed release-line validation at close:
 
 ## What is complete
 
-`v0.2.0` is no longer a candidate milestone.
-It is released.
-
+`v0.2.0` is released.
 The release package includes:
 - bounded mouth/port observation candidate support
 - normalization guard
@@ -25,21 +23,22 @@ The release package includes:
 
 ---
 
-## Immediate post-release plan
+## Post-release sequence
 
-The next step is not a new technical milestone patch.
-The next step is a bounded housekeeping pass:
-- `chore/post-v0.2.0-housekeeping`
+The post-release transition is intentionally split:
+1. housekeeping patch
+2. branch review / retention plan
+3. next-milestone seed patch
 
-That patch should prepare the repo for:
-- branch hygiene review
-- tag hygiene review
-- reciprocal book/repo linking
-- next milestone planning
+Only after step 3 should new technical milestone work begin.
 
 ---
 
 ## Next milestone planning
 
-Do **not** open the next major milestone until the post-release housekeeping patch is landed.
-After housekeeping, decide the next milestone explicitly and document it before new technical development starts.
+Do **not** open the next major milestone implicitly.
+After the branch-review plan is landed, do one explicit seed patch that defines:
+- milestone name
+- release intent
+- active integration branch
+- first bounded patch pack

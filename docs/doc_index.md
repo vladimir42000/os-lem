@@ -61,7 +61,16 @@ Use these for historical investigations and evidence, not for current release tr
 
 ---
 
-## Layer 4 — companion book
+## Layer 4 — post-release housekeeping
+
+Current housekeeping references:
+- `docs/post_v0_2_0_housekeeping_checklist.md`
+- `docs/post_v0_2_0_branch_review.md`
+- `docs/book_contract.md`
+
+---
+
+## Layer 5 — companion book
 
 The companion explanatory repo is:
 - `https://github.com/vladimir42000/os-lem-book`
@@ -77,8 +86,9 @@ Latest release:
 - `v0.2.0` on `main`
 
 Current recommended next patch:
-- `chore/post-v0.2.0-housekeeping`
+- `chore/post-v0.2.0-next-milestone-seed`
 
 Current posture:
 - release complete
-- housekeeping and next-milestone planning pending
+- housekeeping in progress
+- next-milestone planning not yet opened

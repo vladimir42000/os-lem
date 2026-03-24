@@ -5,6 +5,20 @@ It complements Git history; it does not replace it.
 
 ---
 
+## Post-`v0.2.0` housekeeping
+**Status:** in progress
+
+Completed so far:
+- release-aligned housekeeping docs landed on `main`
+- companion-book linkage made explicit
+- post-release housekeeping checklist added
+- post-release branch review and retention plan added
+
+Next planned housekeeping step:
+- explicit next-milestone seed patch
+
+---
+
 ## `v0.2.0`
 **Status:** released
 
