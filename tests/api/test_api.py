@@ -7,6 +7,7 @@ import pytest
 import yaml
 
 from os_lem.api import LineProfileResult, run_simulation
+from os_lem.errors import ValidationError
 from os_lem.elements.duct import duct_admittance
 from os_lem.elements.radiator import radiator_impedance
 from os_lem.assemble import assemble_system
@@ -262,3 +263,74 @@ def test_run_simulation_exposes_waveguide_element_observables_with_frozen_endpoi
     assert result.units["rear_q_b"] == "m^3/s"
     assert result.units["rear_v_a"] == "m/s"
     assert result.units["rear_v_b"] == "m/s"
+
+
+
+def test_run_simulation_rejects_element_observable_on_unsupported_target_kind() -> None:
+    model_dict = {
+        "meta": {"name": "bad_element_observable", "radiation_space": "2pi"},
+        "driver": {
+            "id": "drv1",
+            "model": "ts_classic",
+            "Re": "5.8 ohm",
+            "Le": "0.35 mH",
+            "Fs": "34 Hz",
+            "Qes": 0.42,
+            "Qms": 4.1,
+            "Vas": "55 l",
+            "Sd": "132 cm2",
+            "node_front": "front",
+            "node_rear": "rear",
+        },
+        "elements": [
+            {
+                "id": "front_rad",
+                "type": "radiator",
+                "node": "front",
+                "model": "infinite_baffle_piston",
+                "area": "132 cm2",
+            },
+            {"id": "rear_box", "type": "volume", "node": "rear", "value": "18 l"},
+        ],
+        "observations": [
+            {"id": "rear_q", "type": "element_volume_velocity", "target": "rear_box"},
+        ],
+    }
+
+    with pytest.raises(ValidationError, match="requires target element type duct, radiator, or waveguide_1d"):
+        run_simulation(model_dict, [100.0])
+
+
+@pytest.mark.parametrize(
+    ("observation", "message"),
+    [
+        (
+            {"id": "rear_q", "type": "element_volume_velocity", "target": "rear_line"},
+            "requires location 'a' or 'b'",
+        ),
+        (
+            {"id": "rear_q", "type": "element_volume_velocity", "target": "rear_line", "location": "c"},
+            "requires location 'a' or 'b'",
+        ),
+    ],
+)
+def test_run_simulation_rejects_missing_or_invalid_waveguide_location_for_element_observables(
+    observation: dict[str, str],
+    message: str,
+) -> None:
+    model_dict = load_model(Path("examples/line_basic/model.yaml"))
+    model_dict["observations"] = [observation]
+
+    with pytest.raises(ValidationError, match=message):
+        run_simulation(model_dict, [100.0])
+
+
+@pytest.mark.parametrize("target", ["port", "port_rad"])
+def test_run_simulation_rejects_location_on_non_waveguide_element_observables(target: str) -> None:
+    model_dict = load_model(Path("examples/vented_box/model.yaml"))
+    model_dict["observations"] = [
+        {"id": "bad_v", "type": "element_particle_velocity", "target": target, "location": "a"},
+    ]
+
+    with pytest.raises(ValidationError, match="does not accept location"):
+        run_simulation(model_dict, [100.0])
