@@ -8,36 +8,36 @@ Use this already-open milestone branch as the source for the next bounded patch.
 
 ## Recommended next patch branch
 
-- `test/v0.3.0-element-observable-facade-error-contract`
+- `chore/v0.3.0-post-regression-bookkeeping`
 
 ## Purpose
 
-Do one bounded regression-led patch that hardens the promoted element-observable contract at the provisional facade boundary.
+Do one bounded bookkeeping/docs patch that updates milestone planning, capability wording, and handover docs after the landed regression-hardening patch set.
 
 ## Scope
 
 Allowed:
-- add end-to-end API tests for invalid promoted element-observable requests
-- verify parser-side validation failures surface cleanly through `run_simulation`
-- cover unsupported target kinds, missing waveguide `location`, invalid waveguide `location`, and forbidden `location` on non-waveguide targets
-- update docs only where needed to describe the regression purpose honestly
+- update milestone status wording and observed validation from `123 passed` to `128 passed` where that is now repo truth
+- record that `test/v0.3.0-element-observable-facade-error-contract` landed on the milestone line
+- align capability wording for the promoted element-observable facade surface to the current tested milestone truth
+- update startup / handover text so future sessions resume from the current active milestone state and reassess close-prep from repo truth
 
 Not allowed:
 - new solver physics
 - new topology classes
 - changes to the supported observable contract itself
 - broad API redesign
-- unrelated cleanup mixed into the regression patch
+- unrelated cleanup mixed into the bookkeeping patch
 
 ## Acceptance criteria
 
 The patch is complete if:
-1. `run_simulation` is regression-covered for invalid promoted element-observable requests
-2. missing/invalid `location` behavior for `waveguide_1d` targets is covered end-to-end
-3. forbidden `location` on `duct` and `radiator` targets is covered end-to-end
-4. the active milestone line remains green
+1. milestone governance docs no longer point at the already-landed regression patch as the next step
+2. the active milestone branch and its observed `128 passed` validation are recorded precisely
+3. the landed regression-hardening patch is recorded honestly
+4. capability wording is aligned to the current tested milestone truth where needed
 5. `pytest -q` stays green
 
 ## Immediate follow-up after this patch
 
-After this regression patch lands, reassess the active milestone branch and choose the next bounded follow-up from repo truth rather than from old seed-state assumptions.
+After this bookkeeping patch lands, reassess from the active milestone branch whether `v0.3.0` now needs only a final close-prep patch.

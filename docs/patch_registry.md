@@ -35,31 +35,34 @@ Result:
 Integration branch:
 - `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
-Observed green suite on the active milestone line after the first landed patch set:
-- `123 passed`
+Observed green suite on the active milestone line after the landed regression-hardened patch set:
+- `128 passed`
 
 ### Completed so far
 
 1. `feat/v0.3.0-element-observable-api-surface` — landed
 2. `chore/v0.3.0-first-patch-bookkeeping` — landed
+3. `test/v0.3.0-element-observable-facade-error-contract` — landed
 
 Result so far:
 - active milestone line exposes promoted element observables through the supported API/output surface
-- parser-side contract hardening for the promoted observable surface is already present on the milestone line
-- milestone governance docs are aligned to the active milestone state
+- parser-side contract hardening for the promoted observable surface is present on the milestone line
+- facade negative-path regression coverage now hardens the promoted observable contract end to end
+- milestone governance docs are aligned to the active milestone state through the landed regression patch set
 - active milestone line remains conservative in scope
-- active milestone line is green at `123 passed`
+- active milestone line is green at `128 passed`
 
 ### Current planned next patch
 
-#### `test/v0.3.0-element-observable-facade-error-contract`
+#### `chore/v0.3.0-post-regression-bookkeeping`
 **Status:** planned
 
 Purpose:
-- add end-to-end negative-path regression coverage for the promoted element-observable facade contract
-- prove current parser/API contract failures stay stable without widening scope
+- align milestone governance docs, capability wording, and handover text to the landed regression-hardened milestone state
+- prevent future sessions from treating the already-landed regression patch as still pending
 
 Expected scope:
-- bounded regression coverage only
-- no solver or API behavior changes except bug-fix fallout if a regression is found
-- docs touched only if directly needed to describe the regression patch honestly
+- bounded governance/docs updates only
+- capability wording adjustments tied directly to current tested repo truth
+- no solver or API behavior changes
+- no unrelated cleanup mixed into the patch

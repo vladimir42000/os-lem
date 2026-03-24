@@ -10,14 +10,15 @@
 Active development milestone:
 - `v0.3.0` — `waveguide observability and API maturity`
 - integration branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-- observed green suite on the active milestone line after the first landed patch set: `123 passed`
+- observed green suite on the active milestone line after the current landed patch set: `128 passed`
 
 ## What just finished
 
 The seeded `v0.3.0` milestone has been opened intentionally.
 The first bounded milestone feature patch, `feat/v0.3.0-element-observable-api-surface`, has landed on the milestone line.
-The first bounded milestone bookkeeping patch, `chore/v0.3.0-first-patch-bookkeeping`, has also landed on the milestone line.
-Future sessions should continue from the active milestone branch and freeze the next patch from repo truth, not from old seed-state assumptions.
+The first bounded milestone bookkeeping patch, `chore/v0.3.0-first-patch-bookkeeping`, has landed on the milestone line.
+The bounded regression patch, `test/v0.3.0-element-observable-facade-error-contract`, has also landed on the milestone line.
+Future sessions should continue from the active milestone branch, align docs to the current regression-hardened state, and reassess close-prep from repo truth rather than from old seed-state assumptions.
 
 ## Startup protocol for the next session
 
@@ -46,4 +47,4 @@ Integration branch:
 - `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
 Recommended next patch branch:
-- `test/v0.3.0-element-observable-facade-error-contract`
+- `chore/v0.3.0-post-regression-bookkeeping`

@@ -33,13 +33,15 @@ Milestone summary so far:
 - opened integration branch `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 - landed `feat/v0.3.0-element-observable-api-surface`
 - landed `chore/v0.3.0-first-patch-bookkeeping`
+- landed `test/v0.3.0-element-observable-facade-error-contract`
 - exposed promoted element observables through the supported API/output surface
 - kept parser-side promoted-observable validation aligned with the supported contract
-- kept milestone scope conservative after the first landed patch set
-- observed active milestone line green at `123 passed`
+- added end-to-end negative-path facade regression coverage for promoted element observables
+- kept milestone scope conservative after the current landed patch set
+- observed active milestone line green at `128 passed`
 
 Immediate next action:
-- land the bounded regression patch that hardens end-to-end facade error coverage for promoted element observables
+- land the bounded bookkeeping/docs patch that aligns milestone planning, capability wording, and handover docs to the current regression-hardened state
 
 Milestone reference:
 - `docs/v0_3_0_seed_plan.md`
