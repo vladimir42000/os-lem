@@ -20,11 +20,12 @@ Current milestone state:
 - the first bounded `v0.3.0` feature patch has landed on the milestone line
 - the first bounded `v0.3.0` bookkeeping patch has landed on the milestone line
 - the bounded facade error-contract regression patch has also landed on the milestone line
-- the milestone should remain intentionally conservative while docs, capability wording, and handover state are aligned to the current regression-hardened repo truth
+- the bounded post-regression bookkeeping patch has also landed on the milestone line
+- the milestone should remain intentionally conservative while final close-prep is aligned to the current regression-hardened repo truth
 
 Current recommended work type:
-- do a bounded bookkeeping/docs patch that records the landed regression patch honestly
-- reassess from the active milestone branch whether `v0.3.0` now needs only a final close-prep patch
+- do one bounded final close-prep patch that freezes the current milestone state honestly
+- prepare an explicit milestone-close decision from the active milestone branch rather than inventing new scope
 - do not reopen broad solver debugging or broad API redesign
 
 ---
@@ -48,10 +49,11 @@ Current recommended work type:
 - docs and examples now show the promoted supported path
 - milestone governance docs now record `v0.3.0` as active rather than merely seeded
 - end-to-end facade regression coverage now covers invalid promoted element-observable requests
+- capability wording now reflects the promoted facade element-observable surface as validated on the current milestone line
 
 ---
 
 ## Current recommended next patch
 
-- `chore/v0.3.0-post-regression-bookkeeping`
-- purpose: align milestone governance docs, capability wording, and handover text to the landed regression-hardened milestone state before deciding whether close-prep is next
+- `chore/v0.3.0-close-prep`
+- purpose: do one bounded final close-prep patch that records the current milestone state honestly and prepares an explicit close decision from repo truth

@@ -34,14 +34,16 @@ Milestone summary so far:
 - landed `feat/v0.3.0-element-observable-api-surface`
 - landed `chore/v0.3.0-first-patch-bookkeeping`
 - landed `test/v0.3.0-element-observable-facade-error-contract`
+- landed `chore/v0.3.0-post-regression-bookkeeping`
 - exposed promoted element observables through the supported API/output surface
 - kept parser-side promoted-observable validation aligned with the supported contract
 - added end-to-end negative-path facade regression coverage for promoted element observables
+- aligned milestone governance docs, capability wording, and handover text to the current regression-hardened state
 - kept milestone scope conservative after the current landed patch set
 - observed active milestone line green at `128 passed`
 
 Immediate next action:
-- land the bounded bookkeeping/docs patch that aligns milestone planning, capability wording, and handover docs to the current regression-hardened state
+- land the bounded close-prep patch that freezes the current milestone state and prepares an explicit close decision from repo truth
 
 Milestone reference:
 - `docs/v0_3_0_seed_plan.md`

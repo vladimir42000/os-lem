@@ -46,14 +46,15 @@ Landed patches on the active milestone line so far:
 - `feat/v0.3.0-element-observable-api-surface`
 - `chore/v0.3.0-first-patch-bookkeeping`
 - `test/v0.3.0-element-observable-facade-error-contract`
+- `chore/v0.3.0-post-regression-bookkeeping`
 
 Observed active milestone validation after the landed regression-hardened patch set so far:
 - `128 passed`
 
-Recommended next bookkeeping patch:
-- `chore/v0.3.0-post-regression-bookkeeping`
+Recommended next close-prep patch:
+- `chore/v0.3.0-close-prep`
 
 Planning principle for `v0.3.0`:
 - promote and harden already-existing observable capabilities before adding new solver physics
 - keep milestone expansion conservative while docs and capability wording are aligned to the landed regression-hardened state
-- reassess close-prep only after this bookkeeping patch lands
+- make an explicit close decision from repo truth after the close-prep patch lands

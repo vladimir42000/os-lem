@@ -8,36 +8,36 @@ Use this already-open milestone branch as the source for the next bounded patch.
 
 ## Recommended next patch branch
 
-- `chore/v0.3.0-post-regression-bookkeeping`
+- `chore/v0.3.0-close-prep`
 
 ## Purpose
 
-Do one bounded bookkeeping/docs patch that updates milestone planning, capability wording, and handover docs after the landed regression-hardening patch set.
+Do one bounded final close-prep patch that freezes milestone planning, handover wording, and release posture around the current regression-hardened `v0.3.0` state.
 
 ## Scope
 
 Allowed:
-- update milestone status wording and observed validation from `123 passed` to `128 passed` where that is now repo truth
-- record that `test/v0.3.0-element-observable-facade-error-contract` landed on the milestone line
-- align capability wording for the promoted element-observable facade surface to the current tested milestone truth
-- update startup / handover text so future sessions resume from the current active milestone state and reassess close-prep from repo truth
+- record that `chore/v0.3.0-post-regression-bookkeeping` landed on the milestone line
+- confirm the active milestone line and its observed `128 passed` validation as the current decision basis
+- align milestone planning and handover docs so they point to close-prep rather than to already-landed bookkeeping work
+- prepare an explicit next-step decision about whether to close `v0.3.0` without widening technical scope
 
 Not allowed:
 - new solver physics
 - new topology classes
 - changes to the supported observable contract itself
 - broad API redesign
-- unrelated cleanup mixed into the bookkeeping patch
+- unrelated cleanup mixed into the close-prep patch
 
 ## Acceptance criteria
 
 The patch is complete if:
-1. milestone governance docs no longer point at the already-landed regression patch as the next step
-2. the active milestone branch and its observed `128 passed` validation are recorded precisely
-3. the landed regression-hardening patch is recorded honestly
-4. capability wording is aligned to the current tested milestone truth where needed
+1. milestone governance docs no longer point at the already-landed post-regression bookkeeping patch as the next step
+2. the active milestone branch and its observed `128 passed` validation remain the stated basis for the close decision
+3. the landed post-regression bookkeeping patch is recorded honestly
+4. the next action is framed as an explicit close-prep / close-decision step rather than more unbounded milestone growth
 5. `pytest -q` stays green
 
 ## Immediate follow-up after this patch
 
-After this bookkeeping patch lands, reassess from the active milestone branch whether `v0.3.0` now needs only a final close-prep patch.
+After this close-prep patch lands, decide from the active milestone branch whether `v0.3.0` should be closed as complete or whether one more clearly-bounded patch is still required.

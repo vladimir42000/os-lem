@@ -43,26 +43,26 @@ Observed green suite on the active milestone line after the landed regression-ha
 1. `feat/v0.3.0-element-observable-api-surface` — landed
 2. `chore/v0.3.0-first-patch-bookkeeping` — landed
 3. `test/v0.3.0-element-observable-facade-error-contract` — landed
+4. `chore/v0.3.0-post-regression-bookkeeping` — landed
 
 Result so far:
 - active milestone line exposes promoted element observables through the supported API/output surface
 - parser-side contract hardening for the promoted observable surface is present on the milestone line
 - facade negative-path regression coverage now hardens the promoted observable contract end to end
-- milestone governance docs are aligned to the active milestone state through the landed regression patch set
+- milestone governance docs and capability wording are aligned to the current regression-hardened milestone state
 - active milestone line remains conservative in scope
 - active milestone line is green at `128 passed`
 
 ### Current planned next patch
 
-#### `chore/v0.3.0-post-regression-bookkeeping`
+#### `chore/v0.3.0-close-prep`
 **Status:** planned
 
 Purpose:
-- align milestone governance docs, capability wording, and handover text to the landed regression-hardened milestone state
-- prevent future sessions from treating the already-landed regression patch as still pending
+- freeze milestone planning, handover wording, and release posture around the current regression-hardened state
+- prepare an explicit close decision from repo truth instead of drifting into open-ended new work
 
 Expected scope:
 - bounded governance/docs updates only
-- capability wording adjustments tied directly to current tested repo truth
 - no solver or API behavior changes
 - no unrelated cleanup mixed into the patch

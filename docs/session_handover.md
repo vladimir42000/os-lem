@@ -18,7 +18,8 @@ The seeded `v0.3.0` milestone has been opened intentionally.
 The first bounded milestone feature patch, `feat/v0.3.0-element-observable-api-surface`, has landed on the milestone line.
 The first bounded milestone bookkeeping patch, `chore/v0.3.0-first-patch-bookkeeping`, has landed on the milestone line.
 The bounded regression patch, `test/v0.3.0-element-observable-facade-error-contract`, has also landed on the milestone line.
-Future sessions should continue from the active milestone branch, align docs to the current regression-hardened state, and reassess close-prep from repo truth rather than from old seed-state assumptions.
+The bounded post-regression bookkeeping patch, `chore/v0.3.0-post-regression-bookkeeping`, has also landed on the milestone line.
+Future sessions should continue from the active milestone branch, freeze final close-prep from repo truth, and decide explicitly whether the milestone is ready to close.
 
 ## Startup protocol for the next session
 
@@ -47,4 +48,4 @@ Integration branch:
 - `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
 Recommended next patch branch:
-- `chore/v0.3.0-post-regression-bookkeeping`
+- `chore/v0.3.0-close-prep`
