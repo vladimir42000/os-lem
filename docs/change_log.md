@@ -6,16 +6,34 @@ It complements Git history; it does not replace it.
 ---
 
 ## Post-`v0.2.0` housekeeping
-**Status:** in progress
+**Status:** seeded for close
 
 Completed so far:
 - release-aligned housekeeping docs landed on `main`
 - companion-book linkage made explicit
 - post-release housekeeping checklist added
 - post-release branch review and retention plan added
+- next milestone seeded explicitly as `v0.3.0`
 
-Next planned housekeeping step:
-- explicit next-milestone seed patch
+Immediate next action:
+- open the recommended `v0.3.0` integration branch
+- start the first bounded `v0.3.0` feature patch from that branch
+
+---
+
+## `v0.3.0`
+**Status:** seeded
+
+Planned title:
+- `waveguide observability and API maturity`
+
+Seed summary:
+- use `v0.3.0` to promote already-existing observability capabilities into a cleaner supported user-facing contract
+- prefer API/output-surface hardening over new solver physics
+- keep the first patch bounded to exposing existing element observables cleanly
+
+Seed reference:
+- `docs/v0_3_0_seed_plan.md`
 
 ---
 

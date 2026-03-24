@@ -23,19 +23,29 @@ Result:
 
 1. `chore/post-v0.2.0-housekeeping` — landed
 2. `chore/post-v0.2.0-branch-review-plan` — landed
+3. `chore/post-v0.2.0-next-milestone-seed` — landed
 
 ---
 
-## Current planned post-release patch
+## Seeded next milestone
 
-### `chore/post-v0.2.0-next-milestone-seed`
+### `v0.3.0` — `waveguide observability and API maturity`
+**Status:** seeded
+
+Recommended integration branch:
+- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+
+### Current planned first feature patch
+
+#### `feat/v0.3.0-element-observable-api-surface`
 **Status:** planned
 
 Purpose:
-- finish the post-release transition cleanly
-- open the next milestone intentionally instead of drifting into ad hoc development
-- define the next integration branch and first patch pack before new solver work resumes
+- begin `v0.3.0` with a conservative promotion of already-existing element observables
+- expose them through the supported API/output surface
+- avoid drifting immediately into broader physics expansion
 
 Expected scope:
-- docs/governance only
-- no solver behavior changes
+- bounded API/output-surface work
+- narrow regression coverage
+- small doc/example refresh only

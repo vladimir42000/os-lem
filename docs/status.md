@@ -11,16 +11,17 @@
 ## Current project posture
 
 The `v0.2.0` milestone is complete and released.
-Post-release housekeeping is in progress.
+The post-release transition is sufficiently complete to open the next milestone intentionally.
 The repo now has:
 - release-aligned docs
 - a housekeeping checklist
 - a branch review / retention plan
+- an explicit `v0.3.0` seed plan
 
 Current recommended work type:
-- finish the post-release transition
-- seed the next milestone explicitly
-- only then resume new technical development
+- create the seeded `v0.3.0` integration branch from `main`
+- begin the first bounded `v0.3.0` feature patch
+- keep the next milestone conservative until the promoted observable surface is stable
 
 ---
 
@@ -34,9 +35,9 @@ Current recommended work type:
 
 ---
 
-## Immediate next patch
+## Seeded next milestone
 
-Recommended next branch:
-- `chore/post-v0.2.0-next-milestone-seed`
-
-That patch should stay docs/governance only.
+- `v0.3.0`
+- title: `waveguide observability and API maturity`
+- recommended integration branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+- recommended first feature patch: `feat/v0.3.0-element-observable-api-surface`

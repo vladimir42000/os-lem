@@ -13,33 +13,41 @@ Status:
 
 ---
 
-## What `v0.2.0` intentionally delivered
+## Seeded next milestone
 
-- bounded observation-layer stabilization only
-- no broad topology expansion
-- no broad parity claims
-- no reopening of solver-core debug scope
-- conservative release wording aligned to tested repo truth
+Name:
+- `v0.3.0`
 
-Released milestone spine:
-1. docs/governance reset
-2. `mouth_directivity_only` observation contract
-3. mouth observable normalization guard
-4. offset-line compare harness
-5. release-notes draft
-6. release-candidate close/checklist
+Planned title:
+- `waveguide observability and API maturity`
 
----
+Recommended integration branch:
+- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
-## What this means now
+### Intent
 
-The `v0.2.0` milestone is no longer an active development target.
-Normal patching against that milestone should stop unless a narrowly justified post-release correction appears.
+Use `v0.3.0` to promote already-existing observability capabilities into a cleaner supported user-facing contract, without reopening broad physics expansion.
 
-Immediate project need:
-- post-release housekeeping
-- branch hygiene review
-- next-milestone planning
+### In scope
 
-Recommended next branch:
-- `chore/post-v0.2.0-housekeeping`
+- expose already-available element observables through the supported API/output surface
+- tighten regression coverage around line and element observability
+- refresh examples and handover docs around the promoted observable set
+- keep claims conservative and aligned to tested repo truth
+
+### Out of scope
+
+- new waveguide physics models
+- conical lossy waveguide maturity work
+- passive radiator roadmap growth
+- multi-driver support
+- frontend productization
+- broad API redesign beyond the bounded observable surface
+
+### Recommended first feature patch
+
+- `feat/v0.3.0-element-observable-api-surface`
+
+### Exit idea for the milestone
+
+`v0.3.0` should close only if the promoted observability surface is documented, tested, and usable without relying on debug-only workflows.

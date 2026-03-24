@@ -24,4 +24,10 @@ Use this after the `v0.2.0` release to leave the repo in a clean state.
 ## Handover
 
 - [x] confirm future sessions start from `main`
-- [ ] confirm the next milestone seed patch is prepared before opening a new technical milestone
+- [x] confirm the next milestone seed patch is prepared before opening a new technical milestone
+- [x] document the seeded next milestone and first recommended feature branch
+
+## Exit note
+
+Housekeeping is complete enough to resume bounded next-milestone work.
+Any further branch/tag pruning can happen in a dedicated later cleanup session.

@@ -61,11 +61,12 @@ Use these for historical investigations and evidence, not for current release tr
 
 ---
 
-## Layer 4 — post-release housekeeping
+## Layer 4 — post-release housekeeping and milestone seeding
 
-Current housekeeping references:
+Current transition references:
 - `docs/post_v0_2_0_housekeeping_checklist.md`
 - `docs/post_v0_2_0_branch_review.md`
+- `docs/v0_3_0_seed_plan.md`
 - `docs/book_contract.md`
 
 ---
@@ -85,10 +86,11 @@ Its role is defined in:
 Latest release:
 - `v0.2.0` on `main`
 
-Current recommended next patch:
-- `chore/post-v0.2.0-next-milestone-seed`
+Seeded next milestone:
+- `v0.3.0` — `waveguide observability and API maturity`
 
-Current posture:
-- release complete
-- housekeeping in progress
-- next-milestone planning not yet opened
+Recommended next integration branch:
+- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+
+Recommended next feature branch:
+- `feat/v0.3.0-element-observable-api-surface`

@@ -1,39 +1,42 @@
 # Next patch
 
-## Recommended next branch
+## Recommended next integration branch
 
-- `chore/post-v0.2.0-next-milestone-seed`
+- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+
+Create this branch from `main` before opening the next feature patch.
+
+## Recommended next feature branch
+
+- `feat/v0.3.0-element-observable-api-surface`
 
 ## Purpose
 
-Do one bounded planning patch after the branch-review plan is landed.
-This patch should seed the next milestone explicitly instead of letting technical work restart implicitly.
+Do one bounded first `v0.3.0` feature patch that promotes already-existing element observability to the supported API/output surface.
 
 ## Scope
 
 Allowed:
-- define the next milestone name and release intent
-- decide the next active integration branch name
-- write the first patch-pack outline for the next milestone
-- state what is in scope and out of scope for that next milestone
-- align handover docs so future sessions start from the right branch and planning surface
+- expose existing element-level observables such as volume velocity and particle velocity through the supported API/output contract
+- add narrow regression tests for the promoted observable surface
+- update examples and docs only where needed to reflect the new supported contract
 
 Not allowed:
-- solver changes
-- API changes
-- observation-contract changes
-- branch deletion as part of the patch itself
-- mixing archived debug analysis into the new milestone without explicit justification
+- new solver physics
+- new waveguide topology classes
+- broad frontend work
+- broad API redesign
+- branch cleanup mixed into the feature patch
 
 ## Acceptance criteria
 
 The patch is complete if:
-1. the next milestone name is explicit
-2. the next active branch recommendation is explicit
-3. the next milestone scope is bounded and conservative
-4. startup docs tell the next session where to begin
-5. `pytest -q` stays green on `main`
+1. the new integration branch is opened from `main`
+2. the bounded element observable surface is exposed through the supported API/output layer
+3. regression coverage proves default existing behaviors remain intact
+4. docs and examples reflect the promoted observable surface honestly
+5. `pytest -q` stays green
 
 ## Immediate follow-up after this patch
 
-Only after the milestone-seed patch lands should the next technical feature branch be opened.
+After the first `v0.3.0` feature patch lands, continue with a bounded regression/docs patch before considering wider milestone scope.

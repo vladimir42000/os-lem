@@ -9,8 +9,8 @@
 
 ## What just finished
 
-The first post-release housekeeping patch landed, and the branch-review plan is now documented.
-The repo is not ready for arbitrary new technical work yet; it still needs one explicit next-milestone seed patch.
+Post-release housekeeping and branch-review planning have been carried far enough that the next milestone is now seeded explicitly.
+Future sessions should no longer improvise the next milestone from old `v0.2.0` branches or debug notes.
 
 ## Startup protocol for the next session
 
@@ -21,12 +21,17 @@ The repo is not ready for arbitrary new technical work yet; it still needs one e
    - `pytest -q`
 3. confirm the tree is clean and the release line is green
 4. read:
-   - `docs/post_v0_2_0_housekeeping_checklist.md`
-   - `docs/post_v0_2_0_branch_review.md`
+   - `docs/v0_3_0_seed_plan.md`
    - `docs/next_patch.md`
-5. do **not** resume old debug work by default
-6. do **not** open new technical scope until the next-milestone seed patch is landed
+   - `docs/post_v0_2_0_branch_review.md`
+5. create the recommended integration branch from `main`
+6. open the first bounded `v0.3.0` feature patch
+7. do **not** resume old debug work by default
 
-## Recommended immediate next branch
+## Recommended immediate next branches
 
-- `chore/post-v0.2.0-next-milestone-seed`
+Integration branch:
+- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+
+First feature branch:
+- `feat/v0.3.0-element-observable-api-surface`

@@ -23,22 +23,27 @@ The release package includes:
 
 ---
 
-## Post-release sequence
+## Post-release transition
 
-The post-release transition is intentionally split:
+The post-release transition was intentionally split into:
 1. housekeeping patch
 2. branch review / retention plan
 3. next-milestone seed patch
 
-Only after step 3 should new technical milestone work begin.
+These transition steps are now complete enough that the next milestone can begin intentionally.
 
 ---
 
-## Next milestone planning
+## Seeded next milestone
 
-Do **not** open the next major milestone implicitly.
-After the branch-review plan is landed, do one explicit seed patch that defines:
-- milestone name
-- release intent
-- active integration branch
-- first bounded patch pack
+- `v0.3.0`
+- planned title: `waveguide observability and API maturity`
+
+Recommended integration branch:
+- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+
+Recommended first feature patch:
+- `feat/v0.3.0-element-observable-api-surface`
+
+Planning principle for `v0.3.0`:
+- promote and harden already-existing observable capabilities before adding new solver physics
