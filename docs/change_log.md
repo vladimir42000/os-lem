@@ -1,18 +1,38 @@
 # Change log
 
-## `v0.2.0` (draft / release candidate)
+This is the human-readable release and milestone history.
+It complements Git history; it does not replace it.
 
-Intent: **offset-line observation-contract stabilization**
+---
 
-### Added / changed on the milestone line
+## `v0.2.0`
+**Status:** released
 
-- governance/docs reset for the `v0.2.0` working line
-- explicit `mouth_directivity_only` observation contract
-- mouth observable normalization guard for the bounded candidate path
-- offset-line compare harness for narrow evidence review
-- release-note draft and release-candidate close docs
+Release title:
+- `offset-line observation-contract stabilization`
 
-### Important boundary
+Released summary:
+- completed the bounded observation-layer milestone without broad solver refactoring
+- kept `front/raw` behavior unchanged while introducing an opt-in mouth/port candidate path
+- added `observable_contract: mouth_directivity_only`
+- added a connected-aperture normalization guard for that bounded candidate
+- added a maintained offset-line compare harness with regression coverage
+- aligned release docs, release notes, and release checklist around conservative claims
 
-This milestone makes a bounded observation-contract claim. It does **not** claim
-broad transmission-line completion or general parity with external tools.
+Reference docs:
+- `docs/v0_2_0_release_notes_draft.md`
+- `docs/v0_2_0_release_checklist.md`
+
+---
+
+## `v0.1.0`
+**Status:** released
+
+Summary:
+- first honest foundation release on `main`
+- one-driver coupled sweep kernel
+- released `volume`, `duct`, `radiator`, minimal `waveguide_1d`
+- released classical outputs and minimal waveguide observability subset
+- released cylindrical-loss support inside the frozen cylindrical boundary
+- released provisional `os_lem.api` facade
+- conservative capability boundaries made explicit

@@ -5,114 +5,64 @@ Open, scriptable loudspeaker and enclosure simulator with a disciplined, test-fi
 ## Release posture
 
 Latest released version:
-- `v0.1.0` on `main`
+- `v0.2.0` on `main`
 
-Current active planning target:
-- `v0.2.0` — offset-line observation-contract stabilization
+Current green suite on the released line:
+- `118 passed`
 
-Current green suite on the uploaded working line:
-- `108 passed`
+Current project posture:
+- `v0.2.0` is released
+- the offset-line observation-contract stabilization milestone is complete
+- the next work item is **post-release housekeeping**, not immediate new solver development
 
-This repository already contains a real released foundation. Current work is focused on turning the long observation/debug cycle into one bounded, documented next milestone rather than opening broad new feature scope.
+## What `v0.2.0` adds
 
-## What `v0.1.0` includes
+Released milestone additions beyond the earlier foundation line:
 
-Released foundation:
+- opt-in `observable_contract: mouth_directivity_only`
+- connected-aperture normalization guard for the bounded mouth/port candidate path
+- maintained offset-line compare harness under `debug/`
+- tightened milestone/release documentation for observation-layer work
 
-- one-driver coupled electro-mechano-acoustic solve
-- frequency sweep
-- assembled elements:
-  - `volume`
-  - `duct`
-  - `radiator`
-  - minimal `waveguide_1d`
-- classical outputs:
-  - input impedance
-  - cone velocity
-  - cone displacement
-  - one-radiator far-field pressure
-  - one-radiator SPL
-- current minimal waveguide observability subset:
-  - endpoint flow export
-  - endpoint particle-velocity export
-  - minimal `line_profile` export for `pressure`
-  - minimal `line_profile` export for `volume_velocity`
-  - minimal `line_profile` export for `particle_velocity`
-- cylindrical distributed loss for `waveguide_1d` within the currently frozen cylindrical-loss boundary
-- provisional `os_lem.api` integration facade
-- maintained Streamlit example path in `examples/streamlit_frontend/app.py`
+These changes were intentionally bounded to the observation layer and release-story alignment.
 
-## Current `v0.2.0` planning intent
-
-The current repo truth from the extended debug line is:
-
-- `front/raw` is broadly credible
-- the remaining mismatch is localized to `mouth/port` observable semantics
-- the next supported move is one bounded observation-layer patch
-- the preferred first candidate is `mouth_directivity_only`
-- `front` semantics must remain unchanged during that patch
-
-This is not yet a released claim. It is the current development hypothesis that defines the next bounded technical patch.
-
-## Explicit non-claims for the current project state
+## What is still not claimed
 
 `os-lem` still does **not** claim:
 
 - broad Hornresp parity
 - broad AkAbak parity
-- mature transmission-line support
-- broad horn / line workflow coverage
-- conical lossy `waveguide_1d`
-- thermo-viscous auto-derived losses
+- mature transmission-line product workflow support
+- passive radiator support
+- multi-driver support
+- crossover-network maturity
 - stable long-term public API
 - product-grade GUI/frontend
-- multi-driver support
-- passive radiator support
-- crossover-network maturity
 
-## Quick start
+## Companion documentation
 
-```bash
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -e ".[dev]"
-pytest -q
-```
+The explanatory companion book now lives separately at:
+- `https://github.com/vladimir42000/os-lem-book`
 
-## Example files
-
-Examples live under:
-- `examples/closed_box/model.yaml`
-- `examples/vented_box/model.yaml`
-- `examples/streamlit_frontend/app.py`
-
-The Streamlit example is the maintained example path for the current released baseline and uses the provisional `os_lem.api` facade.
+Repository docs remain the source of truth for release status, supported scope, and next patch planning.
 
 ## Documentation entry points
 
 Start with:
 - `docs/doc_index.md`
 - `docs/start_here.md`
-- `docs/current_scope.md`
-- `docs/milestone_charter.md`
-- `docs/release_strategy.md`
-- `docs/release_plan.md`
-- `docs/capability_matrix.md`
+- `docs/status.md`
+- `docs/next_patch.md`
+- `docs/session_handover.md`
 - `docs/book_contract.md`
 
-## Development model
+## Immediate next work
 
-This project uses:
+Recommended next branch:
+- `chore/post-v0.2.0-housekeeping`
 
-- small, bounded patches
-- green tests before and after changes
-- milestone integration before release
-- conservative capability claims
-- repo docs as long-term project memory
-- the parallel book as explanatory companion, not repo truth
-
-Recommended next governance branch:
-- `chore/v0.2.0-docs-reset`
-
-Recommended next technical patch after this docs reset:
-- `fix/v0.2.0-mouth-directivity-only`
+That patch should stay docs/governance only and should cover:
+- reciprocal repo links (`os-lem` <-> `os-lem-book`)
+- branch/tag cleanup guidance
+- stale milestone/debug branch review
+- next-milestone planning handoff

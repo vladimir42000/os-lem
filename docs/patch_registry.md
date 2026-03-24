@@ -1,45 +1,34 @@
 # Patch registry
 
-## Active milestone
+This registry tracks the current patch pack at a human scale.
 
-- Milestone: `v0.2.0`
-- Milestone branch: `milestone/v0.2.0-offset-line-observation`
-- Intent: offset-line observation-contract stabilization
-- Status: **release-candidate ready**
+---
 
-## Landed milestone patches
+## Completed `v0.2.0` patch pack
 
-| Order | Branch | Commit intent | Status |
-|---|---|---|---|
-| 0 | `chore/v0.2.0-docs-reset` | Reset `v0.2.0` docs and restructure debug archive | landed on milestone |
-| 1 | `fix/v0.2.0-mouth-directivity-only` | Add `mouth_directivity_only` observation contract | landed on milestone |
-| 2 | `fix/v0.2.0-mouth-observable-normalization-check` | Add mouth observable normalization guard | landed on milestone |
-| 3 | `fix/v0.2.0-offset-line-compare-harness` | Add offset-line compare harness | landed on milestone |
-| 4 | `chore/v0.2.0-release-notes-draft` | Draft `v0.2.0` release notes | landed on milestone |
-| 5 | `chore/v0.2.0-release-candidate-close` | Close milestone into release-candidate state | active / to land |
+1. `chore/v0.2.0-docs-reset` — landed
+2. `fix/v0.2.0-mouth-directivity-only` — landed
+3. `fix/v0.2.0-mouth-observable-normalization-check` — landed
+4. `fix/v0.2.0-offset-line-compare-harness` — landed
+5. `chore/v0.2.0-release-notes-draft` — landed
+6. `chore/v0.2.0-release-candidate-close` — landed
 
-## Current milestone assessment
+Result:
+- `v0.2.0` released on `main`
+- green suite on the release line: `118 passed`
 
-The planned bounded `v0.2.0` work is now effectively complete. The remaining work
-is release-candidate close and release decision support.
+---
 
-## No default technical follow-up patch
+## Current planned post-release patch
 
-There is intentionally **no default next technical patch** queued after the
-release-candidate close patch.
+### `chore/post-v0.2.0-housekeeping`
+**Status:** planned
 
-Any further patch before release must be justified as one of:
+Purpose:
+- leave the repo in a clean post-release state
+- make future handover safer
+- separate housekeeping from next-milestone technical planning
 
-- a claim-correction patch
-- a release-note correction patch
-- a tiny final validation/doc correction
-
-## Deferred after `v0.2.0`
-
-The following topics belong to later milestones, not this one:
-
-- broader transmission-line maturity work
-- richer waveguide physics growth
-- passive-radiator and multi-driver growth
-- API/productization expansion
-- large repository branch cleanup
+Expected scope:
+- docs/governance only
+- no solver behavior changes

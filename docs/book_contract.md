@@ -3,15 +3,10 @@
 ## Purpose
 
 The os-lem book is a parallel explanatory project.
-It is valuable, but it has a different role from the repository docs.
+It is useful, but it does not replace repository truth.
 
-This file defines that role explicitly so future handovers do not mix:
-- implemented truth
-- release truth
-- debug narrative
-- educational explanation
-
----
+Official companion repository:
+- `https://github.com/vladimir42000/os-lem-book`
 
 ## Precedence rule
 
@@ -26,8 +21,6 @@ When sources disagree, use this order:
 
 The book must never override the repository.
 
----
-
 ## What the book is for
 
 Use the book for:
@@ -36,49 +29,22 @@ Use the book for:
 - explanation of physical and numerical contracts
 - observation-layer concepts
 - comparison methodology versus AkAbak and Hornresp
-- hard-won debugging lessons worth preserving pedagogically
-
-Relevant current chapters include:
-- transmission-line context
-- piston directivity
-- phase conventions
-- multisource summation
-- AkAbak / Hornresp comparison workflow
-- debug checklist
-- reference cases
-
----
+- debugging narratives worth preserving pedagogically
 
 ## What the book is not for
 
 Do not use the book as the place to define:
-- the current milestone branch
-- the next patch
+- the current release status
 - the current green-suite number
-- current release status
-- what is officially supported today
+- the next patch
 - exact repo file locations
+- what is officially supported today
 
 Those belong in repo docs.
 
----
+## Maintenance rule
 
-## How to use the book in practice
-
-Good workflow:
-1. use repo docs to determine the current operational truth
-2. use the book to understand why a contract exists or why a historical fix mattered
-3. copy only the stable conclusions back into repo docs when they become part of project truth
-
-Bad workflow:
-- treating the book as if it were a live milestone tracker
-- updating repo truth by paraphrasing book prose without checking code/tests
-
----
-
-## Documentation maintenance rule
-
-If an important idea from the book becomes an actual supported repo contract, mirror that idea into the appropriate repo doc:
-- governance docs for milestone/release truth
-- technical docs for solver/observer/API truth
+If a stable idea from the book becomes official repo truth, mirror that idea into the right repo doc:
+- governance docs for release/milestone truth
+- technical docs for solver/API truth
 - debug archive docs for historical investigations

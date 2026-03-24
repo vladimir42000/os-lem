@@ -1,49 +1,45 @@
 # Release plan
 
-## Stable release line
+## Latest completed release
 
-- `main` is the stable release line
-- releases are merged into `main` only when milestone exit criteria are satisfied
+- `v0.2.0`
+- title: `offset-line observation-contract stabilization`
+- release branch of record: `main`
 
-## Current release candidate
+Observed release-line validation at close:
+- `118 passed`
 
-### Candidate
+---
 
-- milestone branch: `milestone/v0.2.0-offset-line-observation`
-- release target: `v0.2.0`
+## What is complete
 
-### Intent
+`v0.2.0` is no longer a candidate milestone.
+It is released.
 
-`v0.2.0` = **offset-line observation-contract stabilization**
+The release package includes:
+- bounded mouth/port observation candidate support
+- normalization guard
+- compare harness
+- release notes and release checklist
+- conservative capability wording aligned to the tested repo state
 
-### Current posture
+---
 
-This milestone is now in **release-candidate review** state.
+## Immediate post-release plan
 
-## Release-candidate checklist
+The next step is not a new technical milestone patch.
+The next step is a bounded housekeeping pass:
+- `chore/post-v0.2.0-housekeeping`
 
-Before release, confirm that:
+That patch should prepare the repo for:
+- branch hygiene review
+- tag hygiene review
+- reciprocal book/repo linking
+- next milestone planning
 
-- milestone docs are aligned with actual repo truth
-- release notes are accurate and bounded
-- the compare harness remains usable for the intended offset-line evidence path
-- no open milestone patch remains except a tiny justified close correction, if any
-- `pytest -q` remains green on the milestone branch
+---
 
-## If release is approved
+## Next milestone planning
 
-Planned release flow:
-
-1. switch to `main`
-2. pull fast-forward only
-3. merge the milestone branch fast-forward only
-4. tag `v0.2.0`
-5. push `main` and the tag
-
-## If release is not approved
-
-Only one additional bounded close patch should be opened, and only for:
-
-- a release-claim correction
-- a release-note correction
-- a tiny validation/doc correction
+Do **not** open the next major milestone until the post-release housekeeping patch is landed.
+After housekeeping, decide the next milestone explicitly and document it before new technical development starts.

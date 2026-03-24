@@ -1,39 +1,32 @@
 # Session handover
 
-## Current branch of truth
+## Current repo truth
 
-- Active milestone branch: `milestone/v0.2.0-offset-line-observation`
-- `main` remains untouched by the in-progress `v0.2.0` line
+- latest release: `v0.2.0`
+- released on: `main`
+- release title: `offset-line observation-contract stabilization`
+- expected green suite on the release line: `118 passed`
 
-## Current milestone state
+## What just finished
 
-The `v0.2.0` line is now in **release-candidate** posture.
+The long observation/debug cycle was converted into a bounded release sequence and shipped.
+The milestone branch is no longer the primary source of truth; `main` now is.
 
-Landed milestone spine:
+## Startup protocol for the next session
 
-1. docs/governance reset
-2. `mouth_directivity_only` observation contract
-3. mouth observable normalization guard
-4. offset-line compare harness
-5. `v0.2.0` release-notes draft
+1. start from `main`
+2. run:
+   - `git status`
+   - `git log --oneline --decorate -n 8`
+   - `pytest -q`
+3. confirm the tree is clean and the release line is green
+4. do **not** resume old debug work by default
+5. do **not** reopen `v0.2.0` technical scope unless a specific post-release issue is proven
 
-## Validation state
+## Recommended immediate next branch
 
-- test suite expected state on the milestone line: `118 passed`
-- compare harness exists for offset-line observation comparison
-- release notes exist as a draft, not yet as a published release artifact
+- `chore/post-v0.2.0-housekeeping`
 
-## Operator rule for next sessions
+## After housekeeping
 
-Start from the milestone branch and treat the repository as a **release-candidate**,
-not as a free-form debug branch.
-
-The next action is a release decision unless a very small, explicit close patch is
-still justified.
-
-## What not to do
-
-- do not reopen broad debugging
-- do not restore unrelated local scratch into milestone work
-- do not merge to `main` casually
-- do not broaden `v0.2.0` scope into general transmission-line development
+Only then define the next milestone branch and next technical patch pack.

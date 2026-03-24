@@ -1,27 +1,84 @@
 # Documentation index
 
-## First-read operational docs
+This file is the navigation map for the repository documentation.
+The repository remains the source of truth.
 
-1. `docs/start_here.md`
-2. `docs/status.md`
-3. `docs/current_scope.md`
-4. `docs/milestone_charter.md`
-5. `docs/next_patch.md`
-6. `docs/session_handover.md`
+---
 
-## Release-candidate note
+## Priority order of truth
 
-The active `v0.2.0` milestone should currently be read as a **release-candidate**
-line, not as an open-ended debug line.
+1. current tested repository state
+2. current branch and commit history
+3. current governance docs in this repo
+4. stable technical docs in this repo
+5. debug archive docs in this repo
+6. companion book
+7. old chat memory
 
-## Release docs
+---
 
+## Layer 1 — governance and operational truth
+
+Read these first in a new development or handover session:
+
+- `docs/start_here.md`
+- `docs/status.md`
+- `docs/milestone_charter.md`
 - `docs/release_plan.md`
+- `docs/next_patch.md`
+- `docs/patch_registry.md`
+- `docs/session_handover.md`
 - `docs/change_log.md`
+- `docs/development_policy.md`
+- `docs/constitution.md`
+
+---
+
+## Layer 2 — stable technical reference
+
+Use these for implementation truth and architecture context:
+
+- `docs/architecture.md`
+- `docs/architecture_invariants.md`
+- `docs/solver_math.md`
+- `docs/input_format.md`
+- `docs/frontend_api.md`
+- `docs/radiator_models.md`
+- `docs/capability_matrix.md`
+- `docs/validation_plan.md`
+- `docs/v0_1_0_release_notes.md`
 - `docs/v0_2_0_release_notes_draft.md`
-- `docs/v0_2_0_release_checklist.md`
 
-## Historical / debug archive
+---
 
-See `docs/debug/` for historical debug evidence. Those files support historical
-understanding but do not override the repo’s current operational truth.
+## Layer 3 — debug and investigation archive
+
+Primary entry points:
+- `docs/debug/README.md`
+- `docs/experiment_registry.md`
+
+Use these for historical investigations and evidence, not for current release truth.
+
+---
+
+## Layer 4 — companion book
+
+The companion explanatory repo is:
+- `https://github.com/vladimir42000/os-lem-book`
+
+Its role is defined in:
+- `docs/book_contract.md`
+
+---
+
+## Current project state
+
+Latest release:
+- `v0.2.0` on `main`
+
+Current recommended next patch:
+- `chore/post-v0.2.0-housekeeping`
+
+Current posture:
+- release complete
+- housekeeping and next-milestone planning pending

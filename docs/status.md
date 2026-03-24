@@ -1,39 +1,38 @@
 # os-lem status
 
-## Current development status
+## Released baseline
 
-- Stable released line: `main` (`v0.1.0` baseline remains protected)
-- Active milestone line: `milestone/v0.2.0-offset-line-observation`
-- Current milestone posture: **release-candidate ready**
+- latest released version: `v0.2.0`
+- released branch of record: `main`
+- observed green suite on the release line: `118 passed`
 
-## `v0.2.0` intent
+---
 
-`v0.2.0` is defined as:
+## Current project posture
 
-**offset-line observation-contract stabilization**
+The `v0.2.0` milestone is complete and released.
+There is no active technical milestone branch that should supersede `main` as the primary truth source.
 
-This is a bounded milestone. It is not a broad claim of full transmission-line or
-Hornresp/Akabak parity.
+Current recommended work type:
+- post-release housekeeping
+- branch/tag hygiene review
+- next-milestone planning
 
-## Landed work on the milestone line
+---
 
-- docs/governance reset and debug archive restructuring
-- `mouth_directivity_only` observation contract
-- mouth observable normalization guard
-- offset-line compare harness
-- `v0.2.0` release-notes draft
+## What `v0.2.0` established
 
-## Validation snapshot
+- `front/raw` kept unchanged
+- opt-in `observable_contract: mouth_directivity_only`
+- connected-aperture normalization guard for the bounded mouth path
+- maintained offset-line compare harness
+- conservative release-story wording aligned to tested repo truth
 
-- expected test suite state on the current milestone line: `118 passed`
+---
 
-## Current decision point
+## Immediate next patch
 
-The project should now perform a **release-candidate review**.
+Recommended next branch:
+- `chore/post-v0.2.0-housekeeping`
 
-Default next action:
-
-- decide whether `v0.2.0` is ready to merge to `main` and tag
-
-Only if that review finds a narrow issue should one final bounded close patch be
-opened before release.
+That patch should stay docs/governance only.
