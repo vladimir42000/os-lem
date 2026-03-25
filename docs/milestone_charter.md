@@ -2,7 +2,7 @@
 
 ## Current release state
 
-Latest completed milestone:
+Latest completed release:
 - `v0.2.0`
 
 Release title:
@@ -13,29 +13,30 @@ Status:
 
 ---
 
-## Seeded next milestone
+## Current completed milestone
 
 Name:
 - `v0.3.0`
 
-Planned title:
+Title:
 - `waveguide observability and API maturity`
 
-Recommended integration branch:
+Milestone branch:
 - `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
-### Intent
+Status:
+- complete on milestone branch
+- observed green suite on the close-decision line: `128 passed`
 
-Use `v0.3.0` to promote already-existing observability capabilities into a cleaner supported user-facing contract, without reopening broad physics expansion.
+### Delivered scope
 
-### In scope
+- promoted already-implemented element observables into the supported API/output surface
+- kept the promoted contract bounded to `duct`, `radiator`, and `waveguide_1d` endpoint targets
+- kept parser-side validation aligned to the promoted supported contract
+- added end-to-end facade negative-path regression coverage for invalid promoted element-observable requests
+- kept milestone scope conservative without reopening broad solver or API redesign work
 
-- expose already-available element observables through the supported API/output surface
-- tighten regression coverage around line and element observability
-- refresh examples and handover docs around the promoted observable set
-- keep claims conservative and aligned to tested repo truth
-
-### Out of scope
+### Out of scope for the completed milestone
 
 - new waveguide physics models
 - conical lossy waveguide maturity work
@@ -44,10 +45,22 @@ Use `v0.3.0` to promote already-existing observability capabilities into a clean
 - frontend productization
 - broad API redesign beyond the bounded observable surface
 
-### Recommended first feature patch
+### Exit condition
 
-- `feat/v0.3.0-element-observable-api-surface`
+`v0.3.0` is considered complete because the promoted observability surface is now documented, tested, and usable without relying on debug-only workflows.
 
-### Exit idea for the milestone
+---
 
-`v0.3.0` should close only if the promoted observability surface is documented, tested, and usable without relying on debug-only workflows.
+## Current continuation posture
+
+There is no further `v0.3.0` milestone-scope patch planned by default.
+
+If work continues from here, it should follow one of two explicit tracks:
+
+1. bounded `v0.3.0` release-promotion planning and execution
+2. later next-milestone seeding after release/governance decisions are made
+
+Default recommendation:
+- do not reopen closed `v0.3.0` milestone scope by default
+- do not broaden claims beyond the tested milestone branch
+- treat any next patch as release-promotion planning unless a different track is explicitly chosen

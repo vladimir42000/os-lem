@@ -24,6 +24,7 @@ Read these first in a new development or handover session:
 - `docs/start_here.md`
 - `docs/status.md`
 - `docs/milestone_charter.md`
+- `docs/release_strategy.md`
 - `docs/release_plan.md`
 - `docs/next_patch.md`
 - `docs/patch_registry.md`
@@ -48,6 +49,7 @@ Use these for implementation truth and architecture context:
 - `docs/validation_plan.md`
 - `docs/v0_1_0_release_notes.md`
 - `docs/v0_2_0_release_notes_draft.md`
+- `docs/v0_3_0_release_notes_draft.md`
 
 ---
 
@@ -61,12 +63,13 @@ Use these for historical investigations and evidence, not for current release tr
 
 ---
 
-## Layer 4 — post-release housekeeping and milestone seeding
+## Layer 4 — release transition and planning
 
 Current transition references:
 - `docs/post_v0_2_0_housekeeping_checklist.md`
 - `docs/post_v0_2_0_branch_review.md`
 - `docs/v0_3_0_seed_plan.md`
+- `docs/v0_3_0_release_checklist.md`
 - `docs/book_contract.md`
 
 ---
@@ -86,10 +89,9 @@ Its role is defined in:
 Latest release:
 - `v0.2.0` on `main`
 
-Active milestone:
+Completed milestone awaiting release decision:
 - `v0.3.0` — `waveguide observability and API maturity`
-- integration branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-- first landed patch: `feat/v0.3.0-element-observable-api-surface`
+- milestone branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
 Recommended next patch branch:
-- `chore/v0.3.0-first-patch-bookkeeping`
+- `chore/v0.3.0-release-promotion-plan`

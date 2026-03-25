@@ -46,6 +46,7 @@ Landed patch pack on the completed milestone branch:
 - `test/v0.3.0-element-observable-facade-error-contract`
 - `chore/v0.3.0-post-regression-bookkeeping`
 - `chore/v0.3.0-close-prep`
+- `chore/v0.3.0-close-decision`
 
 Observed milestone validation on the close-decision line:
 - `128 passed`
@@ -55,5 +56,23 @@ Current release posture:
 - `main` remains the released `v0.2.0` line until an explicit promotion / release action is chosen
 - no further `v0.3.0` milestone-scope patch is recommended by default
 
-Planning principle from here:
-- if work continues, treat it as bounded release-promotion planning rather than more `v0.3.0` scope growth
+---
+
+## Bounded promotion planning target
+
+If promotion work continues from here, it should stay bounded to a release-promotion track.
+
+Allowed in the planning track:
+- define promotion prerequisites from the completed milestone branch
+- define the intended merge/tag path onto `main`
+- draft `v0.3.0` release checklist and release notes wording
+- define what is explicitly not part of promotion work
+
+Not allowed in the planning track:
+- new solver physics
+- reopened `v0.3.0` feature scope
+- broad documentation rewrites unrelated to release posture
+- unrelated branch cleanup mixed into promotion planning
+
+Recommended next execution patch after planning lands:
+- a bounded release-execution patch that prepares `main` promotion materials only if the promotion decision is explicitly approved

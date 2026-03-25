@@ -43,18 +43,20 @@ Rules:
 - short-lived patch branches should normally branch from the active milestone branch
 - milestone branches collect validated, bounded patches for one release target
 
-Latest completed milestone lineage:
-- `milestone/v0.1.0-foundation`
-
-Recommended next milestone branch:
+Current completed milestone lineage:
 - `milestone/v0.2.0-offset-line-observation`
+- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+
+Current release-promotion source branch:
+- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
 
 ### Short-lived patch branches
 Use short-lived branches for bounded work:
 
-- `feature/*` — new capability within agreed scope
+- `feature/*` or `feat/*` — new capability within agreed scope
 - `fix/*` or `bugfix/*` — targeted corrective change
 - `debug/*` — diagnosis, root-cause isolation, truth-finding
+- `test/*` — bounded regression or validation hardening
 - `chore/*` — docs, examples, governance, non-kernel maintenance
 
 Rules:
@@ -76,12 +78,14 @@ Default flow:
 6. commit the patch
 7. merge the patch into the milestone branch
 8. continue until the milestone is release-ready
-9. merge the milestone into `main`
-10. tag the release on `main`
+9. make an explicit milestone close decision on the milestone branch
+10. plan release promotion separately from milestone-scope work
+11. merge the milestone branch into `main`
+12. tag the release on `main`
 
 Preferred direction:
 
-`patch branch -> milestone branch -> main -> release tag`
+`patch branch -> milestone branch -> close decision -> promotion plan -> main -> release tag`
 
 ---
 
@@ -148,6 +152,8 @@ A milestone is eligible for release when:
 - supported capabilities are documented honestly
 - examples are coherent enough for the claimed scope
 - known non-claims are stated explicitly
+- a close decision has been made explicitly on the milestone branch
+- promotion to `main` is planned as a bounded step rather than mixed with new development
 
 ---
 
@@ -177,21 +183,22 @@ Rules:
 - no broad repo cleanup during release planning
 - no mixing governance work with kernel changes
 - no freezing unsupported contracts too early
+- no reopening a closed milestone by accident during release-promotion work
 
 ---
 
 ## 10. Current release posture
 
 Latest released baseline:
-- `v0.1.0`
-
-Current active planning target:
 - `v0.2.0`
 
-Current intended release story:
-- `offset-line observation-contract stabilization`
+Current completed milestone awaiting explicit promotion decision:
+- `v0.3.0`
+- `waveguide observability and API maturity`
 
-Current best-supported opening move after the docs reset:
-- one bounded observation-layer patch implementing or testing `mouth_directivity_only`
-- keep `front` unchanged
-- validate narrowly against the existing offset-line case
+Current release-promotion source branch:
+- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+
+Current intended next move:
+- bounded release-promotion planning
+- no further `v0.3.0` milestone-scope patch by default
