@@ -32,7 +32,7 @@
 | Maintained example path | Released | preserved and documented for the foundation release | v0.1.0 | must stay honest about prototype status |
 | Offset-line `front/raw` observation credibility on working line | Exploratory | current debug evidence only; not yet a released contract | v0.2.0 | current working interpretation is positive |
 | Mouth / port observable semantics on offset-line case | Exploratory | remaining mismatch localized here on current debug line | v0.2.0 | current preferred next candidate is `mouth_directivity_only` |
-| Conical lossy `waveguide_1d` | Exploratory | no released claim yet | v0.4.0+ | do not claim yet |
+| Conical lossy `waveguide_1d` | Implemented | parser/solver path opened on the v0.4.0 working line; broader validation still pending | v0.4.0 | bounded MVP only |
 | Transmission-line / offset-line workflows | Exploratory | no released broad claim yet | v0.2.0+ | keep claims narrow |
 | Product-grade GUI/frontend | Exploratory | prototype/example direction exists only | later | not part of the current release claim |
 | Passive radiator support | Exploratory | not in current delivered subset | later | do not claim yet |

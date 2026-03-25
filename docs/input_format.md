@@ -291,10 +291,11 @@ Optional fields:
 - `segments`
 - `loss`
 
-Current frozen loss boundary:
+Current MVP loss boundary:
 - `waveguide_1d.loss` is user-specified distributed loss in nepers per meter
-- loss is currently supported only for the cylindrical special case where `area_start == area_end`
-- conical lossy `waveguide_1d` remains deferred
+- loss is supported for the current segmented `profile: conical` implementation, including the cylindrical special case where `area_start == area_end`
+- this is a bounded empirical segmented-waveguide model, not a broad exact conical-wave or horn-parity claim
+- thermo-viscous auto-derived losses remain deferred
 
 #### Definition of `profile: conical`
 In v1, `conical` means the equivalent circular radius varies linearly with axial position.
@@ -376,39 +377,6 @@ Typical fields:
 - `id`
 - `type: node_pressure`
 - `target`
-
-### `element_volume_velocity`
-Observe one element through-flow using the frozen reporting sign convention.
-
-Required fields:
-- `id`
-- `type: element_volume_velocity`
-- `target`
-
-Supported targets:
-- `duct`
-- `radiator`
-- `waveguide_1d`
-
-Additional rule for `waveguide_1d` targets:
-- `location: a` or `location: b` is required
-
-### `element_particle_velocity`
-Observe one element particle velocity using the same flow convention divided by
-the relevant local area.
-
-Required fields:
-- `id`
-- `type: element_particle_velocity`
-- `target`
-
-Supported targets:
-- `duct`
-- `radiator`
-- `waveguide_1d`
-
-Additional rule for `waveguide_1d` targets:
-- `location: a` or `location: b` is required
 
 ### `line_profile`
 Observe a sampled distribution along one line object at one chosen frequency.

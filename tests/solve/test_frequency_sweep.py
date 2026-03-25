@@ -639,6 +639,32 @@ def _minimal_waveguide_cylindrical_lossy_model(loss_np_per_m: float) -> Normaliz
     )
 
 
+def _minimal_waveguide_conical_lossy_model(loss_np_per_m: float) -> NormalizedModel:
+    return NormalizedModel(
+        driver=_driver(),
+        volumes=[
+            VolumeElement(id="rear_vol", node="rear", value_m3=0.02),
+        ],
+        radiators=[
+            RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.01),
+        ],
+        waveguides=[
+            Waveguide1DElement(
+                id="wg1",
+                node_a="front",
+                node_b="port",
+                length_m=0.40,
+                area_start_m2=0.01,
+                area_end_m2=0.02,
+                profile="conical",
+                segments=8,
+                loss=loss_np_per_m,
+            )
+        ],
+        node_order=["front", "rear", "port"],
+    )
+
+
 def _exact_cylindrical_losssy_admittance_matrix(omega: float, length_m: float, area_m2: float, loss_np_per_m: float) -> np.ndarray:
     gamma = complex(loss_np_per_m, omega / C0)
     zc_a = RHO0 * C0 / area_m2
@@ -743,6 +769,55 @@ def test_increasing_cylindrical_loss_reduces_transmitted_pressure_magnitude() ->
     point_low = solve_frequency_point(model_low, system_low, 100.0)
 
     model_high = _minimal_waveguide_cylindrical_lossy_model(0.50)
+    system_high = assemble_system(model_high)
+    point_high = solve_frequency_point(model_high, system_high, 100.0)
+
+    assert abs(point_high.pressures[2]) < abs(point_low.pressures[2])
+
+
+def test_explicit_zero_loss_reproduces_current_lossless_conical_waveguide_behavior() -> None:
+    model_lossless = _minimal_waveguide_model()
+    system_lossless = assemble_system(model_lossless)
+    point_lossless = solve_frequency_point(model_lossless, system_lossless, 100.0)
+
+    model_zero_loss = _minimal_waveguide_conical_lossy_model(0.0)
+    system_zero_loss = assemble_system(model_zero_loss)
+    point_zero_loss = solve_frequency_point(model_zero_loss, system_zero_loss, 100.0)
+
+    np.testing.assert_allclose(point_zero_loss.pressures, point_lossless.pressures)
+    np.testing.assert_allclose(point_zero_loss.coil_current, point_lossless.coil_current)
+    np.testing.assert_allclose(point_zero_loss.waveguide_endpoint_flow["wg1"].node_a, point_lossless.waveguide_endpoint_flow["wg1"].node_a)
+    np.testing.assert_allclose(point_zero_loss.waveguide_endpoint_flow["wg1"].node_b, point_lossless.waveguide_endpoint_flow["wg1"].node_b)
+
+
+def test_lossy_conical_waveguide_profiles_remain_finite_and_endpoint_consistent() -> None:
+    model = _minimal_waveguide_conical_lossy_model(0.35)
+    system = assemble_system(model)
+    point = solve_frequency_point(model, system, 100.0)
+
+    pressure_profile = waveguide_line_profile_pressure(point, system, "wg1", points=17)
+    flow_profile = waveguide_line_profile_volume_velocity(point, system, "wg1", points=17)
+    particle_profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=17)
+
+    assert np.all(np.isfinite(pressure_profile.values.real))
+    assert np.all(np.isfinite(pressure_profile.values.imag))
+    assert np.all(np.isfinite(flow_profile.values.real))
+    assert np.all(np.isfinite(flow_profile.values.imag))
+    assert np.all(np.isfinite(particle_profile.values.real))
+    assert np.all(np.isfinite(particle_profile.values.imag))
+
+    np.testing.assert_allclose(pressure_profile.values[0], point.pressures[0])
+    np.testing.assert_allclose(pressure_profile.values[-1], point.pressures[2])
+    np.testing.assert_allclose(flow_profile.values[0], point.waveguide_endpoint_flow["wg1"].node_a)
+    np.testing.assert_allclose(flow_profile.values[-1], -point.waveguide_endpoint_flow["wg1"].node_b)
+
+
+def test_increasing_conical_loss_reduces_transmitted_pressure_magnitude() -> None:
+    model_low = _minimal_waveguide_conical_lossy_model(0.05)
+    system_low = assemble_system(model_low)
+    point_low = solve_frequency_point(model_low, system_low, 100.0)
+
+    model_high = _minimal_waveguide_conical_lossy_model(0.50)
     system_high = assemble_system(model_high)
     point_high = solve_frequency_point(model_high, system_high, 100.0)
 

@@ -530,22 +530,23 @@ The internal port convention is:
 If \(S_0 = S_L\), the conical profile degenerates to a cylindrical line. The same segmentation rule still applies.
 
 #### 6.3.6 Waveguide losses
-The current minimal distributed-loss extension is frozen as:
+The current distributed-loss extension is frozen as:
 
 - `waveguide_1d` only
-- cylindrical only, i.e. `area_start = area_end = S`
 - user-specified attenuation coefficient \(lpha\) in nepers per meter
+- segmented conical or cylindrical geometry using the current midpoint-area approximation
 - no automatic thermo-viscous derivation
-- no conical lossy support in the current checkpoint
+- no exact broad horn-parity claim beyond this bounded segmented model
 
-For the supported cylindrical lossy case:
+For the cylindrical special case, the implementation should still match the exact cylindrical lossy reference:
 
 \[
 \gamma = lpha + jrac{\omega}{c_0}
 \]
 
 \[
-Z_c^{(a)} = rac{ho_0 c_0}{S}
+Z_c^{(a)} = rac{
+ho_0 c_0}{S}
 \]
 
 \[
@@ -564,7 +565,11 @@ Z_c^{(a)} = rac{ho_0 c_0}{S}
 \end{bmatrix}
 \]
 
-When `loss` is absent or zero, the current implementation must reduce exactly to the frozen lossless cylindrical behavior.
+When `loss` is absent or zero, the current implementation must reduce exactly to the corresponding current lossless behavior for the same geometry.
+
+For a lossy conical `waveguide_1d`, the current solver applies the same complex propagation constant
+\(\gamma = lpha + j\omega/c_0\) to each internally segmented uniform subsection while retaining the existing midpoint-area conical approximation.
+This is a bounded practical engineering extension of the current segmented line model, not a claim of exact closed-form lossy conical-wave theory.
 
 ---
 
