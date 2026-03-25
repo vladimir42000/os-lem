@@ -287,6 +287,10 @@ def normalize_model(data: dict[str, Any]) -> tuple[NormalizedModel, list[str]]:
 
 def _validate_observation_references(model: NormalizedModel) -> None:
     element_ids = {e.id for e in model.volumes + model.ducts + model.waveguides + model.radiators}
+    duct_ids = {e.id for e in model.ducts}
+    waveguide_ids = {e.id for e in model.waveguides}
+    radiator_ids = {e.id for e in model.radiators}
+    supported_element_observable_ids = duct_ids | waveguide_ids | radiator_ids
     obs_ids = {o.id for o in model.observations}
     node_ids = set(model.node_order)
     driver_id = model.driver.id
@@ -310,10 +314,27 @@ def _validate_observation_references(model: NormalizedModel) -> None:
                 raise ValidationError(f"Observation {obs.id!r} references missing node target")
 
         elif otype in {"spl", "element_volume_velocity", "element_particle_velocity", "line_profile"}:
-            if data.get("target") not in element_ids:
+            target = data.get("target")
+            if target not in element_ids:
                 raise ValidationError(f"Observation {obs.id!r} references missing element target")
             if otype == "spl" and "radiation_space" in data:
                 _validate_radiation_space_field(data["radiation_space"], f"observation {obs.id!r}")
+            if otype in {"element_volume_velocity", "element_particle_velocity"}:
+                if target not in supported_element_observable_ids:
+                    raise ValidationError(
+                        f"Observation {obs.id!r} requires target element type duct, radiator, or waveguide_1d"
+                    )
+                location_value = data.get("location")
+                location = None if location_value is None else str(location_value).strip()
+                if target in waveguide_ids:
+                    if location not in {"a", "b"}:
+                        raise ValidationError(
+                            f"Observation {obs.id!r} requires location 'a' or 'b' for waveguide_1d target {target!r}"
+                        )
+                elif location not in {None, ""}:
+                    raise ValidationError(
+                        f"Observation {obs.id!r} does not accept location for target {target!r}"
+                    )
 
         elif otype == "group_delay":
             if data.get("target") not in obs_ids:
