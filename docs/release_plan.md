@@ -2,77 +2,42 @@
 
 ## Latest completed release
 
-- `v0.2.0`
-- title: `offset-line observation-contract stabilization`
+- `v0.3.0`
+- title: `waveguide observability and API maturity`
 - release branch of record: `main`
 
 Observed release-line validation at close:
-- `118 passed`
+- `128 passed`
 
 ---
 
 ## What is complete
 
-`v0.2.0` is released.
+`v0.3.0` is released.
 The release package includes:
-- bounded mouth/port observation candidate support
-- normalization guard
-- compare harness
-- release notes and release checklist
-- conservative capability wording aligned to the tested repo state
+- promoted element-observable exposure through the supported API/output surface
+- bounded parser/API contract hardening for that promoted observable surface
+- end-to-end facade regression coverage for invalid promoted element-observable requests
+- aligned governance/docs/release posture around the released `v0.3.0` truth
 
 ---
 
-## Post-release transition
+## Current active milestone
 
-The post-release transition was intentionally split into:
-1. housekeeping patch
-2. branch review / retention plan
-3. next-milestone seed patch
+- `v0.4.0`
+- title: `capability expansion`
+- milestone branch: `milestone/v0.4.0-capability-expansion`
 
-These transition steps are complete.
+Current milestone focus:
+- waveguide physics maturity for practical TL / horn workflows
 
----
+Opening planned patch pack:
+- `chore/v0.4.0-seed-waveguide-maturity`
+- `feat/v0.4.0-conical-lossy-waveguide-mvp`
+- `test/v0.4.0-conical-lossy-waveguide-validation`
+- `chore/v0.4.0-waveguide-example-refresh`
 
-## Current completed milestone awaiting explicit release decision
-
-- `v0.3.0`
-- title: `waveguide observability and API maturity`
-- milestone branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-
-Landed patch pack on the completed milestone branch:
-- `feat/v0.3.0-element-observable-api-surface`
-- `chore/v0.3.0-first-patch-bookkeeping`
-- `test/v0.3.0-element-observable-facade-error-contract`
-- `chore/v0.3.0-post-regression-bookkeeping`
-- `chore/v0.3.0-close-prep`
-- `chore/v0.3.0-close-decision`
-
-Observed milestone validation on the close-decision line:
-- `128 passed`
-
-Current release posture:
-- `v0.3.0` is complete on its milestone branch
-- `main` remains the released `v0.2.0` line until an explicit promotion / release action is chosen
-- no further `v0.3.0` milestone-scope patch is recommended by default
-
----
-
-## Bounded promotion planning target
-
-If promotion work continues from here, it should stay bounded to a release-promotion track.
-
-Allowed in the planning track:
-- define promotion prerequisites from the completed milestone branch
-- define the intended merge/tag path onto `main`
-- draft `v0.3.0` release checklist and release notes wording
-- define what is explicitly not part of promotion work
-
-Not allowed in the planning track:
-- new solver physics
-- reopened `v0.3.0` feature scope
-- broad documentation rewrites unrelated to release posture
-- unrelated branch cleanup mixed into promotion planning
-
-Recommended next execution patch after planning lands:
-- a bounded release-execution patch that prepares `main` promotion materials only if the promotion decision is explicitly approved
+Planning principle from here:
+- treat `v0.4.0` as a coherent capability campaign rather than many unrelated micro-features
+- keep the first code move focused on lossy conical `waveguide_1d` maturity
+- do not mix passive radiator, multi-driver, or electrical-network expansion into the opening waveguide campaign

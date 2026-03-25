@@ -2,38 +2,28 @@
 
 ## Released baseline
 
-- latest released version: `v0.2.0`
+- latest released version: `v0.3.0`
 - released branch of record: `main`
-- observed green suite on the release line: `118 passed`
+- observed green suite on the release line: `128 passed`
 
 ---
 
-## Current milestone close decision
+## Active development milestone
 
-- milestone: `v0.3.0`
-- title: `waveguide observability and API maturity`
-- milestone branch of record: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-- observed green suite on the milestone close-decision line: `128 passed`
+- milestone: `v0.4.0`
+- title: `capability expansion`
+- active integration branch: `milestone/v0.4.0-capability-expansion`
+- milestone focus: practical waveguide physics maturity for TL / horn workflows
 
-Close decision:
-- `v0.3.0` is complete on the milestone branch
-- no further `v0.3.0` feature, regression, or bookkeeping patch is required by default
-- `main` remains the released `v0.2.0` line until an explicit promotion / release action is chosen
+Current milestone state:
+- `v0.3.0` is released on `main`
+- the next major work track is now `v0.4.0`, not reopened `v0.3.0`
+- the first `v0.4.0` move should be a bounded seed/charter patch followed by a real waveguide-physics code campaign
 
 Current recommended work type:
-- if work continues from here, treat it as bounded release-promotion planning rather than additional `v0.3.0` scope growth
-- do not reopen broad solver debugging or broad API redesign
-- do not reopen closed milestone scope by default
-
----
-
-## What `v0.2.0` established
-
-- `front/raw` kept unchanged
-- opt-in `observable_contract: mouth_directivity_only`
-- connected-aperture normalization guard for the bounded mouth path
-- maintained offset-line compare harness
-- conservative release-story wording aligned to tested repo truth
+- seed `v0.4.0` explicitly in the governance/docs layer
+- then open one coherent capability campaign rather than many scattered micro-patches
+- keep the first code target bounded to lossy conical `waveguide_1d` maturity
 
 ---
 
@@ -43,14 +33,12 @@ Current recommended work type:
 - supported API/output surface now exposes `element_particle_velocity`
 - promoted contract covers `duct`, `radiator`, and `waveguide_1d` endpoint targets
 - parser validation rejects incomplete promoted observable requests early
-- docs and examples show the promoted supported path
 - end-to-end facade regression coverage now covers invalid promoted element-observable requests
-- capability wording reflects the promoted facade element-observable surface as validated on the milestone line
-- milestone governance docs, handover text, and release posture are aligned to the current regression-hardened repo truth
+- governance docs, handover text, release posture, and capability wording were aligned to the released `v0.3.0` repo truth
 
 ---
 
 ## Current recommended next patch
 
-- none by default inside closed `v0.3.0`
-- if explicit continuation is requested, open a bounded release-promotion planning patch rather than reopening milestone scope
+- `chore/v0.4.0-seed-waveguide-maturity`
+- purpose: update the repo governance/docs layer from closed `v0.3.0` posture to active `v0.4.0` waveguide-maturity posture

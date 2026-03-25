@@ -10,10 +10,10 @@ The roadmap is both phase-based and release-based:
 - releases explain what is honest to expose externally
 
 Latest released baseline:
-- `v0.1.0` on `main`
+- `v0.3.0` on `main`
 
 Current active planning target:
-- `v0.2.0` — offset-line observation-contract stabilization
+- `v0.4.0` — waveguide physics maturity for practical TL / horn workflows
 
 ---
 
@@ -78,11 +78,9 @@ Delivered across the later Phase 5 and corrective lineage:
 - first waveguide observability subset
 - cylindrical distributed-loss support within the frozen boundary
 - corrected `ts_classic` `Bl` normalization
-- closed-box baffled-radiator Struve-path correction
-- bass-reflex observation `radiation_space` correction
 - provisional `os_lem.api` facade
-- first release-governance structure
-- `v0.1.0` foundation release
+- release-governance structure
+- `v0.1.0`, `v0.2.0`, and `v0.3.0` release lineage
 
 ---
 
@@ -91,38 +89,35 @@ Delivered across the later Phase 5 and corrective lineage:
 The project is now better described by milestones than by opening a new large technical phase.
 
 ### `v0.2.0` — offset-line observation-contract stabilization
-**Status:** planned
+**Status:** completed and released
 
-Goal:
-- turn the long observation/debug cycle into one bounded, documented release step
+### `v0.3.0` — waveguide observability and API maturity
+**Status:** completed and released
 
-Current best-supported interpretation:
-- `front/raw` is broadly credible
-- remaining mismatch is localized to `mouth/port` observable semantics
-
-Planned first move:
-- one bounded observation-layer patch implementing/testing `mouth_directivity_only`
-- keep `front` unchanged
-
-### `v0.3.0` — observability and API maturity
-**Status:** provisional planning only
-
-Possible direction:
-- cleaner exposure of existing observability features
-- stronger maintained examples
-- tighter provisional API posture
+Delivered summary:
+- promoted existing element observables through the supported API/output surface
+- hardened parser/API contract behavior around those observables
+- kept milestone scope conservative and regression-backed
 
 ### `v0.4.0` — waveguide physics maturity
-**Status:** provisional planning only
+**Status:** active
 
-Possible direction:
-- conical-loss maturity
-- stronger loss-boundary documentation
-- more disciplined line-workflow claims
+Goal:
+- move from a narrow released waveguide baseline toward the first practically useful TL / horn waveguide workflow
+
+Planned first move:
+- seed `v0.4.0` governance and charter state cleanly
+- then land a bounded `conical-lossy waveguide_1d` MVP patch
+
+Probable focus areas inside the milestone:
+- lossy conical `waveguide_1d` maturity
+- preserved observability on the lossy conical path
+- focused validation pack for the new boundary
+- one maintained hero example for practical TL / horn use
 
 ### Later milestones
 Choose one major capability family per release:
-- passive radiator support
+- passive radiator and multi-oscillator expansion
 - richer electrical network support
-- multi-driver support
+- branching / recombination topology for more complex horns
 - broader workflow productization

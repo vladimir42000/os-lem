@@ -5,51 +5,36 @@ It complements Git history; it does not replace it.
 
 ---
 
-## Post-`v0.2.0` housekeeping
-**Status:** completed
+## `v0.4.0`
+**Status:** active
 
-Completed summary:
-- release-aligned housekeeping docs landed on `main`
-- companion-book linkage made explicit
-- post-release housekeeping checklist added
-- post-release branch review and retention plan added
-- next milestone seeded explicitly as `v0.3.0`
-- recommended `v0.3.0` integration branch opened
-- first bounded `v0.3.0` feature patch landed on the milestone line
-- first bounded `v0.3.0` bookkeeping patch landed on the milestone line
+Title:
+- `capability expansion`
 
-Outcome:
-- `v0.3.0` is no longer only a seeded plan; it progressed to a completed milestone branch
+Opening milestone direction:
+- start from the released `v0.3.0` line
+- focus first on waveguide physics maturity for practical TL / horn workflows
+- keep the opening campaign centered on lossy conical `waveguide_1d` maturity rather than on passive radiator, multi-driver, or electrical-network expansion
+
+Immediate next action:
+- land the bounded seed/charter patch for `v0.4.0`
+- then open `feat/v0.4.0-conical-lossy-waveguide-mvp`
 
 ---
 
 ## `v0.3.0`
-**Status:** complete on milestone branch
+**Status:** released
 
 Title:
 - `waveguide observability and API maturity`
 
-Milestone summary:
-- opened integration branch `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-- landed `feat/v0.3.0-element-observable-api-surface`
-- landed `chore/v0.3.0-first-patch-bookkeeping`
-- landed `test/v0.3.0-element-observable-facade-error-contract`
-- landed `chore/v0.3.0-post-regression-bookkeeping`
-- landed `chore/v0.3.0-close-prep`
-- exposed promoted element observables through the supported API/output surface
+Release summary:
+- promoted already-implemented element observables through the supported API/output surface
 - kept parser-side promoted-observable validation aligned with the supported contract
 - added end-to-end negative-path facade regression coverage for promoted element observables
-- aligned milestone governance docs, capability wording, and handover text to the current regression-hardened state
-- kept milestone scope conservative throughout the patch pack
-- observed milestone line green at `128 passed`
-
-Current decision:
-- `v0.3.0` is complete on its milestone branch
-- no further `v0.3.0` patch is recommended by default
-- any continuation should be explicit release-promotion planning rather than reopened milestone growth
-
-Milestone reference:
-- `docs/v0_3_0_seed_plan.md`
+- aligned milestone governance docs, capability wording, and handover text to the released regression-hardened state
+- completed bounded release-promotion planning and promoted the line to `main`
+- released and tagged `v0.3.0`
 
 ---
 

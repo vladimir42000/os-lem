@@ -19,42 +19,46 @@ Result:
 
 ---
 
-## Completed post-release patches
-
-1. `chore/post-v0.2.0-housekeeping` — landed
-2. `chore/post-v0.2.0-branch-review-plan` — landed
-3. `chore/post-v0.2.0-next-milestone-seed` — landed
-
----
-
-## Completed `v0.3.0` milestone
+## Completed `v0.3.0` release line
 
 ### `v0.3.0` — `waveguide observability and API maturity`
-**Status:** complete on milestone branch
+**Status:** released on `main`
 
-Milestone branch:
-- `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+Release line evidence:
+- `v0.3.0` tag on `main`
+- observed green suite on the release line: `128 passed`
 
-Observed green suite on the milestone close-decision line:
-- `128 passed`
-
-### Completed patch pack
-
+Completed patch pack:
 1. `feat/v0.3.0-element-observable-api-surface` — landed
 2. `chore/v0.3.0-first-patch-bookkeeping` — landed
 3. `test/v0.3.0-element-observable-facade-error-contract` — landed
 4. `chore/v0.3.0-post-regression-bookkeeping` — landed
 5. `chore/v0.3.0-close-prep` — landed
+6. `chore/v0.3.0-close-decision` — landed
+7. `chore/v0.3.0-release-promotion-plan` — landed
 
 Result:
-- milestone line exposes promoted element observables through the supported API/output surface
-- parser-side contract hardening for the promoted observable surface is present on the milestone line
-- facade negative-path regression coverage hardens the promoted observable contract end to end
-- governance docs, handover text, release posture, and capability wording are aligned to the current regression-hardened state
-- milestone line remained conservative in scope throughout the patch pack
-- milestone line is green at `128 passed`
+- released line exposes promoted element observables through the supported API/output surface
+- parser/API contract behavior for that promoted surface is documented and regression-hardened
+- governance/docs/release posture are aligned to the released `v0.3.0` truth
 
-### Default next step
+---
 
-- no further `v0.3.0` patch is planned by default
-- any continuation should be explicit release-promotion planning or later next-milestone seeding, not reopened `v0.3.0` scope
+## Active `v0.4.0` milestone
+
+### `v0.4.0` — `capability expansion`
+**Status:** active
+
+Integration branch:
+- `milestone/v0.4.0-capability-expansion`
+
+Opening milestone intent:
+- waveguide physics maturity for practical TL / horn workflows
+- no reopened `v0.3.0` scope by default
+
+### Current planned opening patch pack
+
+1. `chore/v0.4.0-seed-waveguide-maturity` — planned
+2. `feat/v0.4.0-conical-lossy-waveguide-mvp` — planned
+3. `test/v0.4.0-conical-lossy-waveguide-validation` — planned
+4. `chore/v0.4.0-waveguide-example-refresh` — planned

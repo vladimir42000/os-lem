@@ -50,6 +50,7 @@ Use these for implementation truth and architecture context:
 - `docs/v0_1_0_release_notes.md`
 - `docs/v0_2_0_release_notes_draft.md`
 - `docs/v0_3_0_release_notes_draft.md`
+- `docs/v0_3_0_release_checklist.md`
 
 ---
 
@@ -63,7 +64,7 @@ Use these for historical investigations and evidence, not for current release tr
 
 ---
 
-## Layer 4 — release transition and planning
+## Layer 4 — active milestone planning
 
 Current transition references:
 - `docs/post_v0_2_0_housekeeping_checklist.md`
@@ -87,11 +88,11 @@ Its role is defined in:
 ## Current project state
 
 Latest release:
-- `v0.2.0` on `main`
+- `v0.3.0` on `main`
 
-Completed milestone awaiting release decision:
-- `v0.3.0` — `waveguide observability and API maturity`
-- milestone branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
+Active milestone:
+- `v0.4.0` — `capability expansion`
+- integration branch: `milestone/v0.4.0-capability-expansion`
 
 Recommended next patch branch:
-- `chore/v0.3.0-release-promotion-plan`
+- `chore/v0.4.0-seed-waveguide-maturity`
