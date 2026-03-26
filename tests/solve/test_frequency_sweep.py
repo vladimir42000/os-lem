@@ -665,6 +665,32 @@ def _minimal_waveguide_conical_lossy_model(loss_np_per_m: float) -> NormalizedMo
     )
 
 
+def _minimal_waveguide_conical_lossy_model_reversed(loss_np_per_m: float) -> NormalizedModel:
+    return NormalizedModel(
+        driver=_driver(),
+        volumes=[
+            VolumeElement(id="rear_vol", node="rear", value_m3=0.02),
+        ],
+        radiators=[
+            RadiatorElement(id="port_rad", node="port", model="flanged_piston", area_m2=0.01),
+        ],
+        waveguides=[
+            Waveguide1DElement(
+                id="wg1",
+                node_a="port",
+                node_b="front",
+                length_m=0.40,
+                area_start_m2=0.02,
+                area_end_m2=0.01,
+                profile="conical",
+                segments=8,
+                loss=loss_np_per_m,
+            )
+        ],
+        node_order=["front", "rear", "port"],
+    )
+
+
 def _exact_cylindrical_losssy_admittance_matrix(omega: float, length_m: float, area_m2: float, loss_np_per_m: float) -> np.ndarray:
     gamma = complex(loss_np_per_m, omega / C0)
     zc_a = RHO0 * C0 / area_m2
@@ -822,3 +848,82 @@ def test_increasing_conical_loss_reduces_transmitted_pressure_magnitude() -> Non
     point_high = solve_frequency_point(model_high, system_high, 100.0)
 
     assert abs(point_high.pressures[2]) < abs(point_low.pressures[2])
+def test_explicit_zero_loss_reproduces_current_lossless_conical_line_profiles() -> None:
+    model_lossless = _minimal_waveguide_model()
+    system_lossless = assemble_system(model_lossless)
+    point_lossless = solve_frequency_point(model_lossless, system_lossless, 100.0)
+
+    model_zero_loss = _minimal_waveguide_conical_lossy_model(0.0)
+    system_zero_loss = assemble_system(model_zero_loss)
+    point_zero_loss = solve_frequency_point(model_zero_loss, system_zero_loss, 100.0)
+
+    pressure_lossless = waveguide_line_profile_pressure(point_lossless, system_lossless, "wg1", points=19)
+    flow_lossless = waveguide_line_profile_volume_velocity(point_lossless, system_lossless, "wg1", points=19)
+    particle_lossless = waveguide_line_profile_particle_velocity(point_lossless, system_lossless, "wg1", points=19)
+
+    pressure_zero_loss = waveguide_line_profile_pressure(point_zero_loss, system_zero_loss, "wg1", points=19)
+    flow_zero_loss = waveguide_line_profile_volume_velocity(point_zero_loss, system_zero_loss, "wg1", points=19)
+    particle_zero_loss = waveguide_line_profile_particle_velocity(point_zero_loss, system_zero_loss, "wg1", points=19)
+
+    np.testing.assert_allclose(pressure_zero_loss.x_m, pressure_lossless.x_m)
+    np.testing.assert_allclose(flow_zero_loss.x_m, flow_lossless.x_m)
+    np.testing.assert_allclose(particle_zero_loss.x_m, particle_lossless.x_m)
+    np.testing.assert_allclose(pressure_zero_loss.values, pressure_lossless.values)
+    np.testing.assert_allclose(flow_zero_loss.values, flow_lossless.values)
+    np.testing.assert_allclose(particle_zero_loss.values, particle_lossless.values)
+
+
+def test_lossy_conical_profiles_preserve_cross_profile_identity_and_endpoint_velocity() -> None:
+    model = _minimal_waveguide_conical_lossy_model(0.35)
+    system = assemble_system(model)
+    point = solve_frequency_point(model, system, 100.0)
+
+    pressure_profile = waveguide_line_profile_pressure(point, system, "wg1", points=19)
+    flow_profile = waveguide_line_profile_volume_velocity(point, system, "wg1", points=19)
+    particle_profile = waveguide_line_profile_particle_velocity(point, system, "wg1", points=19)
+
+    from os_lem.elements.waveguide_1d import area_at_position
+
+    waveguide = model.waveguides[0]
+    area = np.array(
+        [
+            area_at_position(
+                waveguide.length_m,
+                waveguide.area_start_m2,
+                waveguide.area_end_m2,
+                float(x_m),
+            )
+            for x_m in particle_profile.x_m
+        ],
+        dtype=float,
+    )
+
+    np.testing.assert_allclose(pressure_profile.x_m, flow_profile.x_m)
+    np.testing.assert_allclose(pressure_profile.x_m, particle_profile.x_m)
+    np.testing.assert_allclose(particle_profile.values, flow_profile.values / area)
+    np.testing.assert_allclose(particle_profile.values[0], point.waveguide_endpoint_velocity["wg1"].node_a)
+    np.testing.assert_allclose(particle_profile.values[-1], -point.waveguide_endpoint_velocity["wg1"].node_b)
+
+
+def test_lossy_conical_reversal_semantics_remain_jointly_consistent() -> None:
+    model_forward = _minimal_waveguide_conical_lossy_model(0.35)
+    system_forward = assemble_system(model_forward)
+    point_forward = solve_frequency_point(model_forward, system_forward, 100.0)
+    pressure_forward = waveguide_line_profile_pressure(point_forward, system_forward, "wg1", points=19)
+    flow_forward = waveguide_line_profile_volume_velocity(point_forward, system_forward, "wg1", points=19)
+    particle_forward = waveguide_line_profile_particle_velocity(point_forward, system_forward, "wg1", points=19)
+
+    model_reverse = _minimal_waveguide_conical_lossy_model_reversed(0.35)
+    system_reverse = assemble_system(model_reverse)
+    point_reverse = solve_frequency_point(model_reverse, system_reverse, 100.0)
+    pressure_reverse = waveguide_line_profile_pressure(point_reverse, system_reverse, "wg1", points=19)
+    flow_reverse = waveguide_line_profile_volume_velocity(point_reverse, system_reverse, "wg1", points=19)
+    particle_reverse = waveguide_line_profile_particle_velocity(point_reverse, system_reverse, "wg1", points=19)
+
+    reversed_x = model_reverse.waveguides[0].length_m - pressure_forward.x_m[::-1]
+    np.testing.assert_allclose(pressure_reverse.x_m, reversed_x)
+    np.testing.assert_allclose(flow_reverse.x_m, reversed_x)
+    np.testing.assert_allclose(particle_reverse.x_m, reversed_x)
+    np.testing.assert_allclose(pressure_reverse.values, pressure_forward.values[::-1])
+    np.testing.assert_allclose(flow_reverse.values, -flow_forward.values[::-1])
+    np.testing.assert_allclose(particle_reverse.values, -particle_forward.values[::-1])
