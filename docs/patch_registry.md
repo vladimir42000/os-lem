@@ -68,8 +68,11 @@ Opening milestone intent:
 5. `test/v0.4.0-conical-segmentation-refinement` — landed
 6. `chore/v0.4.0-post-waveguide-bookkeeping` — landed
 
-### Remaining bounded close sequence
+### Landed bounded close sequence
 
-7. `chore/v0.4.0-close-prep` — planned
-8. `chore/v0.4.0-close-decision` — planned
+7. `chore/v0.4.0-close-prep` — landed
+8. `chore/v0.4.0-close-decision` — landed
+
+### Remaining bounded promotion step
+
 9. `chore/v0.4.0-release-promotion-plan` — planned

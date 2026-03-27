@@ -18,14 +18,15 @@
 
 Current milestone state:
 - `v0.3.0` remains the released public baseline on `main`
-- the opening `v0.4.0` waveguide campaign is now technically landed on the working line
+- the opening `v0.4.0` waveguide campaign is complete enough to close its execution phase on the current working line
 - the current working line now includes lossy conical `waveguide_1d` support within a bounded scope, preserved observability on that path, one maintained hero example, and segmentation-refinement validation for the official conical example
-- remaining work is primarily milestone-close and release-promotion bookkeeping, not a new physics campaign
+- no further opening-pack physics work is required unless close review finds a concrete blocker
+- remaining work is bounded release-promotion planning and later promotion execution, not another capability-expansion campaign
 
 Current recommended work type:
-- align the governance/docs layer to the actual landed `v0.4.0` waveguide campaign state
-- then move through a bounded close-prep / close-decision / release-promotion sequence
-- do not reopen the opening waveguide campaign with unrelated capability expansion
+- preserve the bounded `v0.4.0` working-line truth in milestone/release docs
+- prepare the release-promotion plan from the current green line
+- do not reopen the opening waveguide campaign without a concrete blocker
 
 ---
 
@@ -48,5 +49,5 @@ What this does **not** mean yet:
 
 ## Current recommended next patch
 
-- `chore/v0.4.0-close-prep`
-- purpose: prepare the `v0.4.0` milestone for bounded close review now that the opening waveguide campaign is landed and green
+- `chore/v0.4.0-release-promotion-plan`
+- purpose: prepare the bounded promotion/release-planning patch now that the opening `v0.4.0` waveguide campaign is closed on the working line
