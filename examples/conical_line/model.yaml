@@ -1,5 +1,6 @@
 meta:
   name: conical_line
+  radiation_space: 2pi
 
 driver:
   id: drv1
@@ -34,7 +35,8 @@ elements:
     area_start: 120 cm2
     area_end: 320 cm2
     profile: conical
-    segments: 12
+    segments: 16
+    loss: 0.18
 
   - id: mouth_rad
     type: radiator
@@ -69,9 +71,43 @@ observations:
     type: node_pressure
     target: rear
 
-  - id: line_p_200
+  - id: line_q_a
+    type: element_volume_velocity
+    target: line_1
+    location: a
+
+  - id: line_q_b
+    type: element_volume_velocity
+    target: line_1
+    location: b
+
+  - id: line_v_a
+    type: element_particle_velocity
+    target: line_1
+    location: a
+
+  - id: line_v_b
+    type: element_particle_velocity
+    target: line_1
+    location: b
+
+  - id: line_p_120
     type: line_profile
     target: line_1
-    frequency: 200 Hz
+    frequency: 120 Hz
     quantity: pressure
-    points: 100
+    points: 65
+
+  - id: line_q_120
+    type: line_profile
+    target: line_1
+    frequency: 120 Hz
+    quantity: volume_velocity
+    points: 65
+
+  - id: line_v_120
+    type: line_profile
+    target: line_1
+    frequency: 120 Hz
+    quantity: particle_velocity
+    points: 65
