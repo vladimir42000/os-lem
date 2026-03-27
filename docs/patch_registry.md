@@ -1,5 +1,8 @@
 # Patch registry
 
+> Historical/reference document only.
+> This file is not authoritative for the live next action.
+
 This registry tracks the current patch pack at a human scale.
 
 ---
@@ -37,11 +40,6 @@ Completed patch pack:
 6. `chore/v0.3.0-close-decision` — landed
 7. `chore/v0.3.0-release-promotion-plan` — landed
 
-Result:
-- released line exposes promoted element observables through the supported API/output surface
-- parser/API contract behavior for that promoted surface is documented and regression-hardened
-- governance/docs/release posture are aligned to the released `v0.3.0` truth
-
 ---
 
 ## Active `v0.4.0` milestone
@@ -52,27 +50,18 @@ Result:
 Integration branch:
 - `milestone/v0.4.0-capability-expansion`
 
-Observed green suite on the current working line:
+Observed green suite on the accepted working line at director-reset entry:
 - `140 passed`
 
-Opening milestone intent:
-- waveguide physics maturity for practical TL / horn workflows
-- no reopened `v0.3.0` scope by default
-
-### Landed opening patch pack on the working line
-
+Working-line landed sequence so far:
 1. `chore/v0.4.0-seed-waveguide-maturity` — landed
 2. `feat/v0.4.0-conical-lossy-waveguide-mvp` — landed
 3. `test/v0.4.0-conical-lossy-waveguide-validation` — landed
 4. `chore/v0.4.0-waveguide-example-refresh` — landed
 5. `test/v0.4.0-conical-segmentation-refinement` — landed
 6. `chore/v0.4.0-post-waveguide-bookkeeping` — landed
-
-### Landed bounded close sequence
-
 7. `chore/v0.4.0-close-prep` — landed
 8. `chore/v0.4.0-close-decision` — landed
 
-### Remaining bounded promotion step
-
-9. `chore/v0.4.0-release-promotion-plan` — planned
+Current note:
+- after the director reset, the next live action is decided by AUDIT, not by this registry

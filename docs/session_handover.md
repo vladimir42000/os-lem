@@ -1,57 +1,44 @@
 # Session handover
 
-## Current repo truth
+## Handover state at director reset
 
-- latest release: `v0.3.0`
-- released on: `main`
-- release title: `waveguide observability and API maturity`
-- observed green suite on the release line: `128 passed`
+Accepted working-line checkpoint at reset entry:
+- branch: `chore/v0.4.0-close-decision`
+- commit: `5cb5548`
+- observed tests: `140 passed`
 
-Active development milestone:
-- `v0.4.0` — `capability expansion`
-- integration branch: `milestone/v0.4.0-capability-expansion`
-- observed green suite on the current working line: `140 passed`
+This checkpoint remains recoverable through the safety tag created before the reset branch is opened.
 
-## What just changed
+---
 
-The opening `v0.4.0` waveguide campaign is now landed on the working line.
-That working line now includes:
-- bounded lossy conical `waveguide_1d` support
-- preserved endpoint and line-profile observability on that path
-- focused conical-loss validation
-- one maintained conical-line hero example
-- segmentation-refinement validation for the official conical example
+## What changed in this reset
 
-## What not to do next
+This reset does not change solver code.
+It changes the control plane so routine work runs through three roles:
+- `DIRECTOR`
+- `AUDIT`
+- `DEV`
 
-Do **not** reopen the opening waveguide campaign with unrelated capability work.
-Do **not** mix passive radiator, multi-driver, branching topology, or broad frontend work into the next patch.
-Do **not** treat working-line validation as a broad external parity claim.
+It also compresses live sequencing authority to:
+- `docs/status.md`
+- `docs/next_patch.md`
+- `docs/session_handover.md`
 
-## Required startup steps for the next session
+---
 
-1. start from `milestone/v0.4.0-capability-expansion`
-2. inspect the live repo first with:
-   - `git branch --show-current`
-   - `git status --short`
-   - `git log --oneline --decorate -n 12`
-   - `pytest -q`
-3. read:
-   - `docs/start_here.md`
-   - `docs/status.md`
-   - `docs/milestone_charter.md`
-   - `docs/release_plan.md`
-   - `docs/next_patch.md`
-   - `docs/patch_registry.md`
-4. freeze exactly one bounded next patch before coding
+## Required next action
 
-## Recommended next patch
+The next action is **not** a DEV patch.
+The next action is:
+- `AUDIT: post-reset readiness check for v0.4.0`
 
-- `chore/v0.4.0-close-prep`
+That audit must decide whether the repo is:
+- `READY` for one exact next bounded DEV patch, or
+- `NOT READY`, requiring one exact bounded reset/decision patch first.
 
-Purpose:
-- prepare the `v0.4.0` milestone for bounded close review now that the opening waveguide campaign is landed and green
+---
 
-Immediate intended follow-up after that:
-- `chore/v0.4.0-close-decision`
-- `chore/v0.4.0-release-promotion-plan`
+## Important caution
+
+Do not reuse the older `close-prep` / `close-decision` / `release-promotion-plan` sequence automatically.
+After this reset, that sequence must be re-validated from current repo truth by AUDIT before DEV proceeds.

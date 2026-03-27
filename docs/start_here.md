@@ -1,93 +1,72 @@
 # os-lem start here
 
-> This file is the primary bootstrap for a new development session.
-> Read this first.
-> Do not start coding immediately.
+This file is a procedural bootstrap only.
+It is not the authoritative source for the current next action.
 
-## Session startup role
+## Startup rule
 
-The assistant must begin as:
-- project manager
-- technical reviewer
-- patch planner first
+Every new session must first decide which role it is acting in:
+- `DIRECTOR`
+- `AUDIT`
+- `DEV`
 
-Not as immediate coder.
+Do not start coding before the role is explicit.
+
+---
 
 ## Required startup protocol
 
-1. Read:
-- `docs/doc_index.md`
-- `docs/start_here.md`
-- `docs/current_scope.md`
-- `docs/status.md`
-- `docs/milestone_charter.md`
-- `docs/release_strategy.md`
-- `docs/release_plan.md`
-- `docs/patch_registry.md`
-- `docs/next_patch.md`
-- `docs/capability_matrix.md`
-- `docs/book_contract.md`
+1. Inspect the live repo first:
+   - `git branch --show-current`
+   - `git status --short`
+   - `git log --oneline --decorate -n 12`
+   - `pytest -q`
 
-2. Then inspect the live repo with:
-- `git status`
-- `git branch --show-current`
-- `git log --oneline --decorate -n 10`
-- `pytest -q`
+2. Then read the live control docs:
+   - `docs/status.md`
+   - `docs/next_patch.md`
+   - `docs/session_handover.md`
 
-3. Reconstruct current repo truth from:
-- those files
-- git state
-- current test result
-- current branch lineage
+3. Then read milestone context if needed:
+   - `docs/milestone_charter.md`
+   - `docs/current_scope.md`
 
-4. Before proposing code:
-- summarize current state
-- separate released truth from working-line truth
-- identify whether the current branch is a release branch, milestone branch, patch branch, or debug branch
-- verify whether `docs/next_patch.md` still matches repo reality
-- recommend exactly one bounded next patch only
+4. Only then read wider reference docs if the task actually requires them.
 
-## Rules
+---
 
-- repo is source of truth
-- one patch = one purpose
-- no broad refactor
-- no speculative architecture changes
-- no changes outside agreed scope
-- tests must stay green
-- docs must stay aligned with actual repo state
-- no coding before the next patch objective is frozen
+## Authority rule
 
-## Priority order of truth
-
+Live next-action authority is:
 1. current tested repo state
-2. current branch and commits
-3. current milestone branch, if one exists
-4. governance docs
-5. stable technical docs
-6. debug archive docs
-7. book companion
-8. old chat memory
+2. current branch / commit graph
+3. latest valid AUDIT handover
+4. `docs/status.md`
+5. `docs/next_patch.md`
+6. `docs/session_handover.md`
 
-## Current strategic posture
+Historical/reference docs do not override this.
 
-- latest released version: `v0.3.0`
-- current active milestone: `v0.4.0`
-- current `v0.4.0` release story: first practically useful lossy conical waveguide workflow with preserved observability, bounded validation, and one maintained example
-- immediate discipline: close the milestone with bounded bookkeeping rather than reopening capability scope
-- book is useful, but it is not repo truth
+---
 
-## Current caution
+## Mode-specific rule
 
-Do not confuse:
-- implemented subset
-- validated subset
-- released subset
-- working-line milestone state
-- future target capabilities
+### If acting as AUDIT
+- decide `READY` or `NOT READY`
+- name exactly one next action
+- write the handover
 
-## Current best-supported next move
+### If acting as DEV
+- implement only the next action frozen by the latest valid AUDIT
+- do not re-plan the milestone
 
-The opening `v0.4.0` waveguide campaign is already landed on the working line.
-The best next move is therefore one bounded milestone-close patch:
-- `chore/v0.4.0-close-prep`
+### If acting as DIRECTOR
+- change only the control plane that is actually broken
+- do not casually rewrite technical truth
+
+---
+
+## Current procedural note
+
+After the director reset lands, the first required action is an `AUDIT`.
+No routine DEV patch should start before that post-reset audit exists.

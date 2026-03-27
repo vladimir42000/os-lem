@@ -27,7 +27,8 @@ Milestone branch:
 Status:
 - active
 - opened from the released `v0.3.0` line on `main`
-- opening waveguide campaign technically landed on the current working line
+- opening waveguide campaign technically landed on the working line
+- control-plane reset required before the next milestone action is considered frozen
 
 ### Intent
 
@@ -59,12 +60,13 @@ Use `v0.4.0` to push os-lem from a narrow released waveguide baseline toward the
 4. `chore/v0.4.0-waveguide-example-refresh`
 5. `test/v0.4.0-conical-segmentation-refinement`
 6. `chore/v0.4.0-post-waveguide-bookkeeping`
+7. `chore/v0.4.0-close-prep`
+8. `chore/v0.4.0-close-decision`
 
-### Remaining bounded close sequence
+### Current milestone-control note
 
-1. `chore/v0.4.0-close-prep`
-2. `chore/v0.4.0-close-decision`
-3. `chore/v0.4.0-release-promotion-plan`
+The pre-reset close sequence is historical working-line context, not an automatically binding next-action list.
+After the director reset lands, the next milestone action must be re-frozen by AUDIT from current repo truth.
 
 ### Exit idea for the milestone
 

@@ -1,42 +1,36 @@
-# Next patch
+# Next action
 
-## Recommended integration branch
+## Live rule
 
-- `milestone/v0.4.0-capability-expansion`
+This file is a live sequencing document owned by `AUDIT`.
+It must agree with `docs/session_handover.md`.
 
-Use this already-open milestone branch as the source for the next bounded patch.
+---
 
-## Recommended next patch branch
+## Current state after director reset
 
-- `chore/v0.4.0-release-promotion-plan`
+No routine DEV patch is frozen yet.
 
-## Purpose
+Required next action:
+- `AUDIT: post-reset readiness check for v0.4.0`
 
-Do one bounded release-promotion-planning patch that freezes how the current green `v0.4.0` line will be reviewed, documented, and prepared for promotion, without reopening technical scope.
+---
 
-## Scope
+## What the first post-reset AUDIT must decide
 
-Allowed:
-- update status / release / handover docs to reflect that the opening `v0.4.0` waveguide campaign is closed on the working line
-- freeze the current green line (`140 passed`) as the evidence base for release-promotion planning
-- record the bounded remaining work before any actual promotion step
+The audit must read the real repo state and choose exactly one of these outcomes:
 
-Not allowed:
-- new solver physics in this patch
-- new topology classes
-- new example refresh work mixed into release-promotion planning
-- broad API redesign
-- unrelated cleanup mixed into the release-promotion patch
+### READY
+The repo is ready for exactly one next bounded DEV patch.
+The audit must then name that patch explicitly.
 
-## Acceptance criteria
+### NOT READY
+The repo still has a sequencing or milestone-control inconsistency.
+The audit must then name exactly one bounded reset/decision patch first.
 
-The patch is complete if:
-1. the repo governance/docs layer records that `chore/v0.4.0-close-decision` has landed
-2. the next bounded follow-up is frozen as `chore/v0.4.0-release-promotion-plan`
-3. the current green working line is recorded as `140 passed`
-4. the remaining release-promotion work is stated explicitly and conservatively
-5. `pytest -q` stays green
+---
 
-## Immediate follow-up after this patch
+## Guard rail
 
-After this release-promotion planning patch lands, either execute the bounded promotion step or open one final checklist-only patch if the promotion review shows a concrete documentation gap.
+Do not guess the next DEV patch from older close-sequence text.
+After this reset, the next DEV patch must be re-frozen from current repo truth.

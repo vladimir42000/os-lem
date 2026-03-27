@@ -1,5 +1,8 @@
 # Change log
 
+> Historical/reference document only.
+> This file is not authoritative for the live next action.
+
 This is the human-readable release and milestone history.
 It complements Git history; it does not replace it.
 
@@ -19,10 +22,12 @@ Working-line summary so far:
 - refreshed the maintained conical-line example
 - added segmentation-refinement validation for the official conical example
 - aligned milestone bookkeeping to the landed opening waveguide campaign
+- landed `chore/v0.4.0-close-prep`
+- landed `chore/v0.4.0-close-decision`
+- entered a director-level control-plane reset because live sequencing truth had become duplicated across too many docs
 
-Immediate next action:
-- land `chore/v0.4.0-close-prep`
-- then open `chore/v0.4.0-close-decision`
+Current note:
+- after the director reset, the next live action must be re-frozen by AUDIT
 
 ---
 
@@ -55,21 +60,3 @@ Released summary:
 - added a connected-aperture normalization guard for that bounded candidate
 - added a maintained offset-line compare harness with regression coverage
 - aligned release docs, release notes, and release checklist around conservative claims
-
-Reference docs:
-- `docs/v0_2_0_release_notes_draft.md`
-- `docs/v0_2_0_release_checklist.md`
-
----
-
-## `v0.1.0`
-**Status:** released
-
-Summary:
-- first honest foundation release on `main`
-- one-driver coupled sweep kernel
-- released `volume`, `duct`, `radiator`, minimal `waveguide_1d`
-- released classical outputs and minimal waveguide observability subset
-- released cylindrical-loss support inside the frozen cylindrical boundary
-- released provisional `os_lem.api` facade
-- conservative capability boundaries made explicit

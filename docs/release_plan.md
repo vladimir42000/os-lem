@@ -1,5 +1,8 @@
 # Release plan
 
+> Historical/reference document only.
+> This file is not authoritative for the live next action.
+
 ## Latest completed release
 
 - `v0.3.0`
@@ -8,17 +11,6 @@
 
 Observed release-line validation at close:
 - `128 passed`
-
----
-
-## What is complete
-
-`v0.3.0` is released.
-The release package includes:
-- promoted element-observable exposure through the supported API/output surface
-- bounded parser/API contract hardening for that promoted observable surface
-- end-to-end facade regression coverage for invalid promoted element-observable requests
-- aligned governance/docs/release posture around the released `v0.3.0` truth
 
 ---
 
@@ -31,23 +23,20 @@ The release package includes:
 Current milestone focus:
 - waveguide physics maturity for practical TL / horn workflows
 
-Observed working-line validation:
+Observed accepted working-line validation at director-reset entry:
 - `140 passed`
 
-Opening landed patch pack on the working line:
+Working-line landed sequence so far:
 - `chore/v0.4.0-seed-waveguide-maturity`
 - `feat/v0.4.0-conical-lossy-waveguide-mvp`
 - `test/v0.4.0-conical-lossy-waveguide-validation`
 - `chore/v0.4.0-waveguide-example-refresh`
 - `test/v0.4.0-conical-segmentation-refinement`
 - `chore/v0.4.0-post-waveguide-bookkeeping`
-
-Remaining bounded close sequence:
 - `chore/v0.4.0-close-prep`
 - `chore/v0.4.0-close-decision`
-- `chore/v0.4.0-release-promotion-plan`
 
-Planning principle from here:
-- treat `v0.4.0` as a nearly complete coherent capability campaign
-- keep the remaining work in milestone-close and release-promotion bookkeeping
-- do not mix passive radiator, multi-driver, or electrical-network expansion into the closing sequence
+Current planning principle:
+- do not assume the pre-reset close sequence is still the correct next move
+- run a post-reset AUDIT first
+- let AUDIT decide whether the repo is ready for one exact next DEV patch or needs one more reset/decision patch first

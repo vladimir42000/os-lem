@@ -99,7 +99,11 @@ Not yet released or still intentionally deferred:
 
 ---
 
-## Scope rule for the next patch
+## Scope note
 
-The next patch must stay in milestone-close bookkeeping.
-It must not reopen capability scope beyond the landed `v0.4.0` waveguide campaign.
+This file describes technical scope only.
+It does not decide the next live action.
+Sequencing authority lives in:
+- `docs/status.md`
+- `docs/next_patch.md`
+- `docs/session_handover.md`
