@@ -31,13 +31,23 @@ The release package includes:
 Current milestone focus:
 - waveguide physics maturity for practical TL / horn workflows
 
-Opening planned patch pack:
+Observed working-line validation:
+- `140 passed`
+
+Opening landed patch pack on the working line:
 - `chore/v0.4.0-seed-waveguide-maturity`
 - `feat/v0.4.0-conical-lossy-waveguide-mvp`
 - `test/v0.4.0-conical-lossy-waveguide-validation`
 - `chore/v0.4.0-waveguide-example-refresh`
+- `test/v0.4.0-conical-segmentation-refinement`
+- `chore/v0.4.0-post-waveguide-bookkeeping`
+
+Remaining bounded close sequence:
+- `chore/v0.4.0-close-prep`
+- `chore/v0.4.0-close-decision`
+- `chore/v0.4.0-release-promotion-plan`
 
 Planning principle from here:
-- treat `v0.4.0` as a coherent capability campaign rather than many unrelated micro-features
-- keep the first code move focused on lossy conical `waveguide_1d` maturity
-- do not mix passive radiator, multi-driver, or electrical-network expansion into the opening waveguide campaign
+- treat `v0.4.0` as a nearly complete coherent capability campaign
+- keep the remaining work in milestone-close and release-promotion bookkeeping
+- do not mix passive radiator, multi-driver, or electrical-network expansion into the closing sequence

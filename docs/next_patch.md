@@ -8,36 +8,36 @@ Use this already-open milestone branch as the source for the next bounded patch.
 
 ## Recommended next patch branch
 
-- `chore/v0.4.0-seed-waveguide-maturity`
+- `chore/v0.4.0-close-prep`
 
 ## Purpose
 
-Do one bounded governance/charter patch that updates the repo from closed `v0.3.0` posture to active `v0.4.0` waveguide-maturity posture.
+Do one bounded close-prep patch that updates the governance/docs layer from "opening waveguide campaign in progress" to "opening waveguide campaign landed and ready for milestone close review".
 
 ## Scope
 
 Allowed:
-- update status / roadmap / milestone / handover docs from released `v0.3.0` truth to active `v0.4.0` truth
-- freeze the first real `v0.4.0` capability campaign around lossy conical `waveguide_1d` maturity
-- record what is explicitly not part of the opening `v0.4.0` patch pack
+- update status / roadmap / milestone / handover docs to reflect the actually landed `v0.4.0` waveguide campaign
+- freeze the remaining bounded close sequence after the landed waveguide campaign
+- prepare the repo for a later close decision and release-promotion patch sequence
 
 Not allowed:
 - new solver physics in this patch
 - new topology classes
-- passive radiator or multi-driver work mixed into the seed patch
+- passive radiator or multi-driver work mixed into close prep
 - broad API redesign
-- unrelated cleanup mixed into the milestone seed patch
+- unrelated cleanup mixed into the close-prep patch
 
 ## Acceptance criteria
 
 The patch is complete if:
-1. the repo governance/docs layer no longer describes `v0.3.0` as the active target
-2. `v0.3.0` is recorded as released on `main`
-3. `v0.4.0` is recorded as the active milestone on `milestone/v0.4.0-capability-expansion`
-4. the first real `v0.4.0` code patch is frozen as `feat/v0.4.0-conical-lossy-waveguide-mvp`
+1. the repo governance/docs layer no longer describes the opening `v0.4.0` waveguide campaign as merely planned
+2. the landed opening patch pack is recorded accurately
+3. the next bounded follow-up is frozen as `chore/v0.4.0-close-decision`
+4. the expected later promotion step is frozen as `chore/v0.4.0-release-promotion-plan`
 5. `pytest -q` stays green
 
 ## Immediate follow-up after this patch
 
-After this seed patch lands, open the first real code campaign:
-- `feat/v0.4.0-conical-lossy-waveguide-mvp`
+After this close-prep patch lands, open the bounded review/decision patch:
+- `chore/v0.4.0-close-decision`

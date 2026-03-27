@@ -71,10 +71,10 @@ Not as immediate coder.
 
 ## Current strategic posture
 
-- latest released version: `v0.1.0`
-- current active planning target: `v0.2.0`
-- current `v0.2.0` release story: `offset-line observation-contract stabilization`
-- immediate discipline: small validated steps
+- latest released version: `v0.3.0`
+- current active milestone: `v0.4.0`
+- current `v0.4.0` release story: first practically useful lossy conical waveguide workflow with preserved observability, bounded validation, and one maintained example
+- immediate discipline: close the milestone with bounded bookkeeping rather than reopening capability scope
 - book is useful, but it is not repo truth
 
 ## Current caution
@@ -83,14 +83,11 @@ Do not confuse:
 - implemented subset
 - validated subset
 - released subset
-- debug conclusions on the working line
+- working-line milestone state
 - future target capabilities
 
 ## Current best-supported next move
 
-The current repo interpretation from the recent debug period is:
-- `front/raw` is broadly credible
-- remaining mismatch is localized to `mouth/port` observable semantics
-- best next move is one bounded observation-layer development patch
-- current preferred candidate is `mouth_directivity_only`
-- `front` must remain unchanged during that patch
+The opening `v0.4.0` waveguide campaign is already landed on the working line.
+The best next move is therefore one bounded milestone-close patch:
+- `chore/v0.4.0-close-prep`

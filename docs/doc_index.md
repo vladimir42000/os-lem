@@ -67,11 +67,10 @@ Use these for historical investigations and evidence, not for current release tr
 ## Layer 4 — active milestone planning
 
 Current transition references:
-- `docs/post_v0_2_0_housekeeping_checklist.md`
-- `docs/post_v0_2_0_branch_review.md`
-- `docs/v0_3_0_seed_plan.md`
-- `docs/v0_3_0_release_checklist.md`
+- `docs/current_scope.md`
 - `docs/book_contract.md`
+- `docs/release_plan.md`
+- `docs/patch_registry.md`
 
 ---
 
@@ -93,6 +92,7 @@ Latest release:
 Active milestone:
 - `v0.4.0` — `capability expansion`
 - integration branch: `milestone/v0.4.0-capability-expansion`
+- observed green suite on the current working line: `140 passed`
 
 Recommended next patch branch:
-- `chore/v0.4.0-seed-waveguide-maturity`
+- `chore/v0.4.0-close-prep`

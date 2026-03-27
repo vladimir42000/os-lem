@@ -10,43 +10,48 @@
 Active development milestone:
 - `v0.4.0` — `capability expansion`
 - integration branch: `milestone/v0.4.0-capability-expansion`
-- first intended capability campaign: waveguide physics maturity for practical TL / horn workflows
+- observed green suite on the current working line: `140 passed`
 
 ## What just changed
 
-`v0.3.0` has been released and should not be reopened by default.
-The next major work now belongs to `v0.4.0`.
-The opening `v0.4.0` move should be a bounded seed/charter patch, followed immediately by the first real code campaign.
+The opening `v0.4.0` waveguide campaign is now landed on the working line.
+That working line now includes:
+- bounded lossy conical `waveguide_1d` support
+- preserved endpoint and line-profile observability on that path
+- focused conical-loss validation
+- one maintained conical-line hero example
+- segmentation-refinement validation for the official conical example
 
-## Startup protocol for the next session
+## What not to do next
+
+Do **not** reopen the opening waveguide campaign with unrelated capability work.
+Do **not** mix passive radiator, multi-driver, branching topology, or broad frontend work into the next patch.
+Do **not** treat working-line validation as a broad external parity claim.
+
+## Required startup steps for the next session
 
 1. start from `milestone/v0.4.0-capability-expansion`
-2. run:
+2. inspect the live repo first with:
    - `git branch --show-current`
    - `git status --short`
-   - `git log --oneline --decorate -n 8`
+   - `git log --oneline --decorate -n 12`
    - `pytest -q`
-3. confirm the tree is clean and the active milestone line is green
-4. read:
+3. read:
+   - `docs/start_here.md`
    - `docs/status.md`
+   - `docs/milestone_charter.md`
+   - `docs/release_plan.md`
    - `docs/next_patch.md`
    - `docs/patch_registry.md`
-   - `docs/session_handover.md`
-   - `docs/release_plan.md`
-   - `docs/change_log.md`
-   - `docs/doc_index.md`
-   - `docs/milestone_charter.md`
-5. open the next bounded patch from the active milestone branch
-6. do **not** resume old `v0.3.0` work by default
-7. do **not** broaden the opening `v0.4.0` patch beyond the waveguide campaign
+4. freeze exactly one bounded next patch before coding
 
-## Recommended immediate next branches
+## Recommended next patch
 
-Integration branch:
-- `milestone/v0.4.0-capability-expansion`
+- `chore/v0.4.0-close-prep`
 
-Recommended next patch branch:
-- `chore/v0.4.0-seed-waveguide-maturity`
+Purpose:
+- prepare the `v0.4.0` milestone for bounded close review now that the opening waveguide campaign is landed and green
 
-Recommended first technical patch after that:
-- `feat/v0.4.0-conical-lossy-waveguide-mvp`
+Immediate intended follow-up after that:
+- `chore/v0.4.0-close-decision`
+- `chore/v0.4.0-release-promotion-plan`

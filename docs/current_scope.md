@@ -2,21 +2,21 @@
 
 ## Released public baseline
 
-- latest released version: `v0.1.0`
+- latest released version: `v0.3.0`
 - released branch of record: `main`
 
-The current public baseline is the tagged `v0.1.0` foundation release.
+The current public baseline is the tagged `v0.3.0` release.
 
 ---
 
-## Current implemented kernel subset
+## Current implemented kernel subset on the working line
 
 At the current working checkpoint, the implemented assembled subset is:
 
 - `volume`
 - `duct`
 - `radiator`
-- minimal assembled `waveguide_1d`
+- `waveguide_1d`
 
 The solver currently supports:
 
@@ -26,7 +26,7 @@ The solver currently supports:
 
 ---
 
-## Current available outputs
+## Current available outputs on the working line
 
 Current available outputs include:
 
@@ -39,9 +39,9 @@ Current available outputs include:
 - waveguide endpoint particle-velocity export
 - element volume-velocity export for `duct`, `radiator`, and `waveguide_1d` endpoints
 - element particle-velocity export for `duct`, `radiator`, and `waveguide_1d` endpoints
-- minimal `waveguide_1d` `line_profile` export for `pressure`
-- minimal `waveguide_1d` `line_profile` export for `volume_velocity`
-- minimal `waveguide_1d` `line_profile` export for `particle_velocity`
+- `waveguide_1d` `line_profile` export for `pressure`
+- `waveguide_1d` `line_profile` export for `volume_velocity`
+- `waveguide_1d` `line_profile` export for `particle_velocity`
 
 Current observation handling also includes:
 
@@ -53,40 +53,33 @@ Current integration support also includes:
 
 ---
 
-## Released / validated confidence scope
+## Released confidence scope
 
-The released `v0.1.0` confidence scope covers:
+The released `v0.3.0` confidence scope covers:
 
-- the corrected Phase 4 solver baseline
+- the released `v0.1.0` kernel baseline and its conservative capability boundaries
 - corrected `ts_classic` canonical motor normalization (`Bl`) against the standard T/S relation
 - corrected closed-box baffled-radiator low-frequency reactance behavior through the Struve-path fix
 - corrected bass-reflex SPL observation behavior after decoupling observation `radiation_space` from the radiator impedance model
-- simple assembled acoustic participation of `waveguide_1d`
-- waveguide constant-area segmentation-invariance sanity
-- waveguide conical refinement sanity
-- minimal `waveguide_1d` pressure-profile endpoint consistency and reversal behavior
-- minimal `waveguide_1d` volume-velocity-profile endpoint consistency and reversal behavior
-- minimal `waveguide_1d` particle-velocity-profile endpoint consistency and reversal behavior
-- cross-profile identity checks for `pressure`, `volume_velocity`, and `particle_velocity`
-- cylindrical special-case consistency for `particle_velocity = volume_velocity / area_const`
-- exact cylindrical lossy reference agreement for entrance behavior and sampled profiles within the frozen cylindrical-loss boundary
-- provisional `os_lem.api` facade behavior for the currently exposed integration path
+- assembled `waveguide_1d`
+- promoted element observables through the supported API/output surface
+- parser validation for incomplete promoted observable requests
+- end-to-end facade regression coverage for invalid promoted element-observable requests
 
 ---
 
-## Current working-line conclusion beyond the released baseline
+## Current working-line confidence beyond the released baseline
 
-The working repo has advanced beyond the `v0.1.0` release story through the later debug lineage.
+The current `v0.4.0` working line additionally includes:
 
-Current best-supported interpretation:
+- bounded lossy conical `waveguide_1d`
+- preserved endpoint flow and particle-velocity export on the lossy conical path
+- preserved `line_profile` export for `pressure`, `volume_velocity`, and `particle_velocity` on the lossy conical path
+- focused conical-loss validation
+- one maintained conical-line hero example
+- segmentation-refinement validation for the official conical example
 
-- `front/raw` is broadly credible on the current observation debug line
-- the remaining mismatch is localized to `mouth/port` observable semantics
-- the best next patch is a bounded observation-layer change
-- current preferred candidate: `mouth_directivity_only`
-- `front` must remain unchanged during that patch
-
-This section describes current working-line truth, not an already released capability claim.
+This is working-line milestone truth, not yet a released public claim.
 
 ---
 
@@ -97,16 +90,16 @@ Not yet released or still intentionally deferred:
 - broad transmission-line workflow claims
 - broad Hornresp parity claims
 - broad AkAbak parity claims
-- conical lossy `waveguide_1d`
-- thermo-viscous auto-derived losses
+- thermo-viscous auto-derived losses beyond the current bounded waveguide-loss support
 - passive radiator support
 - multi-driver support
 - stable long-term public API
 - product-grade frontend
+- branching / recombination topology for tapped-horn-class graphs
 
 ---
 
 ## Scope rule for the next patch
 
-The next technical patch must not reopen broad debugging.
-It must stay at the observation layer and preserve the already-credible `front` path.
+The next patch must stay in milestone-close bookkeeping.
+It must not reopen capability scope beyond the landed `v0.4.0` waveguide campaign.

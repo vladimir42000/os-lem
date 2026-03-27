@@ -52,13 +52,24 @@ Result:
 Integration branch:
 - `milestone/v0.4.0-capability-expansion`
 
+Observed green suite on the current working line:
+- `140 passed`
+
 Opening milestone intent:
 - waveguide physics maturity for practical TL / horn workflows
 - no reopened `v0.3.0` scope by default
 
-### Current planned opening patch pack
+### Landed opening patch pack on the working line
 
-1. `chore/v0.4.0-seed-waveguide-maturity` — planned
-2. `feat/v0.4.0-conical-lossy-waveguide-mvp` — planned
-3. `test/v0.4.0-conical-lossy-waveguide-validation` — planned
-4. `chore/v0.4.0-waveguide-example-refresh` — planned
+1. `chore/v0.4.0-seed-waveguide-maturity` — landed
+2. `feat/v0.4.0-conical-lossy-waveguide-mvp` — landed
+3. `test/v0.4.0-conical-lossy-waveguide-validation` — landed
+4. `chore/v0.4.0-waveguide-example-refresh` — landed
+5. `test/v0.4.0-conical-segmentation-refinement` — landed
+6. `chore/v0.4.0-post-waveguide-bookkeeping` — landed
+
+### Remaining bounded close sequence
+
+7. `chore/v0.4.0-close-prep` — planned
+8. `chore/v0.4.0-close-decision` — planned
+9. `chore/v0.4.0-release-promotion-plan` — planned

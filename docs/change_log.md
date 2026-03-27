@@ -11,14 +11,18 @@ It complements Git history; it does not replace it.
 Title:
 - `capability expansion`
 
-Opening milestone direction:
-- start from the released `v0.3.0` line
-- focus first on waveguide physics maturity for practical TL / horn workflows
-- keep the opening campaign centered on lossy conical `waveguide_1d` maturity rather than on passive radiator, multi-driver, or electrical-network expansion
+Working-line summary so far:
+- opened `v0.4.0` from the released `v0.3.0` line
+- landed the bounded lossy conical `waveguide_1d` MVP
+- preserved endpoint and line-profile observability on the new path
+- landed focused validation for the conical lossy boundary
+- refreshed the maintained conical-line example
+- added segmentation-refinement validation for the official conical example
+- aligned milestone bookkeeping to the landed opening waveguide campaign
 
 Immediate next action:
-- land the bounded seed/charter patch for `v0.4.0`
-- then open `feat/v0.4.0-conical-lossy-waveguide-mvp`
+- land `chore/v0.4.0-close-prep`
+- then open `chore/v0.4.0-close-decision`
 
 ---
 
