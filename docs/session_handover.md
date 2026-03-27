@@ -1,44 +1,39 @@
 # Session handover
 
-## Handover state at director reset
+## Accepted checkpoint for this handover
 
-Accepted working-line checkpoint at reset entry:
-- branch: `chore/v0.4.0-close-decision`
-- commit: `5cb5548`
+Accepted working-line checkpoint for the post-reset close decision:
+- branch: `milestone/v0.4.0-capability-expansion`
+- commit: `7e22c0e`
 - observed tests: `140 passed`
-
-This checkpoint remains recoverable through the safety tag created before the reset branch is opened.
-
----
-
-## What changed in this reset
-
-This reset does not change solver code.
-It changes the control plane so routine work runs through three roles:
-- `DIRECTOR`
-- `AUDIT`
-- `DEV`
-
-It also compresses live sequencing authority to:
-- `docs/status.md`
-- `docs/next_patch.md`
-- `docs/session_handover.md`
+- operator probe worktree state: clean
 
 ---
 
-## Required next action
+## Decision recorded here
 
-The next action is **not** a DEV patch.
-The next action is:
-- `AUDIT: post-reset readiness check for v0.4.0`
+This handover records one authoritative post-reset milestone decision:
+- `v0.4.0` is closed on the current working line
 
-That audit must decide whether the repo is:
-- `READY` for one exact next bounded DEV patch, or
-- `NOT READY`, requiring one exact bounded reset/decision patch first.
+This close decision is grounded in the current tested repo state, not in the pre-reset close sequence by itself.
+It is also not a public release promotion; `v0.3.0` remains the latest released version on `main`.
 
 ---
 
-## Important caution
+## Close basis used for the decision
 
-Do not reuse the older `close-prep` / `close-decision` / `release-promotion-plan` sequence automatically.
-After this reset, that sequence must be re-validated from current repo truth by AUDIT before DEV proceeds.
+The working line still carries the bounded `v0.4.0` capability set named in the milestone charter:
+- lossy conical `waveguide_1d` support within the current documented boundary
+- preserved endpoint and line-profile observability on that path
+- focused conical validation on the working line
+- maintained conical example coverage on the live repo line
+- segmentation-refinement validation for the official conical reference case
+
+The earlier milestone-branch lag that motivated the reset is no longer present on the probed line.
+
+---
+
+## Live sequencing note
+
+No successor milestone is opened in this patch.
+The single next live action is kept only in `docs/next_patch.md` to avoid reintroducing duplicated sequencing state.

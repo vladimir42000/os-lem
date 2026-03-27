@@ -2,35 +2,28 @@
 
 ## Live rule
 
-This file is a live sequencing document owned by `AUDIT`.
-It must agree with `docs/session_handover.md`.
+This file is the single live-action document.
+It must stay aligned with `docs/status.md` and `docs/session_handover.md` without duplicating milestone decision history.
 
 ---
 
-## Current state after director reset
+## Current state after post-reset close decision
 
-No routine DEV patch is frozen yet.
-
-Required next action:
-- `AUDIT: post-reset readiness check for v0.4.0`
+- `v0.4.0` is closed on the working line
+- decision base: `7e22c0e`
+- observed suite at decision time: `140 passed`
+- no successor milestone is open yet
+- no routine DEV patch is frozen yet
 
 ---
 
-## What the first post-reset AUDIT must decide
+## Next live action
 
-The audit must read the real repo state and choose exactly one of these outcomes:
-
-### READY
-The repo is ready for exactly one next bounded DEV patch.
-The audit must then name that patch explicitly.
-
-### NOT READY
-The repo still has a sequencing or milestone-control inconsistency.
-The audit must then name exactly one bounded reset/decision patch first.
+- `AUDIT: post-v0.4.0 next-milestone readiness check`
 
 ---
 
 ## Guard rail
 
-Do not guess the next DEV patch from older close-sequence text.
-After this reset, the next DEV patch must be re-frozen from current repo truth.
+Do not reopen `v0.4.0` or guess a new DEV patch from older planning text.
+The next bounded patch, if any, must be frozen only after that audit reads the current repo truth.
