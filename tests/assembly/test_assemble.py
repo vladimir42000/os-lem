@@ -113,3 +113,42 @@ def test_assemble_system_collects_waveguide_as_branch_element() -> None:
     assert [element.kind for element in assembled.branch_elements] == ["waveguide_1d"]
     assert assembled.branch_elements[0].node_a == 0
     assert assembled.branch_elements[0].node_b == 2
+
+
+def test_assemble_system_collects_parallel_branch_bundle_for_recombined_waveguides() -> None:
+    model = NormalizedModel(
+        driver=_driver(),
+        waveguides=[
+            Waveguide1DElement(
+                id="wg_main",
+                node_a="rear",
+                node_b="mouth",
+                length_m=0.55,
+                area_start_m2=0.010,
+                area_end_m2=0.012,
+                profile="conical",
+                segments=6,
+            ),
+            Waveguide1DElement(
+                id="wg_shunt",
+                node_a="rear",
+                node_b="mouth",
+                length_m=0.32,
+                area_start_m2=0.006,
+                area_end_m2=0.008,
+                profile="conical",
+                segments=4,
+            ),
+        ],
+        radiators=[RadiatorElement(id="mouth_rad", node="mouth", model="flanged_piston", area_m2=0.02)],
+        node_order=["front", "rear", "mouth"],
+    )
+
+    assembled = assemble_system(model)
+
+    assert [element.id for element in assembled.branch_elements] == ["wg_main", "wg_shunt"]
+    assert len(assembled.parallel_branch_bundles) == 1
+    bundle = assembled.parallel_branch_bundles[0]
+    assert bundle.node_names == ("rear", "mouth")
+    assert bundle.element_ids == ("wg_main", "wg_shunt")
+    assert bundle.element_kinds == ("waveguide_1d", "waveguide_1d")

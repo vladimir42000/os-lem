@@ -334,3 +334,93 @@ def test_run_simulation_rejects_location_on_non_waveguide_element_observables(ta
 
     with pytest.raises(ValidationError, match="does not accept location"):
         run_simulation(model_dict, [100.0])
+
+
+def test_run_simulation_supports_minimal_split_recombine_waveguide_bundle() -> None:
+    model_dict = {
+        "meta": {"name": "split_recombine_bundle", "radiation_space": "2pi"},
+        "driver": {
+            "id": "drv1",
+            "model": "ts_classic",
+            "Re": "5.8 ohm",
+            "Le": "0.35 mH",
+            "Fs": "34 Hz",
+            "Qes": 0.42,
+            "Qms": 4.1,
+            "Vas": "55 l",
+            "Sd": "132 cm2",
+            "node_front": "front",
+            "node_rear": "rear",
+        },
+        "elements": [
+            {
+                "id": "front_rad",
+                "type": "radiator",
+                "node": "front",
+                "model": "infinite_baffle_piston",
+                "area": "132 cm2",
+            },
+            {
+                "id": "main_path",
+                "type": "waveguide_1d",
+                "node_a": "rear",
+                "node_b": "mouth",
+                "length": "55 cm",
+                "area_start": "100 cm2",
+                "area_end": "120 cm2",
+                "profile": "conical",
+                "segments": 6,
+            },
+            {
+                "id": "tap_path",
+                "type": "waveguide_1d",
+                "node_a": "rear",
+                "node_b": "mouth",
+                "length": "32 cm",
+                "area_start": "60 cm2",
+                "area_end": "80 cm2",
+                "profile": "conical",
+                "segments": 4,
+            },
+            {
+                "id": "mouth_rad",
+                "type": "radiator",
+                "node": "mouth",
+                "model": "flanged_piston",
+                "area": "200 cm2",
+            },
+        ],
+        "observations": [
+            {"id": "zin", "type": "input_impedance", "target": "drv1"},
+            {"id": "main_q_a", "type": "element_volume_velocity", "target": "main_path", "location": "a"},
+            {"id": "tap_q_a", "type": "element_volume_velocity", "target": "tap_path", "location": "a"},
+            {"id": "main_q_b", "type": "element_volume_velocity", "target": "main_path", "location": "b"},
+            {"id": "tap_q_b", "type": "element_volume_velocity", "target": "tap_path", "location": "b"},
+        ],
+    }
+    frequencies = np.array([60.0, 120.0, 240.0])
+
+    result = run_simulation(model_dict, frequencies)
+    normalized, _ = normalize_model(model_dict)
+    system = assemble_system(normalized)
+
+    assert len(system.parallel_branch_bundles) == 1
+    bundle = system.parallel_branch_bundles[0]
+    assert bundle.node_names == ("rear", "mouth")
+    assert bundle.element_ids == ("main_path", "tap_path")
+
+    assert result.series["main_q_a"].shape == (3,)
+    assert result.series["tap_q_a"].shape == (3,)
+    assert result.units["main_q_a"] == "m^3/s"
+    assert result.units["tap_q_a"] == "m^3/s"
+    assert np.all(np.isfinite(result.zin_mag_ohm))
+    assert np.all(np.isfinite(result.series["main_q_a"].real))
+    assert np.all(np.isfinite(result.series["main_q_a"].imag))
+    assert np.all(np.isfinite(result.series["tap_q_a"].real))
+    assert np.all(np.isfinite(result.series["tap_q_a"].imag))
+    assert np.all(np.isfinite(result.series["main_q_b"].real))
+    assert np.all(np.isfinite(result.series["main_q_b"].imag))
+    assert np.all(np.isfinite(result.series["tap_q_b"].real))
+    assert np.all(np.isfinite(result.series["tap_q_b"].imag))
+    assert not np.allclose(result.series["main_q_a"], result.series["tap_q_a"])
+    assert not np.allclose(result.series["main_q_b"], result.series["tap_q_b"])

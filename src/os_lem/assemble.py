@@ -18,6 +18,23 @@ ElementKind = Literal["volume", "duct", "radiator", "waveguide_1d"]
 
 
 @dataclass(slots=True, frozen=True)
+class ParallelBranchBundle:
+    """Deterministic parallel-branch bundle between one acoustic node pair.
+
+    This is the bounded split/recombine topology opening for v0.5.0: multiple
+    branch elements may connect the same two acoustic nodes and are treated as a
+    single assembled bundle for topology introspection while the solver continues
+    to stamp the individual branch admittances directly into the nodal matrix.
+    """
+
+    node_a: int
+    node_b: int
+    node_names: tuple[str, str]
+    element_ids: tuple[str, ...]
+    element_kinds: tuple[ElementKind, ...]
+
+
+@dataclass(slots=True, frozen=True)
 class AssembledElement:
     """Topology-resolved element entry.
 
@@ -42,6 +59,7 @@ class AssembledSystem:
     driver_rear_index: int
     shunt_elements: tuple[AssembledElement, ...]
     branch_elements: tuple[AssembledElement, ...]
+    parallel_branch_bundles: tuple[ParallelBranchBundle, ...]
 
 
 def _require_known_node(node: str, node_index: dict[str, int], *, context: str) -> int:
@@ -49,6 +67,34 @@ def _require_known_node(node: str, node_index: dict[str, int], *, context: str) 
         return node_index[node]
     except KeyError as exc:
         raise ValidationError(f"{context} refers to unknown node {node!r}") from exc
+
+
+def _collect_parallel_branch_bundles(
+    branch_elements: list[AssembledElement],
+    node_order: tuple[str, ...],
+) -> tuple[ParallelBranchBundle, ...]:
+    grouped: dict[tuple[int, int], list[AssembledElement]] = {}
+
+    for element in branch_elements:
+        assert element.node_b is not None
+        key = (min(element.node_a, element.node_b), max(element.node_a, element.node_b))
+        grouped.setdefault(key, []).append(element)
+
+    bundles: list[ParallelBranchBundle] = []
+    for (node_a, node_b), elements in grouped.items():
+        if len(elements) < 2:
+            continue
+        bundles.append(
+            ParallelBranchBundle(
+                node_a=node_a,
+                node_b=node_b,
+                node_names=(node_order[node_a], node_order[node_b]),
+                element_ids=tuple(element.id for element in elements),
+                element_kinds=tuple(element.kind for element in elements),
+            )
+        )
+
+    return tuple(bundles)
 
 
 def assemble_system(model: NormalizedModel) -> AssembledSystem:
@@ -127,6 +173,8 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
             )
         )
 
+    parallel_branch_bundles = _collect_parallel_branch_bundles(branch_elements, node_order)
+
     return AssembledSystem(
         node_order=node_order,
         node_index=node_index,
@@ -134,4 +182,5 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         driver_rear_index=driver_rear_index,
         shunt_elements=tuple(shunt_elements),
         branch_elements=tuple(branch_elements),
+        parallel_branch_bundles=parallel_branch_bundles,
     )

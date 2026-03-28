@@ -280,3 +280,45 @@ def test_build_acoustic_matrix_rejects_nonpositive_frequency() -> None:
         assert "must be > 0" in str(exc)
     else:
         raise AssertionError("expected ValueError for nonpositive frequency")
+
+
+def test_build_acoustic_matrix_superposes_parallel_waveguide_bundle_between_same_nodes() -> None:
+    wg_main = Waveguide1DElement(
+        id="wg_main",
+        node_a="rear",
+        node_b="mouth",
+        length_m=0.55,
+        area_start_m2=0.010,
+        area_end_m2=0.012,
+        profile="conical",
+        segments=6,
+    )
+    wg_shunt = Waveguide1DElement(
+        id="wg_shunt",
+        node_a="rear",
+        node_b="mouth",
+        length_m=0.32,
+        area_start_m2=0.006,
+        area_end_m2=0.008,
+        profile="conical",
+        segments=4,
+    )
+    model = NormalizedModel(
+        driver=_driver(),
+        waveguides=[wg_main, wg_shunt],
+        node_order=["front", "rear", "mouth"],
+    )
+    system = assemble_system(model)
+
+    built = build_acoustic_matrix(system, 100.0)
+    omega = 2.0 * np.pi * 100.0
+    Y_main = _waveguide_expected_equivalent_admittance(omega, wg_main)
+    Y_shunt = _waveguide_expected_equivalent_admittance(omega, wg_shunt)
+
+    expected = np.zeros((3, 3), dtype=np.complex128)
+    expected[1, 1] += Y_main[0, 0] + Y_shunt[0, 0]
+    expected[1, 2] += Y_main[0, 1] + Y_shunt[0, 1]
+    expected[2, 1] += Y_main[1, 0] + Y_shunt[1, 0]
+    expected[2, 2] += Y_main[1, 1] + Y_shunt[1, 1]
+
+    np.testing.assert_allclose(built.Yaa, expected)
