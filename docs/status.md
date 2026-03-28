@@ -10,12 +10,13 @@
 
 ## Current accepted working-line truth
 
-- accepted working branch for this decision: `milestone/v0.4.0-capability-expansion`
-- accepted working commit for this decision: `7e22c0e`
-- observed green suite on the accepted working line: `140 passed`
-- operator probe worktree state at decision time: clean
+- accepted working-line milestone branch of record: `milestone/v0.4.0-capability-expansion`
+- accepted post-reset close-decision commit carried by that branch: `068d9f1`
+- retained technical decision base for that close decision: `7e22c0e`
+- observed green suite on the retained decision base: `140 passed`
+- operator probe worktree state before this alignment patch: clean
 
-Recent head chain confirms that the post-reset milestone branch now sits above the earlier pre-reset close-decision checkpoint and is the authoritative working line for this decision.
+The control-plane repair in this patch brings the milestone branch of record into line with the accepted post-reset close-decision state without changing the underlying technical close basis.
 
 ---
 
@@ -33,13 +34,13 @@ Close basis retained on the current working line:
 - one maintained conical-line example on the live repo line
 - segmentation-refinement validation for the official conical example
 
-This is a working-line milestone close decision, not a public release promotion.
+This remains a working-line milestone close decision, not a public release promotion.
 
 ---
 
 ## Current control-plane truth
 
-- the milestone branch alignment problem that triggered the reset is no longer present on the probed line
+- the milestone branch of record now carries the accepted post-reset close-decision state
 - `v0.4.0` is no longer the active milestone
 - no successor milestone is opened by this patch
 

@@ -7,11 +7,12 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 ---
 
-## Current state after post-reset close decision
+## Current state after milestone-branch alignment
 
-- `v0.4.0` is closed on the working line
-- decision base: `7e22c0e`
-- observed suite at decision time: `140 passed`
+- `v0.4.0` remains closed on the working line
+- milestone branch of record now carries the accepted close-decision state `068d9f1`
+- retained technical decision base: `7e22c0e`
+- observed suite on the retained decision base: `140 passed`
 - no successor milestone is open yet
 - no routine DEV patch is frozen yet
 

@@ -26,8 +26,10 @@ Milestone branch:
 
 Status:
 - closed on the working line after post-reset revalidation
-- decision base: `7e22c0e`
+- accepted post-reset close-decision commit: `068d9f1`
+- retained technical decision base: `7e22c0e`
 - observed suite at decision time: `140 passed`
+- milestone branch of record now carries that accepted close-decision state
 - not a release claim by itself
 
 ### Intent carried by the milestone
