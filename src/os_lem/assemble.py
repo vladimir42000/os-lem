@@ -18,6 +18,22 @@ ElementKind = Literal["volume", "duct", "radiator", "waveguide_1d"]
 
 
 @dataclass(slots=True, frozen=True)
+class AcousticJunction:
+    """Deterministic true-junction bundle at one interior acoustic node.
+
+    This is the next bounded topology opening for v0.5.0: one acoustic node may
+    carry more than two incident branch elements. The solver already stamps the
+    individual branches directly into the nodal matrix; this structure makes the
+    supported true-junction case explicit in assembled topology introspection.
+    """
+
+    node: int
+    node_name: str
+    incident_element_ids: tuple[str, ...]
+    incident_element_kinds: tuple[ElementKind, ...]
+
+
+@dataclass(slots=True, frozen=True)
 class ParallelBranchBundle:
     """Deterministic parallel-branch bundle between one acoustic node pair.
 
@@ -60,6 +76,7 @@ class AssembledSystem:
     shunt_elements: tuple[AssembledElement, ...]
     branch_elements: tuple[AssembledElement, ...]
     parallel_branch_bundles: tuple[ParallelBranchBundle, ...]
+    acoustic_junctions: tuple[AcousticJunction, ...]
 
 
 def _require_known_node(node: str, node_index: dict[str, int], *, context: str) -> int:
@@ -95,6 +112,33 @@ def _collect_parallel_branch_bundles(
         )
 
     return tuple(bundles)
+
+
+def _collect_acoustic_junctions(
+    branch_elements: list[AssembledElement],
+    node_order: tuple[str, ...],
+) -> tuple[AcousticJunction, ...]:
+    incident: dict[int, list[AssembledElement]] = {}
+
+    for element in branch_elements:
+        incident.setdefault(element.node_a, []).append(element)
+        assert element.node_b is not None
+        incident.setdefault(element.node_b, []).append(element)
+
+    junctions: list[AcousticJunction] = []
+    for node, elements in incident.items():
+        if len(elements) < 3:
+            continue
+        junctions.append(
+            AcousticJunction(
+                node=node,
+                node_name=node_order[node],
+                incident_element_ids=tuple(element.id for element in elements),
+                incident_element_kinds=tuple(element.kind for element in elements),
+            )
+        )
+
+    return tuple(junctions)
 
 
 def assemble_system(model: NormalizedModel) -> AssembledSystem:
@@ -174,6 +218,7 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         )
 
     parallel_branch_bundles = _collect_parallel_branch_bundles(branch_elements, node_order)
+    acoustic_junctions = _collect_acoustic_junctions(branch_elements, node_order)
 
     return AssembledSystem(
         node_order=node_order,
@@ -183,4 +228,5 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         shunt_elements=tuple(shunt_elements),
         branch_elements=tuple(branch_elements),
         parallel_branch_bundles=parallel_branch_bundles,
+        acoustic_junctions=acoustic_junctions,
     )

@@ -424,3 +424,114 @@ def test_run_simulation_supports_minimal_split_recombine_waveguide_bundle() -> N
     assert np.all(np.isfinite(result.series["tap_q_b"].imag))
     assert not np.allclose(result.series["main_q_a"], result.series["tap_q_a"])
     assert not np.allclose(result.series["main_q_b"], result.series["tap_q_b"])
+
+
+def test_run_simulation_supports_minimal_true_junction_waveguide_topology() -> None:
+    model_dict = {
+        "meta": {"name": "junction_demo", "radiation_space": "2pi"},
+        "driver": {
+            "id": "drv1",
+            "model": "ts_classic",
+            "Re": "5.8 ohm",
+            "Le": "0.35 mH",
+            "Fs": "34 Hz",
+            "Qes": 0.42,
+            "Qms": 4.1,
+            "Vas": "55 l",
+            "Sd": "132 cm2",
+            "node_front": "front",
+            "node_rear": "rear",
+        },
+        "elements": [
+            {
+                "id": "front_rad",
+                "type": "radiator",
+                "node": "front",
+                "model": "infinite_baffle_piston",
+                "area": "132 cm2",
+            },
+            {
+                "id": "stem",
+                "type": "waveguide_1d",
+                "node_a": "rear",
+                "node_b": "junction",
+                "length": "30 cm",
+                "area_start": "90 cm2",
+                "area_end": "95 cm2",
+                "profile": "conical",
+                "segments": 4,
+            },
+            {
+                "id": "main_branch",
+                "type": "waveguide_1d",
+                "node_a": "junction",
+                "node_b": "mouth_main",
+                "length": "45 cm",
+                "area_start": "95 cm2",
+                "area_end": "110 cm2",
+                "profile": "conical",
+                "segments": 6,
+            },
+            {
+                "id": "tap_branch",
+                "type": "waveguide_1d",
+                "node_a": "junction",
+                "node_b": "mouth_tap",
+                "length": "26 cm",
+                "area_start": "40 cm2",
+                "area_end": "55 cm2",
+                "profile": "conical",
+                "segments": 4,
+            },
+            {
+                "id": "main_rad",
+                "type": "radiator",
+                "node": "mouth_main",
+                "model": "flanged_piston",
+                "area": "110 cm2",
+            },
+            {
+                "id": "tap_rad",
+                "type": "radiator",
+                "node": "mouth_tap",
+                "model": "flanged_piston",
+                "area": "55 cm2",
+            },
+        ],
+        "observations": [
+            {"id": "zin", "type": "input_impedance", "target": "drv1"},
+            {"id": "p_junction", "type": "node_pressure", "target": "junction"},
+            {"id": "stem_q_b", "type": "element_volume_velocity", "target": "stem", "location": "b"},
+            {"id": "main_q_a", "type": "element_volume_velocity", "target": "main_branch", "location": "a"},
+            {"id": "tap_q_a", "type": "element_volume_velocity", "target": "tap_branch", "location": "a"},
+        ],
+    }
+    frequencies = np.array([60.0, 120.0, 240.0])
+
+    result = run_simulation(model_dict, frequencies)
+    normalized, _ = normalize_model(model_dict)
+    system = assemble_system(normalized)
+
+    assert len(system.parallel_branch_bundles) == 0
+    assert len(system.acoustic_junctions) == 1
+    junction = system.acoustic_junctions[0]
+    assert junction.node_name == "junction"
+    assert junction.incident_element_ids == ("stem", "main_branch", "tap_branch")
+
+    assert result.series["stem_q_b"].shape == (3,)
+    assert result.series["main_q_a"].shape == (3,)
+    assert result.series["tap_q_a"].shape == (3,)
+    assert result.units["p_junction"] == "Pa"
+    assert result.units["stem_q_b"] == "m^3/s"
+    assert result.units["main_q_a"] == "m^3/s"
+    assert result.units["tap_q_a"] == "m^3/s"
+    assert np.all(np.isfinite(result.zin_mag_ohm))
+    assert np.all(np.isfinite(result.series["p_junction"].real))
+    assert np.all(np.isfinite(result.series["p_junction"].imag))
+    np.testing.assert_allclose(
+        result.series["stem_q_b"],
+        result.series["main_q_a"] + result.series["tap_q_a"],
+        rtol=1e-10,
+        atol=1e-12,
+    )
+    assert not np.allclose(result.series["main_q_a"], result.series["tap_q_a"])

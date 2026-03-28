@@ -152,3 +152,56 @@ def test_assemble_system_collects_parallel_branch_bundle_for_recombined_waveguid
     assert bundle.node_names == ("rear", "mouth")
     assert bundle.element_ids == ("wg_main", "wg_shunt")
     assert bundle.element_kinds == ("waveguide_1d", "waveguide_1d")
+
+
+def test_assemble_system_collects_true_acoustic_junction_for_three_incident_waveguides() -> None:
+    model = NormalizedModel(
+        driver=_driver(),
+        waveguides=[
+            Waveguide1DElement(
+                id="stem",
+                node_a="rear",
+                node_b="junction",
+                length_m=0.30,
+                area_start_m2=0.0090,
+                area_end_m2=0.0095,
+                profile="conical",
+                segments=4,
+            ),
+            Waveguide1DElement(
+                id="main_branch",
+                node_a="junction",
+                node_b="mouth_main",
+                length_m=0.45,
+                area_start_m2=0.0095,
+                area_end_m2=0.0110,
+                profile="conical",
+                segments=6,
+            ),
+            Waveguide1DElement(
+                id="tap_branch",
+                node_a="junction",
+                node_b="mouth_tap",
+                length_m=0.26,
+                area_start_m2=0.0040,
+                area_end_m2=0.0055,
+                profile="conical",
+                segments=4,
+            ),
+        ],
+        radiators=[
+            RadiatorElement(id="main_rad", node="mouth_main", model="flanged_piston", area_m2=0.0110),
+            RadiatorElement(id="tap_rad", node="mouth_tap", model="flanged_piston", area_m2=0.0055),
+        ],
+        node_order=["front", "rear", "junction", "mouth_main", "mouth_tap"],
+    )
+
+    assembled = assemble_system(model)
+
+    assert [element.id for element in assembled.branch_elements] == ["stem", "main_branch", "tap_branch"]
+    assert len(assembled.parallel_branch_bundles) == 0
+    assert len(assembled.acoustic_junctions) == 1
+    junction = assembled.acoustic_junctions[0]
+    assert junction.node_name == "junction"
+    assert junction.incident_element_ids == ("stem", "main_branch", "tap_branch")
+    assert junction.incident_element_kinds == ("waveguide_1d", "waveguide_1d", "waveguide_1d")

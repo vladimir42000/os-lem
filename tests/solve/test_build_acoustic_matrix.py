@@ -322,3 +322,67 @@ def test_build_acoustic_matrix_superposes_parallel_waveguide_bundle_between_same
     expected[2, 2] += Y_main[1, 1] + Y_shunt[1, 1]
 
     np.testing.assert_allclose(built.Yaa, expected)
+
+
+def test_build_acoustic_matrix_superposes_three_waveguides_at_true_junction_node() -> None:
+    stem = Waveguide1DElement(
+        id="stem",
+        node_a="rear",
+        node_b="junction",
+        length_m=0.30,
+        area_start_m2=0.0090,
+        area_end_m2=0.0095,
+        profile="conical",
+        segments=4,
+    )
+    main_branch = Waveguide1DElement(
+        id="main_branch",
+        node_a="junction",
+        node_b="mouth_main",
+        length_m=0.45,
+        area_start_m2=0.0095,
+        area_end_m2=0.0110,
+        profile="conical",
+        segments=6,
+    )
+    tap_branch = Waveguide1DElement(
+        id="tap_branch",
+        node_a="junction",
+        node_b="mouth_tap",
+        length_m=0.26,
+        area_start_m2=0.0040,
+        area_end_m2=0.0055,
+        profile="conical",
+        segments=4,
+    )
+    model = NormalizedModel(
+        driver=_driver(),
+        waveguides=[stem, main_branch, tap_branch],
+        node_order=["front", "rear", "junction", "mouth_main", "mouth_tap"],
+    )
+    system = assemble_system(model)
+
+    built = build_acoustic_matrix(system, 100.0)
+    omega = 2.0 * np.pi * 100.0
+    Y_stem = _waveguide_expected_equivalent_admittance(omega, stem)
+    Y_main = _waveguide_expected_equivalent_admittance(omega, main_branch)
+    Y_tap = _waveguide_expected_equivalent_admittance(omega, tap_branch)
+
+    expected = np.zeros((5, 5), dtype=np.complex128)
+
+    expected[1, 1] += Y_stem[0, 0]
+    expected[1, 2] += Y_stem[0, 1]
+    expected[2, 1] += Y_stem[1, 0]
+    expected[2, 2] += Y_stem[1, 1]
+
+    expected[2, 2] += Y_main[0, 0]
+    expected[2, 3] += Y_main[0, 1]
+    expected[3, 2] += Y_main[1, 0]
+    expected[3, 3] += Y_main[1, 1]
+
+    expected[2, 2] += Y_tap[0, 0]
+    expected[2, 4] += Y_tap[0, 1]
+    expected[4, 2] += Y_tap[1, 0]
+    expected[4, 4] += Y_tap[1, 1]
+
+    np.testing.assert_allclose(built.Yaa, expected)
