@@ -51,6 +51,32 @@ class ParallelBranchBundle:
 
 
 @dataclass(slots=True, frozen=True)
+class BranchedHornSkeleton:
+    """One bounded horn-like branching skeleton carried by the assembled system.
+
+    Supported in this patch: exactly one stem branch from the driver rear node
+    into a three-branch acoustic junction, followed by two branch legs that each
+    terminate at a leaf mouth node carrying exactly one radiator.
+
+    This is intentionally not a general graph framework. It only makes one real
+    branched horn-like topology explicit so the current repo-native solver path
+    can exercise and validate it end to end.
+    """
+
+    rear_node: int
+    rear_node_name: str
+    junction_node: int
+    junction_node_name: str
+    stem_element_id: str
+    stem_element_kind: ElementKind
+    branch_element_ids: tuple[str, str]
+    branch_element_kinds: tuple[ElementKind, ElementKind]
+    mouth_nodes: tuple[int, int]
+    mouth_node_names: tuple[str, str]
+    mouth_radiator_ids: tuple[str, str]
+
+
+@dataclass(slots=True, frozen=True)
 class AssembledElement:
     """Topology-resolved element entry.
 
@@ -77,6 +103,7 @@ class AssembledSystem:
     branch_elements: tuple[AssembledElement, ...]
     parallel_branch_bundles: tuple[ParallelBranchBundle, ...]
     acoustic_junctions: tuple[AcousticJunction, ...]
+    branched_horn_skeletons: tuple[BranchedHornSkeleton, ...]
 
 
 def _require_known_node(node: str, node_index: dict[str, int], *, context: str) -> int:
@@ -139,6 +166,96 @@ def _collect_acoustic_junctions(
         )
 
     return tuple(junctions)
+
+
+def _other_branch_node(element: AssembledElement, node: int) -> int:
+    assert element.node_b is not None
+    if element.node_a == node:
+        return element.node_b
+    if element.node_b == node:
+        return element.node_a
+    raise ValueError(f"element {element.id!r} is not incident on node index {node}")
+
+
+def _collect_branched_horn_skeletons(
+    *,
+    driver_rear_index: int,
+    node_order: tuple[str, ...],
+    shunt_elements: list[AssembledElement],
+    branch_elements: list[AssembledElement],
+    acoustic_junctions: tuple[AcousticJunction, ...],
+) -> tuple[BranchedHornSkeleton, ...]:
+    branch_by_id = {element.id: element for element in branch_elements}
+
+    radiators_by_node: dict[int, list[AssembledElement]] = {}
+    for element in shunt_elements:
+        if element.kind == "radiator":
+            radiators_by_node.setdefault(element.node_a, []).append(element)
+
+    branch_incidence: dict[int, list[AssembledElement]] = {}
+    for element in branch_elements:
+        branch_incidence.setdefault(element.node_a, []).append(element)
+        assert element.node_b is not None
+        branch_incidence.setdefault(element.node_b, []).append(element)
+
+    skeletons: list[BranchedHornSkeleton] = []
+
+    for junction in acoustic_junctions:
+        if len(junction.incident_element_ids) != 3:
+            continue
+
+        incident_elements = [branch_by_id[element_id] for element_id in junction.incident_element_ids]
+        stem_candidates = [
+            element
+            for element in incident_elements
+            if _other_branch_node(element, junction.node) == driver_rear_index
+        ]
+        if len(stem_candidates) != 1:
+            continue
+
+        stem = stem_candidates[0]
+        branch_legs = [element for element in incident_elements if element.id != stem.id]
+        if len(branch_legs) != 2:
+            continue
+
+        mouth_nodes: list[int] = []
+        mouth_node_names: list[str] = []
+        mouth_radiator_ids: list[str] = []
+        supported = True
+
+        for branch in branch_legs:
+            mouth_node = _other_branch_node(branch, junction.node)
+            if len(branch_incidence.get(mouth_node, [])) != 1:
+                supported = False
+                break
+            mouth_radiators = radiators_by_node.get(mouth_node, [])
+            if len(mouth_radiators) != 1:
+                supported = False
+                break
+            mouth_nodes.append(mouth_node)
+            mouth_node_names.append(node_order[mouth_node])
+            mouth_radiator_ids.append(mouth_radiators[0].id)
+
+        if not supported:
+            continue
+
+        skeletons.append(
+            BranchedHornSkeleton(
+                rear_node=driver_rear_index,
+                rear_node_name=node_order[driver_rear_index],
+                junction_node=junction.node,
+                junction_node_name=junction.node_name,
+                stem_element_id=stem.id,
+                stem_element_kind=stem.kind,
+                branch_element_ids=(branch_legs[0].id, branch_legs[1].id),
+                branch_element_kinds=(branch_legs[0].kind, branch_legs[1].kind),
+                mouth_nodes=(mouth_nodes[0], mouth_nodes[1]),
+                mouth_node_names=(mouth_node_names[0], mouth_node_names[1]),
+                mouth_radiator_ids=(mouth_radiator_ids[0], mouth_radiator_ids[1]),
+            )
+        )
+
+    return tuple(skeletons)
 
 
 def assemble_system(model: NormalizedModel) -> AssembledSystem:
@@ -219,6 +336,13 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
 
     parallel_branch_bundles = _collect_parallel_branch_bundles(branch_elements, node_order)
     acoustic_junctions = _collect_acoustic_junctions(branch_elements, node_order)
+    branched_horn_skeletons = _collect_branched_horn_skeletons(
+        driver_rear_index=driver_rear_index,
+        node_order=node_order,
+        shunt_elements=shunt_elements,
+        branch_elements=branch_elements,
+        acoustic_junctions=acoustic_junctions,
+    )
 
     return AssembledSystem(
         node_order=node_order,
@@ -229,4 +353,5 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         branch_elements=tuple(branch_elements),
         parallel_branch_bundles=parallel_branch_bundles,
         acoustic_junctions=acoustic_junctions,
+        branched_horn_skeletons=branched_horn_skeletons,
     )
