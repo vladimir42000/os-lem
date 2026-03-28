@@ -30,6 +30,7 @@ Status:
 - retained technical decision base: `7e22c0e`
 - alignment checkpoint above the close decision: `b6dfc75`
 - successor-milestone decision checkpoint: `c548267`
+- `v0.5.0` opening checkpoint: `9766931`
 - observed suite at decision time: `140 passed`
 - milestone branch of record carries the accepted close-decision state
 - not a release claim by itself
@@ -70,6 +71,7 @@ Use `v0.4.0` to push os-lem from a narrow released waveguide baseline toward the
 10. `chore/v0.4.0-post-reset-close-decision`
 11. `chore/post-v0.4.0-milestone-branch-alignment`
 12. `chore/post-v0.4.0-next-milestone-decision`
+13. `chore/v0.5.0-opening-decision`
 
 ---
 
@@ -87,15 +89,17 @@ Milestone branch:
 Status:
 - active on the working line
 - opened from successor-milestone decision checkpoint: `c548267`
-- no routine DEV patch is frozen by this patch
-- this patch adds no solver or feature scope
+- working-line opening checkpoint: `9766931`
+- first routine patch frozen by this patch: `chore/v0.5.0-seed-branching-topology`
+- first routine patch boundary: minimal branching / recombination topology opening for tapped-horn-class graphs
+- this decision patch adds no solver or feature scope by itself
 
 ### Decision boundary for the active milestone
 
-Use this patch only to open the `v0.5.0` milestone on the working line and define one milestone branch of record.
-The first bounded `v0.5.0` development patch, if any, must be frozen only after the next audit reads current repo truth.
+Use this patch only to freeze the first routine `v0.5.0` patch as a minimal branching / recombination topology opening.
+Do not broaden that first routine patch into passive radiator work, multi-driver active architecture, electrical-network element graph work, or broad frontend / API work.
 
 ### Current milestone-control note
 
-This file records the closed `v0.4.0` state and the active `v0.5.0` milestone opening.
-It does not own the next live action and does not freeze the first routine `v0.5.0` patch.
+This file records the closed `v0.4.0` state, the active `v0.5.0` milestone opening, and the single frozen first routine patch.
+It does not own the next live action beyond naming that single next patch.

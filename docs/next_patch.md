@@ -7,12 +7,14 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 ---
 
-## Current state after `v0.5.0` opening
+## Current state after first routine-patch decision
 
 - active working-line milestone: `v0.5.0`
 - active milestone branch of record: `milestone/v0.5.0-opening`
-- opening decision carried forward from checkpoint: `c548267`
-- no routine `v0.5.0` DEV patch is frozen yet
+- accepted `v0.5.0` opening checkpoint carried into this decision: `9766931`
+- first routine `v0.5.0` patch frozen here: `chore/v0.5.0-seed-branching-topology`
+- routine patch boundary: minimal branching / recombination topology opening for tapped-horn-class graphs
+- no additional routine `v0.5.0` patch is frozen here
 - retained technical decision base from the last closed milestone: `7e22c0e`
 - observed suite on the retained decision base: `140 passed`
 
@@ -20,11 +22,11 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 ## Next live action
 
-- `AUDIT: v0.5.0 first routine-patch freeze check`
+- `DEV: chore/v0.5.0-seed-branching-topology`
 
 ---
 
 ## Guard rail
 
-Do not reopen `v0.4.0` or guess the first routine `v0.5.0` DEV patch from older planning text.
-The first bounded `v0.5.0` patch, if any, must be frozen only after that audit reads current repo truth.
+Do not reopen `v0.4.0` or freeze competing `v0.5.0` routine patches from older planning text.
+The first bounded `v0.5.0` routine patch is already frozen here and must stay narrowly scoped when opened.
