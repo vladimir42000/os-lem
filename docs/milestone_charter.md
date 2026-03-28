@@ -28,8 +28,9 @@ Status:
 - closed on the working line after post-reset revalidation
 - accepted post-reset close-decision commit: `068d9f1`
 - retained technical decision base: `7e22c0e`
+- alignment checkpoint above the close decision: `b6dfc75`
 - observed suite at decision time: `140 passed`
-- milestone branch of record now carries that accepted close-decision state
+- milestone branch of record carries the accepted close-decision state
 - not a release claim by itself
 
 ### Intent carried by the milestone
@@ -66,8 +67,30 @@ Use `v0.4.0` to push os-lem from a narrow released waveguide baseline toward the
 8. `chore/v0.4.0-close-decision`
 9. `chore/v0.4.0-dev-cycle-reset`
 10. `chore/v0.4.0-post-reset-close-decision`
+11. `chore/post-v0.4.0-milestone-branch-alignment`
+
+---
+
+## Named successor milestone (not yet active on the working line)
+
+Name:
+- `v0.5.0`
+
+Title:
+- `pending post-v0.4.0 readiness audit`
+
+Status:
+- named as the single successor milestone
+- no successor milestone branch of record is opened by this patch
+- no routine DEV patch is frozen by this patch
+- this patch adds no solver or feature scope
+
+### Decision boundary for the successor milestone
+
+Use this patch only to name the successor milestone and preserve one live control-plane state after the close of `v0.4.0`.
+The first bounded `v0.5.0` development patch, if any, must be frozen only after the next audit reads current repo truth.
 
 ### Current milestone-control note
 
-This file records the closed `v0.4.0` milestone state only.
-It does not open a successor milestone and does not own the next live action.
+This file records the closed `v0.4.0` state and the single named successor milestone `v0.5.0`.
+It does not own the next live action and does not freeze the first routine `v0.5.0` patch.
