@@ -1,0 +1,47 @@
+| AKABAK 2.1 Script - Case A: Parallel Bundle Validation
+| Driver: 18Sound 12NW100
+| Topology: Split-Path Recombination
+
+System 'CaseA'
+
+| --- Driver Definition ---
+Def_Driver 'D1'
+  Sd=531.00cm2
+  Bl=21.30Tm
+  Cms=1.50E-04m/N
+  Rms=4.10Ns/m
+  Re=5.00ohm
+  Le=1.40mH
+  Mms=94.00g
+
+| --- Network ---
+
+| Correcting to the syntax found in GPXL003.BKS
+Source 'G1' Node=1=0
+  V=2.83V  Rs=0.00ohm
+
+| Driver connectivity: ElecNodes=1=0, MechNodes=2=3
+Driver 'Dr1' Def='D1' Node=1=0=2=3
+
+| Rear Enclosure
+Enclosure 'E1' Node=3
+  Vb=5.00L  Lb=15.00cm
+
+| --- Parallel Paths ---
+
+| Path 1: Short, narrow
+Duct 'Path1' Node=2=4
+  Sd=250.00cm2  Len=30.00cm
+
+| Path 2: Long, wider
+Duct 'Path2' Node=2=4
+  Sd=350.00cm2  Len=45.00cm
+
+| --- Common Exit & Radiation ---
+
+HornSegment 'Exit' Node=4=5
+  S1=600.00cm2  S2=800.00cm2  Len=10.00cm  T=1.00
+
+Radiator 'Mouth' Node=5
+  Def='Exit'
+  Win=2pi  x=0  y=0  z=0
