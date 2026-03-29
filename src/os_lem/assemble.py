@@ -77,6 +77,32 @@ class BranchedHornSkeleton:
 
 
 @dataclass(slots=True, frozen=True)
+class RecombinationTopology:
+    """One bounded recombination topology carried by the assembled system.
+
+    Supported in this patch: exactly two upstream branch legs between the same
+    split and merge nodes, followed by one shared downstream exit branch to one
+    leaf mouth node carrying exactly one radiator.
+
+    This keeps the opening narrow and explicit. It is not a general graph
+    engine; it only records the first real merge-into-shared-exit case needed
+    for tapped-horn-class topology growth.
+    """
+
+    split_node: int
+    split_node_name: str
+    merge_node: int
+    merge_node_name: str
+    upstream_bundle_element_ids: tuple[str, str]
+    upstream_bundle_element_kinds: tuple[ElementKind, ElementKind]
+    shared_exit_element_id: str
+    shared_exit_element_kind: ElementKind
+    mouth_node: int
+    mouth_node_name: str
+    mouth_radiator_id: str
+
+
+@dataclass(slots=True, frozen=True)
 class AssembledElement:
     """Topology-resolved element entry.
 
@@ -104,6 +130,7 @@ class AssembledSystem:
     parallel_branch_bundles: tuple[ParallelBranchBundle, ...]
     acoustic_junctions: tuple[AcousticJunction, ...]
     branched_horn_skeletons: tuple[BranchedHornSkeleton, ...]
+    recombination_topologies: tuple[RecombinationTopology, ...]
 
 
 def _require_known_node(node: str, node_index: dict[str, int], *, context: str) -> int:
@@ -258,6 +285,80 @@ def _collect_branched_horn_skeletons(
     return tuple(skeletons)
 
 
+def _collect_recombination_topologies(
+    *,
+    node_order: tuple[str, ...],
+    shunt_elements: list[AssembledElement],
+    branch_elements: list[AssembledElement],
+    parallel_branch_bundles: tuple[ParallelBranchBundle, ...],
+    acoustic_junctions: tuple[AcousticJunction, ...],
+) -> tuple[RecombinationTopology, ...]:
+    branch_by_id = {element.id: element for element in branch_elements}
+    junction_by_node = {junction.node: junction for junction in acoustic_junctions}
+
+    radiators_by_node: dict[int, list[AssembledElement]] = {}
+    for element in shunt_elements:
+        if element.kind == "radiator":
+            radiators_by_node.setdefault(element.node_a, []).append(element)
+
+    branch_incidence: dict[int, list[AssembledElement]] = {}
+    for element in branch_elements:
+        branch_incidence.setdefault(element.node_a, []).append(element)
+        assert element.node_b is not None
+        branch_incidence.setdefault(element.node_b, []).append(element)
+
+    recombinations: list[RecombinationTopology] = []
+
+    for bundle in parallel_branch_bundles:
+        if len(bundle.element_ids) != 2:
+            continue
+
+        bundle_id_set = set(bundle.element_ids)
+        topology: RecombinationTopology | None = None
+
+        for merge_node, split_node in ((bundle.node_a, bundle.node_b), (bundle.node_b, bundle.node_a)):
+            junction = junction_by_node.get(merge_node)
+            if junction is None or len(junction.incident_element_ids) != 3:
+                continue
+
+            incident_ids = tuple(junction.incident_element_ids)
+            if not bundle_id_set.issubset(incident_ids):
+                continue
+
+            shared_exit_ids = [element_id for element_id in incident_ids if element_id not in bundle_id_set]
+            if len(shared_exit_ids) != 1:
+                continue
+
+            shared_exit = branch_by_id[shared_exit_ids[0]]
+            mouth_node = _other_branch_node(shared_exit, merge_node)
+            if len(branch_incidence.get(mouth_node, [])) != 1:
+                continue
+
+            mouth_radiators = radiators_by_node.get(mouth_node, [])
+            if len(mouth_radiators) != 1:
+                continue
+
+            topology = RecombinationTopology(
+                split_node=split_node,
+                split_node_name=node_order[split_node],
+                merge_node=merge_node,
+                merge_node_name=node_order[merge_node],
+                upstream_bundle_element_ids=(bundle.element_ids[0], bundle.element_ids[1]),
+                upstream_bundle_element_kinds=(bundle.element_kinds[0], bundle.element_kinds[1]),
+                shared_exit_element_id=shared_exit.id,
+                shared_exit_element_kind=shared_exit.kind,
+                mouth_node=mouth_node,
+                mouth_node_name=node_order[mouth_node],
+                mouth_radiator_id=mouth_radiators[0].id,
+            )
+            break
+
+        if topology is not None:
+            recombinations.append(topology)
+
+    return tuple(recombinations)
+
+
 def assemble_system(model: NormalizedModel) -> AssembledSystem:
     """Assemble the currently supported acoustic topology.
 
@@ -343,6 +444,13 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         branch_elements=branch_elements,
         acoustic_junctions=acoustic_junctions,
     )
+    recombination_topologies = _collect_recombination_topologies(
+        node_order=node_order,
+        shunt_elements=shunt_elements,
+        branch_elements=branch_elements,
+        parallel_branch_bundles=parallel_branch_bundles,
+        acoustic_junctions=acoustic_junctions,
+    )
 
     return AssembledSystem(
         node_order=node_order,
@@ -354,4 +462,5 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         parallel_branch_bundles=parallel_branch_bundles,
         acoustic_junctions=acoustic_junctions,
         branched_horn_skeletons=branched_horn_skeletons,
+        recombination_topologies=recombination_topologies,
     )
