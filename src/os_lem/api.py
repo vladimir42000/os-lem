@@ -15,6 +15,7 @@ all current and future kernel capabilities.
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
@@ -101,6 +102,117 @@ class SimulationResult:
                     return None
                 return value
         return None
+
+
+_FRONTEND_CONTRACT_V1: dict[str, Any] = {
+    "contract_name": "os_lem_frontend_contract_v1",
+    "contract_version": 1,
+    "api_function": "run_simulation",
+    "machine_readable_function": "get_frontend_contract_v1",
+    "stability_rule": (
+        "Any patch that changes supported element types, observation types, result surface, "
+        "example-worthy workflows, or parser fields used by the facade must either update "
+        "the frontend contract manifest, frontend docs, and frontend tests, or explicitly "
+        "declare: No frontend contract change."
+    ),
+    "stable": {
+        "driver_models": ["ts_classic", "em_explicit"],
+        "element_types": {
+            "volume": {"required_fields": ["id", "type", "node", "value"]},
+            "duct": {"required_fields": ["id", "type", "node_a", "node_b", "length", "area"]},
+            "waveguide_1d": {
+                "required_fields": [
+                    "id",
+                    "type",
+                    "node_a",
+                    "node_b",
+                    "length",
+                    "area_start",
+                    "area_end",
+                    "profile",
+                ],
+                "profile": "conical",
+                "optional_fields": ["segments", "loss"],
+            },
+            "radiator": {"required_fields": ["id", "type", "node", "model", "area"]},
+        },
+        "radiator_models": ["infinite_baffle_piston", "unflanged_piston", "flanged_piston"],
+        "observation_types": {
+            "input_impedance": {"result_kind": "complex_series", "unit": "ohm"},
+            "cone_velocity": {"result_kind": "complex_series", "unit": "m/s"},
+            "cone_displacement": {"result_kind": "complex_series", "unit": "m"},
+            "node_pressure": {"result_kind": "complex_series", "unit": "Pa"},
+            "spl": {"result_kind": "real_series", "unit": "dB"},
+            "spl_sum": {"result_kind": "real_series", "unit": "dB"},
+            "element_volume_velocity": {"result_kind": "complex_series", "unit": "m^3/s"},
+            "element_particle_velocity": {"result_kind": "complex_series", "unit": "m/s"},
+            "line_profile": {
+                "result_kind": "line_profile",
+                "quantities": ["pressure", "volume_velocity", "particle_velocity"],
+            },
+            "group_delay": {"result_kind": "real_series", "unit": "s"},
+        },
+        "result_surface": {
+            "simulation_result_fields": [
+                "model",
+                "system",
+                "sweep",
+                "warnings",
+                "series",
+                "units",
+                "observation_types",
+            ],
+            "simulation_result_properties": [
+                "frequencies_hz",
+                "zin_complex_ohm",
+                "zin_mag_ohm",
+                "cone_velocity_m_per_s",
+                "cone_displacement_m",
+                "cone_excursion_mm",
+            ],
+            "line_profile_fields": ["frequency_hz", "quantity", "x_m", "values"],
+        },
+        "stable_workflows": [
+            "closed_box_with_front_radiator",
+            "single_rear_conical_line_with_one_mouth_radiator",
+        ],
+        "canonical_examples": [
+            {
+                "id": "closed_box_minimal",
+                "path": "examples/frontend_contract_v1/closed_box_minimal.yaml",
+                "workflow": "closed_box_with_front_radiator",
+            },
+            {
+                "id": "conical_line_minimal",
+                "path": "examples/frontend_contract_v1/conical_line_minimal.yaml",
+                "workflow": "single_rear_conical_line_with_one_mouth_radiator",
+            },
+        ],
+    },
+    "experimental": {
+        "topology_openings": [
+            "parallel_split_recombine_bundles_between_same_two_nodes",
+            "true_interior_acoustic_junctions_with_more_than_two_incident_branches",
+            "branched_horn_skeletons_with_multiple_leaf_mouth_radiators",
+            "shared_exit_recombination_after_multiple_upstream_branch_legs",
+            "dual_junction_split_merge_horn_skeletons",
+        ],
+        "note": (
+            "These openings exist in the current kernel, but they are not part of the frozen "
+            "frontend contract v1 and may evolve without preserving frontend-level semantics."
+        ),
+    },
+}
+
+
+def get_frontend_contract_v1() -> dict[str, Any]:
+    """Return the frozen machine-readable frontend integration contract for v1.
+
+    The returned mapping is JSON-serializable and separates the frontend surface
+    that is intentionally stable from kernel openings that remain experimental.
+    """
+
+    return deepcopy(_FRONTEND_CONTRACT_V1)
 
 
 def run_simulation(model_dict: Mapping[str, Any], frequencies_hz: Sequence[float]) -> SimulationResult:

@@ -1,0 +1,53 @@
+meta:
+  name: conical_line_minimal
+  radiation_space: 2pi
+
+driver:
+  id: drv1
+  model: ts_classic
+  Re: 5.8 ohm
+  Le: 0.35 mH
+  Fs: 34 Hz
+  Qes: 0.42
+  Qms: 4.1
+  Vas: 55 l
+  Sd: 132 cm2
+  node_front: front
+  node_rear: rear
+
+elements:
+  - id: front_rad
+    type: radiator
+    node: front
+    model: flanged_piston
+    area: 132 cm2
+  - id: rear_line
+    type: waveguide_1d
+    node_a: rear
+    node_b: mouth
+    length: 85 cm
+    area_start: 90 cm2
+    area_end: 140 cm2
+    profile: conical
+    segments: 8
+    loss: 0.12
+  - id: mouth_rad
+    type: radiator
+    node: mouth
+    model: flanged_piston
+    area: 140 cm2
+
+observations:
+  - id: zin
+    type: input_impedance
+    target: drv1
+  - id: mouth_spl
+    type: spl
+    target: mouth_rad
+    distance: 1 m
+  - id: mouth_profile
+    type: line_profile
+    target: rear_line
+    quantity: pressure
+    frequency: 100 Hz
+    points: 5

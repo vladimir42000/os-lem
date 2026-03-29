@@ -1,50 +1,37 @@
-# os-lem frontend API
+# Frontend API contract v1
 
-## Status
+This document freezes the first frontend-facing integration contract on top of `os_lem.api`.
+It is intentionally narrower than the full kernel.
 
-`os_lem.api` is a **provisional integration facade** for UI code, automation
-scripts, and validation tools.
+## Stable entry points
 
-It exists to reduce frontend breakage when internal parser / assembly / solver
-modules evolve.
+- `os_lem.api.run_simulation(model_dict, frequencies_hz)`
+- `os_lem.api.get_frontend_contract_v1()`
 
-It is intentionally narrower than the full kernel surface and should not yet be
-marketed as a broad permanently frozen public API for every current and future
-capability.
+`run_simulation` remains the execution entry point.
+`get_frontend_contract_v1()` is the machine-readable contract manifest that frontend code can inspect during integration tests or startup validation.
 
-## Supported entry point
+## Stable input subset
 
-```python
-from os_lem.api import run_simulation
+Driver models declared stable for frontend use:
 
-result = run_simulation(model_dict, frequencies_hz)
-```
+- `ts_classic`
+- `em_explicit`
 
-## What the facade does
+Element types declared stable for frontend use:
 
-- accepts a Python dictionary matching the current model schema
-- normalizes and validates that model
-- assembles the system
-- runs the current frequency sweep
-- evaluates common observations into ready-to-plot outputs
+- `volume`
+- `duct`
+- `waveguide_1d` with `profile: conical`
+- `radiator`
 
-## Current ready-to-plot conveniences
+Radiator models declared stable:
 
-The returned `SimulationResult` provides:
+- `infinite_baffle_piston`
+- `unflanged_piston`
+- `flanged_piston`
 
-- `frequencies_hz`
-- `series[observation_id]` for evaluated observations
-- `units[observation_id]`
-- `warnings`
-- `zin_complex_ohm`
-- `zin_mag_ohm`
-- `cone_velocity_m_per_s`
-- `cone_displacement_m`
-- `cone_excursion_mm`
-
-## Current observation coverage in the facade
-
-Currently exposed by `os_lem.api`:
+Stable observation types:
 
 - `input_impedance`
 - `cone_velocity`
@@ -52,27 +39,71 @@ Currently exposed by `os_lem.api`:
 - `node_pressure`
 - `spl`
 - `spl_sum`
-- `line_profile`
-- `group_delay`
 - `element_volume_velocity`
 - `element_particle_velocity`
+- `line_profile`
+- `group_delay`
 
-For `waveguide_1d` element observables, the current supported facade contract
-requires `location: a` or `location: b` so the exported sign and local area are
-explicit.
+## Stable result surface
 
-## Strategic caution
+`run_simulation()` returns `SimulationResult` with stable frontend fields:
 
-The facade is the preferred integration surface for currently validated box
-workflows.
+- `model`
+- `system`
+- `sweep`
+- `warnings`
+- `series`
+- `units`
+- `observation_types`
 
-However, the project should remain cautious about over-freezing:
+Stable convenience properties:
 
-- full schema discovery promises
-- all future transmission-line / waveguide behavior
-- broad parity claims versus external tools
+- `frequencies_hz`
+- `zin_complex_ohm`
+- `zin_mag_ohm`
+- `cone_velocity_m_per_s`
+- `cone_displacement_m`
+- `cone_excursion_mm`
 
-## Examples
+Stable `LineProfileResult` fields:
 
-The Streamlit example is expected to import the facade instead of calling raw
-internal pipeline steps directly.
+- `frequency_hz`
+- `quantity`
+- `x_m`
+- `values`
+
+## Stable workflows
+
+The frozen v1 frontend contract only treats these workflows as stable:
+
+1. closed box with one front radiator and one rear volume
+2. one rear conical line ending in one mouth radiator
+
+The canonical examples for those workflows live in `examples/frontend_contract_v1/`.
+
+## Experimental openings
+
+The following kernel capabilities are explicitly **not** part of frontend contract v1:
+
+- parallel split/recombine bundles between the same two nodes
+- true interior acoustic junctions with more than two incident branches
+- branched horn skeletons with multiple leaf mouth radiators
+- shared-exit recombination after multiple upstream branch legs
+- dual-junction split/merge horn skeletons
+
+Those features may remain available for internal or experimental use, but frontend code must not rely on them as frozen behavior.
+
+## Future update rule
+
+If a future patch changes any of the following:
+
+- supported element types
+- supported observation types
+- result surface
+- example-worthy workflows
+- parser fields used by the facade
+
+then that patch must do exactly one of these:
+
+1. update the manifest returned by `get_frontend_contract_v1()`, update this document, update `docs/input_format.md`, update `docs/frontend_handoff.md`, and update frontend-contract tests
+2. explicitly declare: `No frontend contract change`
