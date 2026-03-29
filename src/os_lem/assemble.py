@@ -102,6 +102,39 @@ class RecombinationTopology:
     mouth_radiator_id: str
 
 
+
+
+@dataclass(slots=True, frozen=True)
+class SplitMergeHornSkeleton:
+    """One bounded dual-junction split/merge horn-like skeleton.
+
+    Supported in this patch: exactly one stem branch from the driver rear node
+    into a split junction, exactly two parallel waveguide legs between that
+    split junction and a merge junction, then one shared exit branch to a leaf
+    mouth node carrying exactly one radiator.
+
+    This keeps the opening narrow and explicit. It is not a general graph
+    engine; it only records one minimal split/merge horn-like path needed for
+    tapped-horn-class topology growth.
+    """
+
+    rear_node: int
+    rear_node_name: str
+    split_node: int
+    split_node_name: str
+    merge_node: int
+    merge_node_name: str
+    stem_element_id: str
+    stem_element_kind: ElementKind
+    leg_element_ids: tuple[str, str]
+    leg_element_kinds: tuple[ElementKind, ElementKind]
+    shared_exit_element_id: str
+    shared_exit_element_kind: ElementKind
+    mouth_node: int
+    mouth_node_name: str
+    mouth_radiator_id: str
+
+
 @dataclass(slots=True, frozen=True)
 class AssembledElement:
     """Topology-resolved element entry.
@@ -131,6 +164,7 @@ class AssembledSystem:
     acoustic_junctions: tuple[AcousticJunction, ...]
     branched_horn_skeletons: tuple[BranchedHornSkeleton, ...]
     recombination_topologies: tuple[RecombinationTopology, ...]
+    split_merge_horn_skeletons: tuple[SplitMergeHornSkeleton, ...]
 
 
 def _require_known_node(node: str, node_index: dict[str, int], *, context: str) -> int:
@@ -359,6 +393,97 @@ def _collect_recombination_topologies(
     return tuple(recombinations)
 
 
+def _collect_split_merge_horn_skeletons(
+    *,
+    driver_rear_index: int,
+    node_order: tuple[str, ...],
+    shunt_elements: list[AssembledElement],
+    branch_elements: list[AssembledElement],
+    parallel_branch_bundles: tuple[ParallelBranchBundle, ...],
+    acoustic_junctions: tuple[AcousticJunction, ...],
+) -> tuple[SplitMergeHornSkeleton, ...]:
+    branch_by_id = {element.id: element for element in branch_elements}
+    junction_by_node = {junction.node: junction for junction in acoustic_junctions}
+
+    radiators_by_node: dict[int, list[AssembledElement]] = {}
+    for element in shunt_elements:
+        if element.kind == "radiator":
+            radiators_by_node.setdefault(element.node_a, []).append(element)
+
+    branch_incidence: dict[int, list[AssembledElement]] = {}
+    for element in branch_elements:
+        branch_incidence.setdefault(element.node_a, []).append(element)
+        assert element.node_b is not None
+        branch_incidence.setdefault(element.node_b, []).append(element)
+
+    skeletons: list[SplitMergeHornSkeleton] = []
+
+    for bundle in parallel_branch_bundles:
+        if len(bundle.element_ids) != 2:
+            continue
+        if any(kind != "waveguide_1d" for kind in bundle.element_kinds):
+            continue
+
+        node_a, node_b = bundle.node_a, bundle.node_b
+        junction_a = junction_by_node.get(node_a)
+        junction_b = junction_by_node.get(node_b)
+        if junction_a is None or junction_b is None:
+            continue
+        if len(junction_a.incident_element_ids) != 3 or len(junction_b.incident_element_ids) != 3:
+            continue
+
+        bundle_ids = set(bundle.element_ids)
+        other_a_ids = [eid for eid in junction_a.incident_element_ids if eid not in bundle_ids]
+        other_b_ids = [eid for eid in junction_b.incident_element_ids if eid not in bundle_ids]
+        if len(other_a_ids) != 1 or len(other_b_ids) != 1:
+            continue
+
+        other_a = branch_by_id[other_a_ids[0]]
+        other_b = branch_by_id[other_b_ids[0]]
+
+        candidates = [
+            (node_a, junction_a.node_name, other_a, node_b, junction_b.node_name, other_b),
+            (node_b, junction_b.node_name, other_b, node_a, junction_a.node_name, other_a),
+        ]
+
+        for split_node, split_name, stem, merge_node, merge_name, shared_exit in candidates:
+            if stem.kind != "waveguide_1d" or shared_exit.kind != "waveguide_1d":
+                continue
+            if _other_branch_node(stem, split_node) != driver_rear_index:
+                continue
+
+            mouth_node = _other_branch_node(shared_exit, merge_node)
+            if len(branch_incidence.get(mouth_node, [])) != 1:
+                continue
+
+            mouth_radiators = radiators_by_node.get(mouth_node, [])
+            if len(mouth_radiators) != 1:
+                continue
+
+            skeletons.append(
+                SplitMergeHornSkeleton(
+                    rear_node=driver_rear_index,
+                    rear_node_name=node_order[driver_rear_index],
+                    split_node=split_node,
+                    split_node_name=split_name,
+                    merge_node=merge_node,
+                    merge_node_name=merge_name,
+                    stem_element_id=stem.id,
+                    stem_element_kind=stem.kind,
+                    leg_element_ids=(bundle.element_ids[0], bundle.element_ids[1]),
+                    leg_element_kinds=(bundle.element_kinds[0], bundle.element_kinds[1]),
+                    shared_exit_element_id=shared_exit.id,
+                    shared_exit_element_kind=shared_exit.kind,
+                    mouth_node=mouth_node,
+                    mouth_node_name=node_order[mouth_node],
+                    mouth_radiator_id=mouth_radiators[0].id,
+                )
+            )
+            break
+
+    return tuple(skeletons)
+
+
 def assemble_system(model: NormalizedModel) -> AssembledSystem:
     """Assemble the currently supported acoustic topology.
 
@@ -451,6 +576,14 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         parallel_branch_bundles=parallel_branch_bundles,
         acoustic_junctions=acoustic_junctions,
     )
+    split_merge_horn_skeletons = _collect_split_merge_horn_skeletons(
+        driver_rear_index=driver_rear_index,
+        node_order=node_order,
+        shunt_elements=shunt_elements,
+        branch_elements=branch_elements,
+        parallel_branch_bundles=parallel_branch_bundles,
+        acoustic_junctions=acoustic_junctions,
+    )
 
     return AssembledSystem(
         node_order=node_order,
@@ -463,4 +596,5 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         acoustic_junctions=acoustic_junctions,
         branched_horn_skeletons=branched_horn_skeletons,
         recombination_topologies=recombination_topologies,
+        split_merge_horn_skeletons=split_merge_horn_skeletons,
     )
