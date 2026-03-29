@@ -208,6 +208,46 @@ class OffsetTapTopology:
 
 
 @dataclass(slots=True, frozen=True)
+class RearChamberTappedSkeleton:
+    """One bounded rear-chamber tapped horn-like skeleton.
+
+    Supported in this patch: exactly one rear chamber volume on the driver rear
+    node behind one offset-tap horn path. The single driver rear couples into
+    that rear chamber node, the single driver front couples at an interior tap
+    node on the side leg, and the path then merges into one shared downstream
+    exit branch and one mouth radiator.
+
+    This keeps the opening narrow and explicit. It is not a general rear-volume
+    graph framework; it only records one minimally more physical tapped-horn-
+    class skeleton on top of the already opened offset-tap topology.
+    """
+
+    rear_node: int
+    rear_node_name: str
+    rear_chamber_element_id: str
+    rear_chamber_element_kind: ElementKind
+    split_node: int
+    split_node_name: str
+    tap_node: int
+    tap_node_name: str
+    merge_node: int
+    merge_node_name: str
+    stem_element_id: str
+    stem_element_kind: ElementKind
+    main_leg_element_id: str
+    main_leg_element_kind: ElementKind
+    tapped_upstream_element_id: str
+    tapped_upstream_element_kind: ElementKind
+    tapped_downstream_element_id: str
+    tapped_downstream_element_kind: ElementKind
+    shared_exit_element_id: str
+    shared_exit_element_kind: ElementKind
+    mouth_node: int
+    mouth_node_name: str
+    mouth_radiator_id: str
+
+
+@dataclass(slots=True, frozen=True)
 class AssembledElement:
     """Topology-resolved element entry.
 
@@ -239,6 +279,7 @@ class AssembledSystem:
     split_merge_horn_skeletons: tuple[SplitMergeHornSkeleton, ...]
     tapped_driver_skeletons: tuple[TappedDriverSkeleton, ...]
     offset_tap_topologies: tuple[OffsetTapTopology, ...]
+    rear_chamber_tapped_skeletons: tuple[RearChamberTappedSkeleton, ...]
 
 
 def _require_known_node(node: str, node_index: dict[str, int], *, context: str) -> int:
@@ -738,6 +779,60 @@ def _collect_offset_tap_topologies(
     return tuple(topologies)
 
 
+def _collect_rear_chamber_tapped_skeletons(
+    *,
+    shunt_elements: list[AssembledElement],
+    offset_tap_topologies: tuple[OffsetTapTopology, ...],
+) -> tuple[RearChamberTappedSkeleton, ...]:
+    volumes_by_node: dict[int, list[AssembledElement]] = {}
+    radiators_by_node: dict[int, list[AssembledElement]] = {}
+
+    for element in shunt_elements:
+        if element.kind == "volume":
+            volumes_by_node.setdefault(element.node_a, []).append(element)
+        elif element.kind == "radiator":
+            radiators_by_node.setdefault(element.node_a, []).append(element)
+
+    skeletons: list[RearChamberTappedSkeleton] = []
+    for topology in offset_tap_topologies:
+        rear_volumes = volumes_by_node.get(topology.rear_node, [])
+        if len(rear_volumes) != 1:
+            continue
+        if radiators_by_node.get(topology.rear_node):
+            continue
+
+        rear_chamber = rear_volumes[0]
+        skeletons.append(
+            RearChamberTappedSkeleton(
+                rear_node=topology.rear_node,
+                rear_node_name=topology.rear_node_name,
+                rear_chamber_element_id=rear_chamber.id,
+                rear_chamber_element_kind=rear_chamber.kind,
+                split_node=topology.split_node,
+                split_node_name=topology.split_node_name,
+                tap_node=topology.tap_node,
+                tap_node_name=topology.tap_node_name,
+                merge_node=topology.merge_node,
+                merge_node_name=topology.merge_node_name,
+                stem_element_id=topology.stem_element_id,
+                stem_element_kind=topology.stem_element_kind,
+                main_leg_element_id=topology.main_leg_element_id,
+                main_leg_element_kind=topology.main_leg_element_kind,
+                tapped_upstream_element_id=topology.tapped_upstream_element_id,
+                tapped_upstream_element_kind=topology.tapped_upstream_element_kind,
+                tapped_downstream_element_id=topology.tapped_downstream_element_id,
+                tapped_downstream_element_kind=topology.tapped_downstream_element_kind,
+                shared_exit_element_id=topology.shared_exit_element_id,
+                shared_exit_element_kind=topology.shared_exit_element_kind,
+                mouth_node=topology.mouth_node,
+                mouth_node_name=topology.mouth_node_name,
+                mouth_radiator_id=topology.mouth_radiator_id,
+            )
+        )
+
+    return tuple(skeletons)
+
+
 def assemble_system(model: NormalizedModel) -> AssembledSystem:
     """Assemble the currently supported acoustic topology.
 
@@ -851,6 +946,10 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         branch_elements=branch_elements,
         acoustic_junctions=acoustic_junctions,
     )
+    rear_chamber_tapped_skeletons = _collect_rear_chamber_tapped_skeletons(
+        shunt_elements=shunt_elements,
+        offset_tap_topologies=offset_tap_topologies,
+    )
 
     return AssembledSystem(
         node_order=node_order,
@@ -866,4 +965,5 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         split_merge_horn_skeletons=split_merge_horn_skeletons,
         tapped_driver_skeletons=tapped_driver_skeletons,
         offset_tap_topologies=offset_tap_topologies,
+        rear_chamber_tapped_skeletons=rear_chamber_tapped_skeletons,
     )
