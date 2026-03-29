@@ -135,6 +135,37 @@ class SplitMergeHornSkeleton:
     mouth_radiator_id: str
 
 
+@dataclass(slots=True, frozen=True)
+class TappedDriverSkeleton:
+    """One bounded tapped-driver skeleton carried by the assembled system.
+
+    Supported in this patch: exactly one split/merge horn skeleton where the
+    single driver rear couples at the upstream rear node and the single driver
+    front is tapped directly into the merge junction. The merge junction then
+    feeds one shared downstream exit branch to one leaf mouth radiator.
+
+    This keeps the opening narrow and explicit. It is not a general tapped-horn
+    framework; it only records one real tapped-driver topology case that the
+    current solver path can already exercise end to end.
+    """
+
+    rear_node: int
+    rear_node_name: str
+    split_node: int
+    split_node_name: str
+    merge_node: int
+    merge_node_name: str
+    tapped_node: int
+    tapped_node_name: str
+    stem_element_id: str
+    stem_element_kind: ElementKind
+    leg_element_ids: tuple[str, str]
+    leg_element_kinds: tuple[ElementKind, ElementKind]
+    shared_exit_element_id: str
+    shared_exit_element_kind: ElementKind
+    mouth_node: int
+    mouth_node_name: str
+    mouth_radiator_id: str
 
 
 @dataclass(slots=True, frozen=True)
@@ -149,7 +180,8 @@ class OffsetTapTopology:
 
     This keeps the opening narrow and explicit. It is not a general graph
     engine; it only records one minimal offset-tap horn path needed for more
-    realistic tapped-horn-class topology growth.
+    realistic tapped-horn-class topology growth while preserving the older
+    tapped_driver_skeleton surface as a backward-compatible subset.
     """
 
     rear_node: int
@@ -205,6 +237,7 @@ class AssembledSystem:
     branched_horn_skeletons: tuple[BranchedHornSkeleton, ...]
     recombination_topologies: tuple[RecombinationTopology, ...]
     split_merge_horn_skeletons: tuple[SplitMergeHornSkeleton, ...]
+    tapped_driver_skeletons: tuple[TappedDriverSkeleton, ...]
     offset_tap_topologies: tuple[OffsetTapTopology, ...]
 
 
@@ -525,6 +558,48 @@ def _collect_split_merge_horn_skeletons(
     return tuple(skeletons)
 
 
+def _collect_tapped_driver_skeletons(
+    *,
+    driver_front_index: int,
+    shunt_elements: list[AssembledElement],
+    split_merge_horn_skeletons: tuple[SplitMergeHornSkeleton, ...],
+) -> tuple[TappedDriverSkeleton, ...]:
+    radiators_by_node: dict[int, list[AssembledElement]] = {}
+    for element in shunt_elements:
+        if element.kind == "radiator":
+            radiators_by_node.setdefault(element.node_a, []).append(element)
+
+    skeletons: list[TappedDriverSkeleton] = []
+    for skeleton in split_merge_horn_skeletons:
+        if driver_front_index != skeleton.merge_node:
+            continue
+        if radiators_by_node.get(driver_front_index):
+            continue
+        skeletons.append(
+            TappedDriverSkeleton(
+                rear_node=skeleton.rear_node,
+                rear_node_name=skeleton.rear_node_name,
+                split_node=skeleton.split_node,
+                split_node_name=skeleton.split_node_name,
+                merge_node=skeleton.merge_node,
+                merge_node_name=skeleton.merge_node_name,
+                tapped_node=skeleton.merge_node,
+                tapped_node_name=skeleton.merge_node_name,
+                stem_element_id=skeleton.stem_element_id,
+                stem_element_kind=skeleton.stem_element_kind,
+                leg_element_ids=skeleton.leg_element_ids,
+                leg_element_kinds=skeleton.leg_element_kinds,
+                shared_exit_element_id=skeleton.shared_exit_element_id,
+                shared_exit_element_kind=skeleton.shared_exit_element_kind,
+                mouth_node=skeleton.mouth_node,
+                mouth_node_name=skeleton.mouth_node_name,
+                mouth_radiator_id=skeleton.mouth_radiator_id,
+            )
+        )
+
+    return tuple(skeletons)
+
+
 
 
 def _collect_offset_tap_topologies(
@@ -577,6 +652,8 @@ def _collect_offset_tap_topologies(
             tap_node = _other_branch_node(tapped_upstream, split_junction.node)
             if tap_node != driver_front_index:
                 continue
+            if radiators_by_node.get(tap_node):
+                continue
 
             tap_incident = branch_incidence.get(tap_node, [])
             if len(tap_incident) != 2:
@@ -597,7 +674,8 @@ def _collect_offset_tap_topologies(
             main_leg_candidates = [
                 element
                 for element in non_stem
-                if element.id != tapped_upstream.id and element.kind == "waveguide_1d"
+                if element.id != tapped_upstream.id
+                and element.kind == "waveguide_1d"
                 and _other_branch_node(element, split_junction.node) == merge_node
             ]
             if len(main_leg_candidates) != 1:
@@ -760,6 +838,11 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         parallel_branch_bundles=parallel_branch_bundles,
         acoustic_junctions=acoustic_junctions,
     )
+    tapped_driver_skeletons = _collect_tapped_driver_skeletons(
+        driver_front_index=driver_front_index,
+        shunt_elements=shunt_elements,
+        split_merge_horn_skeletons=split_merge_horn_skeletons,
+    )
     offset_tap_topologies = _collect_offset_tap_topologies(
         driver_front_index=driver_front_index,
         driver_rear_index=driver_rear_index,
@@ -781,5 +864,6 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         branched_horn_skeletons=branched_horn_skeletons,
         recombination_topologies=recombination_topologies,
         split_merge_horn_skeletons=split_merge_horn_skeletons,
+        tapped_driver_skeletons=tapped_driver_skeletons,
         offset_tap_topologies=offset_tap_topologies,
     )
