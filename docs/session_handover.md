@@ -3,20 +3,20 @@
 ## Accepted checkpoint for this handover
 
 Accepted working-line checkpoint for the current bookkeeping state:
-- branch: `test/v0.5.0-driver-front-chamber-akabak-reference-smoke`
-- commit: `2fbb2c81955115b8c2356c38c333aeb30a2e57bb`
-- observed tests: `205 passed`
-- operator probe worktree state: no tracked modifications; local smoke-output and probe artifacts may be untracked
+- branch: `feat/v0.5.0-seed-front-chamber-throat-side-coupling-topology`
+- commit: `4e4fb45d6df5dce73ebd62a8d8448147680c8ef5`
+- observed tests: `targeted topology regression set 8 passed`
+- operator probe worktree state: no tracked modifications; local probe artifacts may be untracked
 
 ---
 
 ## Landed chain recorded here
 
 This handover records the accepted current technical line above the last bookkeeping patch:
-- `def4edae4839379ef50848fd6f79b32a50d6436a` — driver-front chamber topology landed
 - `2fbb2c81955115b8c2356c38c333aeb30a2e57bb` — driver-front chamber Akabak smoke comparison landed
+- `4e4fb45d6df5dce73ebd62a8d8448147680c8ef5` — front-chamber throat-side coupling topology landed
 
-The accepted working line for live control is now `2fbb2c81955115b8c2356c38c333aeb30a2e57bb`.
+The accepted working line for live control is now `4e4fb45d6df5dce73ebd62a8d8448147680c8ef5`.
 
 ---
 
@@ -33,5 +33,5 @@ The landed validation and topology work above the last bookkeeping patch does no
 ## Live sequencing note
 
 The single next live action is kept only in `docs/next_patch.md` to avoid duplicated sequencing state.
-The next bounded technical patch frozen by this bookkeeping update is:
-- `feat/v0.5.0-seed-front-chamber-throat-side-coupling-topology`
+The next bounded patch frozen by this bookkeeping update is:
+- `test/v0.5.0-front-chamber-throat-side-akabak-reference-smoke`
