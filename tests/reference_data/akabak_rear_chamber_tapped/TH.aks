@@ -1,0 +1,124 @@
+|DATA EXPORTED FROM HORNRESP - RESONANCES NOT MASKED
+
+|COMMENT: NEW RECORD - AIYIMA Cu  taped horn
+
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|REQUIRED AKABAK SETTINGS:
+
+|File > Preferences > Physical system constants:
+
+|Sound velocity c = 344m/s
+|Medium density rho = 1.205kg/m3
+
+|Sum > Acoustic power:
+
+|Frequency range = 10Hz to 20kHz
+|Points = 533
+|Input voltage = 2.86V rms
+|Integration = 2Pi-sr
+|Integration steps = 1 degree ... 1 degree
+|Integration method = Cross
+
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Def_Const |Hornresp Input Parameter Values
+{
+|Length, area and volume values converted to metres, square metres and cubic metres:
+
+S1  =    60.00e-4;  |Horn segment 1 throat area (sq m)
+S2  =    81.34e-4;  |Horn segment 1 mouth area and horn segment 2 throat area (sq m)
+S3  =   621.41e-4;  |Horn segment 2 mouth area and horn segment 3 throat area (sq m)
+S4  =   686.49e-4;  |Horn segment 3 mouth area (sq m)
+
+L12 =    20.00e-2;  |Horn segment 1 axial length (m)
+L23 =   250.00e-2;  |Horn segment 2 axial length (m)
+L34 =    20.00e-2;  |Horn segment 3 axial length (m)
+
+Vrc =    20.00e-3;  |Rear chamber volume (cubic m)
+Lrc =    20.00e-2;  |Rear chamber average length (m)
+
+Ap  =    38.00e-4;  |Rear chamber port cross-sectional area (sq m)
+Lpt =    10.00e-2;  |Rear chamber port tube length (m)
+
+Vtc = 10000.00e-6;  |Throat chamber volume (cubic m)
+Atc =   531.00e-4;  |Throat chamber cross-sectional area (sq m)
+
+|Parameter Conversions:
+
+Sd  = 531.00e-4;  |Diaphragm area (sq m)
+
+Arc = Vrc / Lrc;
+
+Ltc = Vtc / Atc;
+}
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|Network node numbers for this tapped horn system:
+
+|               0-Voltage-1
+|                         |
+|           -Chamber-5-Driver-6-Chamber-7-Port-
+|          |                                   |
+|8-Segment-9-Segment---------------------------10-Segment-11-Radiator
+
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Def_Driver 'Driver'
+
+  Sd=531.00cm2
+  Bl=29.06Tm
+  Cms=1.09E-04m/N
+  Rms=9.66Ns/m
+  fs=42.00Hz  |Mmd = 124.70g not recognised by AkAbak, fs calculated and used instead
+  Le=1.40mH
+  Re=5.10ohm
+  ExpoLe=1
+
+System 'System'
+
+  Driver Def='Driver''Driver'
+    Node=1=0=5=6
+
+  Duct 'Throat chamber'
+    Node=5=9
+    SD={Atc}
+    Len={Ltc}
+    Visc=0
+
+  Duct 'Rear chamber'
+    Node=6=7
+    SD={Arc}
+    Len={Lrc}
+    Visc=0
+
+  Duct 'Rear chamber port'
+    Node=7=10
+    SD={Ap}
+    Len={Lpt}
+    Visc=0
+
+  Waveguide 'Horn segment 1'
+    Node=8=9
+    STh={S1}
+    SMo={S2}
+    Len={L12}
+    Conical
+
+  Waveguide 'Horn segment 2'
+    Node=9=10
+    STh={S2}
+    SMo={S3}
+    Len={L23}
+    Conical
+
+  Waveguide 'Horn segment 3'
+    Node=10=11
+    STh={S3}
+    SMo={S4}
+    Len={L34}
+    Conical
+
+  Radiator 'Horn mouth'
+    Node=11
+    SD={S4}
