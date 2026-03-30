@@ -341,6 +341,60 @@ class ThroatChamberTopology:
     mouth_node_name: str
     mouth_radiator_id: str
 
+@dataclass(slots=True, frozen=True)
+class BlindThroatSideSegmentTopology:
+    """One bounded throat-chamber topology with one blind throat-side segment.
+
+    Supported in this patch: exactly one rear chamber volume on the driver rear
+    node, one explicit rear-port injection branch to an intermediate injection
+    node, one dedicated throat chamber volume on a distinct throat node, one
+    blind throat-side waveguide segment terminating at a blind leaf node, then
+    one stem branch into an offset-tap horn path that merges into one shared
+    downstream exit branch and one mouth radiator.
+
+    This keeps the opening narrow and explicit. It is not a general tapped-horn
+    graph framework; it only records one first dedicated blind throat-side
+    segment case on top of the already opened throat-chamber path.
+    """
+
+    rear_node: int
+    rear_node_name: str
+    rear_chamber_element_id: str
+    rear_chamber_element_kind: ElementKind
+    injection_node: int
+    injection_node_name: str
+    port_injection_element_id: str
+    port_injection_element_kind: ElementKind
+    throat_node: int
+    throat_node_name: str
+    throat_chamber_element_id: str
+    throat_chamber_element_kind: ElementKind
+    throat_entry_element_id: str
+    throat_entry_element_kind: ElementKind
+    blind_node: int
+    blind_node_name: str
+    blind_segment_element_id: str
+    blind_segment_element_kind: ElementKind
+    stem_element_id: str
+    stem_element_kind: ElementKind
+    split_node: int
+    split_node_name: str
+    tap_node: int
+    tap_node_name: str
+    merge_node: int
+    merge_node_name: str
+    main_leg_element_id: str
+    main_leg_element_kind: ElementKind
+    tapped_upstream_element_id: str
+    tapped_upstream_element_kind: ElementKind
+    tapped_downstream_element_id: str
+    tapped_downstream_element_kind: ElementKind
+    shared_exit_element_id: str
+    shared_exit_element_kind: ElementKind
+    mouth_node: int
+    mouth_node_name: str
+    mouth_radiator_id: str
+
 
 @dataclass(slots=True, frozen=True)
 class AssembledElement:
@@ -377,6 +431,7 @@ class AssembledSystem:
     rear_chamber_tapped_skeletons: tuple[RearChamberTappedSkeleton, ...]
     rear_chamber_port_injection_topologies: tuple[RearChamberPortInjectionTopology, ...]
     throat_chamber_topologies: tuple[ThroatChamberTopology, ...]
+    blind_throat_side_segment_topologies: tuple[BlindThroatSideSegmentTopology, ...]
 
 
 def _require_known_node(node: str, node_index: dict[str, int], *, context: str) -> int:
@@ -1307,6 +1362,223 @@ def _collect_throat_chamber_topologies(
     return tuple(topologies)
 
 
+def _collect_blind_throat_side_segment_topologies(
+    *,
+    driver_front_index: int,
+    driver_rear_index: int,
+    node_order: tuple[str, ...],
+    shunt_elements: list[AssembledElement],
+    branch_elements: list[AssembledElement],
+    acoustic_junctions: tuple[AcousticJunction, ...],
+) -> tuple[BlindThroatSideSegmentTopology, ...]:
+    branch_by_id = {element.id: element for element in branch_elements}
+    junction_by_node = {junction.node: junction for junction in acoustic_junctions}
+
+    volumes_by_node: dict[int, list[AssembledElement]] = {}
+    radiators_by_node: dict[int, list[AssembledElement]] = {}
+    for element in shunt_elements:
+        if element.kind == "volume":
+            volumes_by_node.setdefault(element.node_a, []).append(element)
+        elif element.kind == "radiator":
+            radiators_by_node.setdefault(element.node_a, []).append(element)
+
+    branch_incidence: dict[int, list[AssembledElement]] = {}
+    for element in branch_elements:
+        branch_incidence.setdefault(element.node_a, []).append(element)
+        assert element.node_b is not None
+        branch_incidence.setdefault(element.node_b, []).append(element)
+
+    rear_volumes = volumes_by_node.get(driver_rear_index, [])
+    if len(rear_volumes) != 1:
+        return ()
+    if radiators_by_node.get(driver_rear_index):
+        return ()
+
+    rear_incident = branch_incidence.get(driver_rear_index, [])
+    if len(rear_incident) != 1:
+        return ()
+    rear_port = rear_incident[0]
+    if rear_port.kind != "waveguide_1d":
+        return ()
+
+    injection_node = _other_branch_node(rear_port, driver_rear_index)
+    if injection_node == driver_front_index:
+        return ()
+    if radiators_by_node.get(injection_node) or volumes_by_node.get(injection_node):
+        return ()
+
+    injection_incident = branch_incidence.get(injection_node, [])
+    if len(injection_incident) != 2:
+        return ()
+
+    throat_entry_candidates = [
+        element
+        for element in injection_incident
+        if element.id != rear_port.id and element.kind == "waveguide_1d"
+    ]
+    if len(throat_entry_candidates) != 1:
+        return ()
+    throat_entry = throat_entry_candidates[0]
+
+    throat_node = _other_branch_node(throat_entry, injection_node)
+    if throat_node in {driver_rear_index, driver_front_index, injection_node}:
+        return ()
+    if radiators_by_node.get(throat_node):
+        return ()
+    throat_volumes = volumes_by_node.get(throat_node, [])
+    if len(throat_volumes) != 1:
+        return ()
+
+    throat_incident = branch_incidence.get(throat_node, [])
+    if len(throat_incident) != 3:
+        return ()
+
+    remaining = [element for element in throat_incident if element.id != throat_entry.id and element.kind == "waveguide_1d"]
+    if len(remaining) != 2:
+        return ()
+
+    topologies: list[BlindThroatSideSegmentTopology] = []
+    for blind_segment in remaining:
+        blind_node = _other_branch_node(blind_segment, throat_node)
+        if blind_node in {driver_rear_index, injection_node, driver_front_index}:
+            continue
+        if len(branch_incidence.get(blind_node, [])) != 1:
+            continue
+        if radiators_by_node.get(blind_node) or volumes_by_node.get(blind_node):
+            continue
+
+        stem_candidates = [element for element in remaining if element.id != blind_segment.id]
+        if len(stem_candidates) != 1:
+            continue
+        stem = stem_candidates[0]
+        if stem.kind != "waveguide_1d":
+            continue
+
+        split_node = _other_branch_node(stem, throat_node)
+        split_junction = junction_by_node.get(split_node)
+        if split_junction is None or len(split_junction.incident_element_ids) != 3:
+            continue
+
+        incident = [branch_by_id[element_id] for element_id in split_junction.incident_element_ids]
+        if stem.id not in {element.id for element in incident}:
+            continue
+
+        non_stem = [element for element in incident if element.id != stem.id]
+        if len(non_stem) != 2:
+            continue
+
+        for tapped_upstream in non_stem:
+            if tapped_upstream.kind != "waveguide_1d":
+                continue
+
+            tap_node = _other_branch_node(tapped_upstream, split_node)
+            if tap_node != driver_front_index:
+                continue
+            if radiators_by_node.get(tap_node) or volumes_by_node.get(tap_node):
+                continue
+
+            tap_incident = branch_incidence.get(tap_node, [])
+            if len(tap_incident) != 2:
+                continue
+
+            tapped_downstream_candidates = [
+                element
+                for element in tap_incident
+                if element.id != tapped_upstream.id and element.kind == "waveguide_1d"
+            ]
+            if len(tapped_downstream_candidates) != 1:
+                continue
+            tapped_downstream = tapped_downstream_candidates[0]
+
+            merge_node = _other_branch_node(tapped_downstream, tap_node)
+            merge_junction = junction_by_node.get(merge_node)
+            if merge_junction is None or len(merge_junction.incident_element_ids) != 3:
+                continue
+
+            main_leg_candidates = [
+                element
+                for element in non_stem
+                if element.id != tapped_upstream.id
+                and element.kind == "waveguide_1d"
+                and _other_branch_node(element, split_node) == merge_node
+            ]
+            if len(main_leg_candidates) != 1:
+                continue
+            main_leg = main_leg_candidates[0]
+
+            merge_ids = set(merge_junction.incident_element_ids)
+            if main_leg.id not in merge_ids or tapped_downstream.id not in merge_ids:
+                continue
+
+            shared_exit_ids = [
+                element_id
+                for element_id in merge_junction.incident_element_ids
+                if element_id not in {main_leg.id, tapped_downstream.id}
+            ]
+            if len(shared_exit_ids) != 1:
+                continue
+            shared_exit = branch_by_id[shared_exit_ids[0]]
+            if shared_exit.kind != "waveguide_1d":
+                continue
+
+            mouth_node = _other_branch_node(shared_exit, merge_node)
+            if mouth_node in {driver_rear_index, injection_node, throat_node, blind_node, split_node, driver_front_index}:
+                continue
+            if len(branch_incidence.get(mouth_node, [])) != 1:
+                continue
+
+            mouth_radiators = radiators_by_node.get(mouth_node, [])
+            if len(mouth_radiators) != 1:
+                continue
+
+            topologies.append(
+                BlindThroatSideSegmentTopology(
+                    rear_node=driver_rear_index,
+                    rear_node_name=node_order[driver_rear_index],
+                    rear_chamber_element_id=rear_volumes[0].id,
+                    rear_chamber_element_kind=rear_volumes[0].kind,
+                    injection_node=injection_node,
+                    injection_node_name=node_order[injection_node],
+                    port_injection_element_id=rear_port.id,
+                    port_injection_element_kind=rear_port.kind,
+                    throat_node=throat_node,
+                    throat_node_name=node_order[throat_node],
+                    throat_chamber_element_id=throat_volumes[0].id,
+                    throat_chamber_element_kind=throat_volumes[0].kind,
+                    throat_entry_element_id=throat_entry.id,
+                    throat_entry_element_kind=throat_entry.kind,
+                    blind_node=blind_node,
+                    blind_node_name=node_order[blind_node],
+                    blind_segment_element_id=blind_segment.id,
+                    blind_segment_element_kind=blind_segment.kind,
+                    stem_element_id=stem.id,
+                    stem_element_kind=stem.kind,
+                    split_node=split_node,
+                    split_node_name=node_order[split_node],
+                    tap_node=tap_node,
+                    tap_node_name=node_order[tap_node],
+                    merge_node=merge_node,
+                    merge_node_name=node_order[merge_node],
+                    main_leg_element_id=main_leg.id,
+                    main_leg_element_kind=main_leg.kind,
+                    tapped_upstream_element_id=tapped_upstream.id,
+                    tapped_upstream_element_kind=tapped_upstream.kind,
+                    tapped_downstream_element_id=tapped_downstream.id,
+                    tapped_downstream_element_kind=tapped_downstream.kind,
+                    shared_exit_element_id=shared_exit.id,
+                    shared_exit_element_kind=shared_exit.kind,
+                    mouth_node=mouth_node,
+                    mouth_node_name=node_order[mouth_node],
+                    mouth_radiator_id=mouth_radiators[0].id,
+                )
+            )
+            break
+        if topologies:
+            break
+
+    return tuple(topologies)
+
+
 def assemble_system(model: NormalizedModel) -> AssembledSystem:
     """Assemble the currently supported acoustic topology.
 
@@ -1440,6 +1712,14 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         branch_elements=branch_elements,
         acoustic_junctions=acoustic_junctions,
     )
+    blind_throat_side_segment_topologies = _collect_blind_throat_side_segment_topologies(
+        driver_front_index=driver_front_index,
+        driver_rear_index=driver_rear_index,
+        node_order=node_order,
+        shunt_elements=shunt_elements,
+        branch_elements=branch_elements,
+        acoustic_junctions=acoustic_junctions,
+    )
 
     return AssembledSystem(
         node_order=node_order,
@@ -1458,4 +1738,5 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         rear_chamber_tapped_skeletons=rear_chamber_tapped_skeletons,
         rear_chamber_port_injection_topologies=rear_chamber_port_injection_topologies,
         throat_chamber_topologies=throat_chamber_topologies,
+        blind_throat_side_segment_topologies=blind_throat_side_segment_topologies,
     )
