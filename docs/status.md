@@ -10,60 +10,51 @@
 
 ## Current accepted working-line truth
 
-- current accepted working-line branch: `feat/v0.5.0-seed-blind-throat-side-segment`
-- current accepted working commit: `aa1a238c618f1f64fa4cc9f243b04f81d3ccf4db`
-- observed green suite on the accepted working line: `193 passed`
-- latest explicit frontend checkpoint: `81727af854207ccc94eeeede26988c688571cb30`
-- operator probe worktree state at bookkeeping time: only untracked probe artifacts (`info.md`, `info.sh`)
+- active working-line milestone: `v0.5.0`
+- accepted working branch for the current live control state: `feat/v0.5.0-seed-driver-front-chamber-topology`
+- accepted working commit for the current live control state: `def4edae4839379ef50848fd6f79b32a50d6436a`
+- observed green suite on the accepted working line: `201 passed`
+- operator probe worktree state at bookkeeping time: no tracked modifications; local probe artifacts may be untracked
 
-This accepted working line is materially ahead of the old `9766931` opening-decision checkpoint. The live control-plane docs are realigned here to the current tested topology chain through the blind throat-side segment.
+The current accepted working line is now ahead of the last bookkeeping checkpoint.
+The latest landed chain above that older bookkeeping line is:
+- `d161fae8fcc867c95920b82b5ae07509ede8bce0` — throat-side Akabak smoke comparison landed
+- `def4edae4839379ef50848fd6f79b32a50d6436a` — driver-front chamber topology landed
 
 ---
 
 ## Milestone state
 
-- most recently completed working-line milestone: `v0.4.0`
-- completed milestone title: `capability expansion`
-- completed milestone branch of record: `milestone/v0.4.0-capability-expansion`
-- completed milestone status: closed on the working line after post-reset revalidation
-
-Retained close basis from the completed `v0.4.0` line:
-- bounded lossy conical `waveguide_1d` support
-- preserved endpoint and line-profile observability on that path
-- focused conical-loss validation
-- one maintained conical-line example on the live repo line
-- segmentation-refinement validation for the official conical example
-
 - active working-line milestone: `v0.5.0`
-- active milestone title: `tapped-horn topology seeding`
-- active milestone status: open on the working line
-- current accepted topology checkpoint: `aa1a238c618f1f64fa4cc9f243b04f81d3ccf4db`
-- latest explicit frontend checkpoint within this milestone: `81727af854207ccc94eeeede26988c688571cb30`
-- frontend impact through the current accepted topology chain: `No frontend contract change`
+- milestone title: `opening decision`
+- milestone branch of record: `milestone/v0.5.0-opening`
+- milestone status: active on the working line
 
-Landed topology chain carried by the current accepted working line:
-- parallel split/recombine bundles between the same two acoustic nodes
-- one true interior acoustic junction
-- one minimal branched horn skeleton
-- one bounded recombination case
-- one dual-junction split/merge horn skeleton
-- one bounded tapped-driver skeleton
-- one bounded offset-tap topology
-- one bounded rear-chamber tapped skeleton
-- one bounded rear-chamber port-injection topology
-- one bounded throat-chamber topology
-- one bounded blind throat-side horn segment
+Latest landed bounded topology / validation chain on the accepted line:
+- rear chamber tapped skeleton
+- rear chamber tapped Akabak smoke
+- rear-chamber port injection topology
+- throat chamber topology
+- blind throat-side segment topology
+- throat-side Akabak smoke
+- driver-front chamber topology
 
-This remains a working-line milestone, not a public release promotion.
+This remains a working-line capability-expansion track, not a public release promotion.
+
+---
+
+## Frontend contract state
+
+- latest explicit frontend checkpoint: `81727af854207ccc94eeeede26988c688571cb30`
+- carried statement on the current accepted line: `No frontend contract change`
+
+The landed chain through `d161fae8fcc867c95920b82b5ae07509ede8bce0` and `def4edae4839379ef50848fd6f79b32a50d6436a` does not change the frozen frontend contract v1 surface.
 
 ---
 
 ## Current control-plane truth
 
-- `v0.5.0` remains the active working-line milestone
-- the current accepted working commit is `aa1a238c618f1f64fa4cc9f243b04f81d3ccf4db`
-- `81727af854207ccc94eeeede26988c688571cb30` remains the latest explicit frontend checkpoint
-- the landed topology chain through `aa1a238` caused `No frontend contract change`
-- the stale next action from the old opening-decision line is retired
-
-The single next live action is intentionally tracked only in `docs/next_patch.md` so sequencing state is not duplicated.
+- the accepted live control line is `def4edae4839379ef50848fd6f79b32a50d6436a`
+- `d161fae8fcc867c95920b82b5ae07509ede8bce0` throat-side smoke is landed on the validated line below it
+- `def4edae4839379ef50848fd6f79b32a50d6436a` driver-front chamber topology is landed on the current accepted line
+- the single next live action is intentionally tracked only in `docs/next_patch.md`

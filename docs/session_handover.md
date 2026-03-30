@@ -2,48 +2,36 @@
 
 ## Accepted checkpoint for this handover
 
-Accepted working-line checkpoint for post-blind-throat-side bookkeeping:
-- branch: `feat/v0.5.0-seed-blind-throat-side-segment`
-- commit: `aa1a238c618f1f64fa4cc9f243b04f81d3ccf4db`
-- observed tests: `193 passed`
-- latest explicit frontend checkpoint: `81727af854207ccc94eeeede26988c688571cb30`
-- frontend impact through this checkpoint: `No frontend contract change`
-- operator probe worktree state: only untracked probe artifacts (`info.md`, `info.sh`)
+Accepted working-line checkpoint for the current bookkeeping state:
+- branch: `feat/v0.5.0-seed-driver-front-chamber-topology`
+- commit: `def4edae4839379ef50848fd6f79b32a50d6436a`
+- observed tests: `201 passed`
+- operator probe worktree state: no tracked modifications; local probe artifacts may be untracked
 
 ---
 
-## Decision recorded here
+## Landed chain recorded here
 
-This handover records one authoritative bookkeeping decision:
-- the live control-plane docs are realigned to the current accepted working line at `aa1a238c618f1f64fa4cc9f243b04f81d3ccf4db`
-- the stale live-action entry inherited from the old `9766931` opening-decision line is retired
-- `81727af854207ccc94eeeede26988c688571cb30` remains the latest explicit frontend checkpoint
-- the landed topology chain through the blind throat-side segment caused `No frontend contract change`
+This handover records the accepted current technical line above the last bookkeeping patch:
+- `d161fae8fcc867c95920b82b5ae07509ede8bce0` — throat-side Akabak smoke comparison landed
+- `def4edae4839379ef50848fd6f79b32a50d6436a` — driver-front chamber topology landed
 
-This patch adds no solver work and no frontend/API work.
-It is not a public release promotion; `v0.3.0` remains the latest released version on `main`.
+The accepted working line for live control is now `def4edae4839379ef50848fd6f79b32a50d6436a`.
 
 ---
 
-## Current landed kernel chain carried by the accepted working line
+## Frontend contract note
 
-The current accepted working line carries the bounded v0.5.0 topology sequence through:
-- parallel split/recombine bundles between the same two acoustic nodes
-- one true interior acoustic junction
-- one minimal branched horn skeleton
-- one bounded recombination case
-- one dual-junction split/merge horn skeleton
-- one bounded tapped-driver skeleton
-- one bounded offset-tap topology
-- one bounded rear-chamber tapped skeleton
-- one bounded rear-chamber port-injection topology
-- one bounded throat-chamber topology
-- one bounded blind throat-side horn segment
+Carried statement on this accepted line:
+- `No frontend contract change`
+
+The frozen frontend contract v1 checkpoint remains `81727af854207ccc94eeeede26988c688571cb30`.
+The landed validation and topology work above the last bookkeeping patch does not change that stable frontend surface.
 
 ---
 
 ## Live sequencing note
 
-The single next live action is kept only in `docs/next_patch.md` to avoid reintroducing duplicated sequencing state.
-After this bookkeeping patch, the exact next bounded kernel patch is:
-- `test/v0.5.0-throat-side-akabak-reference-smoke`
+The single next live action is kept only in `docs/next_patch.md` to avoid duplicated sequencing state.
+The next bounded patch frozen by this bookkeeping update is:
+- `test/v0.5.0-driver-front-chamber-akabak-reference-smoke`

@@ -7,26 +7,25 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 ---
 
-## Current state after post-blind-throat-side bookkeeping
+## Current state after post-driver-front-chamber bookkeeping
 
 - active working-line milestone: `v0.5.0`
-- active milestone title: `tapped-horn topology seeding`
-- current accepted working line: `feat/v0.5.0-seed-blind-throat-side-segment`
-- current accepted working commit: `aa1a238c618f1f64fa4cc9f243b04f81d3ccf4db`
-- observed suite on the accepted working line: `193 passed`
-- latest explicit frontend checkpoint: `81727af854207ccc94eeeede26988c688571cb30`
-- frontend impact through the current accepted topology chain: `No frontend contract change`
-- stale live action from the old opening-decision line is retired
+- accepted working branch: `feat/v0.5.0-seed-driver-front-chamber-topology`
+- accepted working commit: `def4edae4839379ef50848fd6f79b32a50d6436a`
+- observed suite on the accepted working line: `201 passed`
+- latest landed validation patch on the line below it: `d161fae8fcc867c95920b82b5ae07509ede8bce0`
+- latest landed topology patch on the accepted line: `def4edae4839379ef50848fd6f79b32a50d6436a`
+- carried statement: `No frontend contract change`
 
 ---
 
 ## Next live action
 
-- `DEV: test/v0.5.0-throat-side-akabak-reference-smoke`
+- `test/v0.5.0-driver-front-chamber-akabak-reference-smoke`
 
 ---
 
 ## Guard rail
 
-Do not reopen the old `9766931` opening-decision line and do not reintroduce stale control-plane state.
-The next bounded patch is the single validation step named above and should compare the currently landed throat-chamber plus blind throat-side structure against the existing TH Akabak reference bundle.
+Do not open another topology-seeding patch before this bounded validation patch is resolved.
+Do not change the frozen frontend contract unless that validation patch proves a contract change is required.
