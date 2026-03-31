@@ -527,6 +527,56 @@ class FrontChamberThroatSideCouplingTopology:
     mouth_radiator_id: str
 
 
+
+@dataclass(slots=True, frozen=True)
+class DirectFrontRadiationTopology:
+    """One bounded direct-front-radiation topology.
+
+    Supported in this patch: exactly one single driver with one direct front
+    radiator on the driver front node, one rear chamber volume on the driver
+    rear node, one explicit rear-port injection branch to an intermediate
+    injection node, one dedicated throat chamber volume on a distinct throat
+    node, one blind throat-side path split into upstream and downstream
+    segments, then one direct rear horn path to one leaf mouth node carrying
+    exactly one mouth radiator.
+
+    This keeps the opening narrow and explicit. It is not a general graph
+    framework; it only records one first direct-front-radiation motif on top of
+    the already opened rear-path / chamber / throat-side vocabulary.
+    """
+
+    front_node: int
+    front_node_name: str
+    front_radiator_id: str
+    rear_node: int
+    rear_node_name: str
+    rear_chamber_element_id: str
+    rear_chamber_element_kind: ElementKind
+    injection_node: int
+    injection_node_name: str
+    port_injection_element_id: str
+    port_injection_element_kind: ElementKind
+    throat_node: int
+    throat_node_name: str
+    throat_chamber_element_id: str
+    throat_chamber_element_kind: ElementKind
+    throat_entry_element_id: str
+    throat_entry_element_kind: ElementKind
+    throat_side_node: int
+    throat_side_node_name: str
+    blind_upstream_element_id: str
+    blind_upstream_element_kind: ElementKind
+    blind_node: int
+    blind_node_name: str
+    blind_downstream_element_id: str
+    blind_downstream_element_kind: ElementKind
+    rear_path_element_id: str
+    rear_path_element_kind: ElementKind
+    mouth_node: int
+    mouth_node_name: str
+    mouth_radiator_id: str
+
+
 @dataclass(slots=True, frozen=True)
 class AssembledElement:
     """Topology-resolved element entry.
@@ -565,6 +615,7 @@ class AssembledSystem:
     blind_throat_side_segment_topologies: tuple[BlindThroatSideSegmentTopology, ...]
     driver_front_chamber_topologies: tuple[DriverFrontChamberTopology, ...]
     front_chamber_throat_side_coupling_topologies: tuple[FrontChamberThroatSideCouplingTopology, ...]
+    direct_front_radiation_topologies: tuple[DirectFrontRadiationTopology, ...]
 
 
 def _require_known_node(node: str, node_index: dict[str, int], *, context: str) -> int:
@@ -1953,6 +2004,169 @@ def _collect_driver_front_chamber_topologies(
 
     return tuple(topologies)
 
+
+
+def _collect_direct_front_radiation_topologies(
+    *,
+    driver_front_index: int,
+    driver_rear_index: int,
+    node_order: tuple[str, ...],
+    shunt_elements: list[AssembledElement],
+    branch_elements: list[AssembledElement],
+) -> tuple[DirectFrontRadiationTopology, ...]:
+    volumes_by_node: dict[int, list[AssembledElement]] = {}
+    radiators_by_node: dict[int, list[AssembledElement]] = {}
+    for element in shunt_elements:
+        if element.kind == "volume":
+            volumes_by_node.setdefault(element.node_a, []).append(element)
+        elif element.kind == "radiator":
+            radiators_by_node.setdefault(element.node_a, []).append(element)
+
+    branch_incidence: dict[int, list[AssembledElement]] = {}
+    for element in branch_elements:
+        branch_incidence.setdefault(element.node_a, []).append(element)
+        assert element.node_b is not None
+        branch_incidence.setdefault(element.node_b, []).append(element)
+
+    front_radiators = radiators_by_node.get(driver_front_index, [])
+    if len(front_radiators) != 1:
+        return ()
+    if volumes_by_node.get(driver_front_index):
+        return ()
+    if branch_incidence.get(driver_front_index):
+        return ()
+
+    rear_volumes = volumes_by_node.get(driver_rear_index, [])
+    if len(rear_volumes) != 1:
+        return ()
+    if radiators_by_node.get(driver_rear_index):
+        return ()
+
+    rear_incident = branch_incidence.get(driver_rear_index, [])
+    if len(rear_incident) != 1:
+        return ()
+    rear_port = rear_incident[0]
+    if rear_port.kind != "waveguide_1d":
+        return ()
+
+    injection_node = _other_branch_node(rear_port, driver_rear_index)
+    if injection_node == driver_front_index:
+        return ()
+    if radiators_by_node.get(injection_node) or volumes_by_node.get(injection_node):
+        return ()
+
+    injection_incident = branch_incidence.get(injection_node, [])
+    if len(injection_incident) != 2:
+        return ()
+    throat_entry_candidates = [
+        element
+        for element in injection_incident
+        if element.id != rear_port.id and element.kind == "waveguide_1d"
+    ]
+    if len(throat_entry_candidates) != 1:
+        return ()
+    throat_entry = throat_entry_candidates[0]
+
+    throat_node = _other_branch_node(throat_entry, injection_node)
+    if throat_node in {driver_rear_index, driver_front_index, injection_node}:
+        return ()
+    if radiators_by_node.get(throat_node):
+        return ()
+    throat_volumes = volumes_by_node.get(throat_node, [])
+    if len(throat_volumes) != 1:
+        return ()
+
+    throat_incident = branch_incidence.get(throat_node, [])
+    if len(throat_incident) != 3:
+        return ()
+    remaining = [element for element in throat_incident if element.id != throat_entry.id and element.kind == "waveguide_1d"]
+    if len(remaining) != 2:
+        return ()
+
+    topologies: list[DirectFrontRadiationTopology] = []
+    for blind_upstream in remaining:
+        throat_side_node = _other_branch_node(blind_upstream, throat_node)
+        if throat_side_node in {driver_rear_index, driver_front_index, injection_node, throat_node}:
+            continue
+        if radiators_by_node.get(throat_side_node) or volumes_by_node.get(throat_side_node):
+            continue
+
+        side_incident = branch_incidence.get(throat_side_node, [])
+        if len(side_incident) != 2:
+            continue
+        blind_downstream_candidates = [
+            element
+            for element in side_incident
+            if element.id != blind_upstream.id and element.kind == "waveguide_1d"
+        ]
+        if len(blind_downstream_candidates) != 1:
+            continue
+        blind_downstream = blind_downstream_candidates[0]
+
+        blind_node = _other_branch_node(blind_downstream, throat_side_node)
+        if blind_node in {driver_rear_index, driver_front_index, injection_node, throat_node, throat_side_node}:
+            continue
+        if len(branch_incidence.get(blind_node, [])) != 1:
+            continue
+        if radiators_by_node.get(blind_node) or volumes_by_node.get(blind_node):
+            continue
+
+        rear_path_candidates = [element for element in remaining if element.id != blind_upstream.id]
+        if len(rear_path_candidates) != 1:
+            continue
+        rear_path = rear_path_candidates[0]
+        if rear_path.kind != "waveguide_1d":
+            continue
+
+        mouth_node = _other_branch_node(rear_path, throat_node)
+        if mouth_node in {driver_front_index, driver_rear_index, injection_node, throat_node, throat_side_node, blind_node}:
+            continue
+        if len(branch_incidence.get(mouth_node, [])) != 1:
+            continue
+        mouth_radiators = radiators_by_node.get(mouth_node, [])
+        if len(mouth_radiators) != 1:
+            continue
+        if volumes_by_node.get(mouth_node):
+            continue
+
+        topologies.append(
+            DirectFrontRadiationTopology(
+                front_node=driver_front_index,
+                front_node_name=node_order[driver_front_index],
+                front_radiator_id=front_radiators[0].id,
+                rear_node=driver_rear_index,
+                rear_node_name=node_order[driver_rear_index],
+                rear_chamber_element_id=rear_volumes[0].id,
+                rear_chamber_element_kind=rear_volumes[0].kind,
+                injection_node=injection_node,
+                injection_node_name=node_order[injection_node],
+                port_injection_element_id=rear_port.id,
+                port_injection_element_kind=rear_port.kind,
+                throat_node=throat_node,
+                throat_node_name=node_order[throat_node],
+                throat_chamber_element_id=throat_volumes[0].id,
+                throat_chamber_element_kind=throat_volumes[0].kind,
+                throat_entry_element_id=throat_entry.id,
+                throat_entry_element_kind=throat_entry.kind,
+                throat_side_node=throat_side_node,
+                throat_side_node_name=node_order[throat_side_node],
+                blind_upstream_element_id=blind_upstream.id,
+                blind_upstream_element_kind=blind_upstream.kind,
+                blind_node=blind_node,
+                blind_node_name=node_order[blind_node],
+                blind_downstream_element_id=blind_downstream.id,
+                blind_downstream_element_kind=blind_downstream.kind,
+                rear_path_element_id=rear_path.id,
+                rear_path_element_kind=rear_path.kind,
+                mouth_node=mouth_node,
+                mouth_node_name=node_order[mouth_node],
+                mouth_radiator_id=mouth_radiators[0].id,
+            )
+        )
+        break
+
+    return tuple(topologies)
+
 def _collect_front_chamber_throat_side_coupling_topologies(
     *,
     driver_front_index: int,
@@ -2341,6 +2555,13 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         branch_elements=branch_elements,
         acoustic_junctions=acoustic_junctions,
     )
+    direct_front_radiation_topologies = _collect_direct_front_radiation_topologies(
+        driver_front_index=driver_front_index,
+        driver_rear_index=driver_rear_index,
+        node_order=node_order,
+        shunt_elements=shunt_elements,
+        branch_elements=branch_elements,
+    )
 
     return AssembledSystem(
         node_order=node_order,
@@ -2362,4 +2583,5 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         blind_throat_side_segment_topologies=blind_throat_side_segment_topologies,
         driver_front_chamber_topologies=driver_front_chamber_topologies,
         front_chamber_throat_side_coupling_topologies=front_chamber_throat_side_coupling_topologies,
+        direct_front_radiation_topologies=direct_front_radiation_topologies,
     )
