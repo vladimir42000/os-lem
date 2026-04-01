@@ -624,6 +624,54 @@ class DualRadiatorTopology:
     mouth_node_name: str
     mouth_radiator_id: str
 
+
+@dataclass(slots=True, frozen=True)
+class BackLoadedHornSkeleton:
+    """One bounded back-loaded-horn-class skeleton in one shared assembly.
+
+    Supported in this patch: exactly one single driver with one direct front
+    radiator on the driver front node and one rear horn mouth radiator on a
+    distinct leaf mouth node, while the rear acoustic path carries one rear
+    chamber, one rear-port injection branch, one throat chamber, one blind
+    throat-side side path, and one rear horn path from the throat node to the
+    mouth node.
+
+    This keeps the opening narrow and explicit. It is not a broad graph
+    framework; it only records one first back-loaded-horn-class skeleton as a
+    graph composition of already landed direct-front and rear-mouth motifs.
+    """
+
+    front_node: int
+    front_node_name: str
+    front_radiator_id: str
+    rear_node: int
+    rear_node_name: str
+    rear_chamber_element_id: str
+    rear_chamber_element_kind: ElementKind
+    injection_node: int
+    injection_node_name: str
+    port_injection_element_id: str
+    port_injection_element_kind: ElementKind
+    throat_node: int
+    throat_node_name: str
+    throat_chamber_element_id: str
+    throat_chamber_element_kind: ElementKind
+    throat_entry_element_id: str
+    throat_entry_element_kind: ElementKind
+    throat_side_node: int
+    throat_side_node_name: str
+    blind_upstream_element_id: str
+    blind_upstream_element_kind: ElementKind
+    blind_node: int
+    blind_node_name: str
+    blind_downstream_element_id: str
+    blind_downstream_element_kind: ElementKind
+    rear_path_element_id: str
+    rear_path_element_kind: ElementKind
+    mouth_node: int
+    mouth_node_name: str
+    mouth_radiator_id: str
+
 @dataclass(slots=True, frozen=True)
 class AssembledElement:
     """Topology-resolved element entry.
@@ -664,6 +712,7 @@ class AssembledSystem:
     front_chamber_throat_side_coupling_topologies: tuple[FrontChamberThroatSideCouplingTopology, ...]
     direct_front_radiation_topologies: tuple[DirectFrontRadiationTopology, ...]
     dual_radiator_topologies: tuple[DualRadiatorTopology, ...]
+    back_loaded_horn_skeletons: tuple[BackLoadedHornSkeleton, ...]
 
 
 def _require_known_node(node: str, node_index: dict[str, int], *, context: str) -> int:
@@ -2490,6 +2539,65 @@ def _collect_dual_radiator_topologies(
     return tuple(topologies)
 
 
+def _collect_back_loaded_horn_skeletons(
+    *,
+    dual_radiator_topologies: tuple[DualRadiatorTopology, ...],
+) -> tuple[BackLoadedHornSkeleton, ...]:
+    skeletons: list[BackLoadedHornSkeleton] = []
+    for topology in dual_radiator_topologies:
+        if topology.front_node == topology.mouth_node:
+            continue
+        if topology.front_radiator_id == topology.mouth_radiator_id:
+            continue
+        if topology.rear_path_element_kind != "waveguide_1d":
+            continue
+        if topology.port_injection_element_kind != "waveguide_1d":
+            continue
+        if topology.throat_entry_element_kind != "waveguide_1d":
+            continue
+        if topology.blind_upstream_element_kind != "waveguide_1d":
+            continue
+        if topology.blind_downstream_element_kind != "waveguide_1d":
+            continue
+
+        skeletons.append(
+            BackLoadedHornSkeleton(
+                front_node=topology.front_node,
+                front_node_name=topology.front_node_name,
+                front_radiator_id=topology.front_radiator_id,
+                rear_node=topology.rear_node,
+                rear_node_name=topology.rear_node_name,
+                rear_chamber_element_id=topology.rear_chamber_element_id,
+                rear_chamber_element_kind=topology.rear_chamber_element_kind,
+                injection_node=topology.injection_node,
+                injection_node_name=topology.injection_node_name,
+                port_injection_element_id=topology.port_injection_element_id,
+                port_injection_element_kind=topology.port_injection_element_kind,
+                throat_node=topology.throat_node,
+                throat_node_name=topology.throat_node_name,
+                throat_chamber_element_id=topology.throat_chamber_element_id,
+                throat_chamber_element_kind=topology.throat_chamber_element_kind,
+                throat_entry_element_id=topology.throat_entry_element_id,
+                throat_entry_element_kind=topology.throat_entry_element_kind,
+                throat_side_node=topology.throat_side_node,
+                throat_side_node_name=topology.throat_side_node_name,
+                blind_upstream_element_id=topology.blind_upstream_element_id,
+                blind_upstream_element_kind=topology.blind_upstream_element_kind,
+                blind_node=topology.blind_node,
+                blind_node_name=topology.blind_node_name,
+                blind_downstream_element_id=topology.blind_downstream_element_id,
+                blind_downstream_element_kind=topology.blind_downstream_element_kind,
+                rear_path_element_id=topology.rear_path_element_id,
+                rear_path_element_kind=topology.rear_path_element_kind,
+                mouth_node=topology.mouth_node,
+                mouth_node_name=topology.mouth_node_name,
+                mouth_radiator_id=topology.mouth_radiator_id,
+            )
+        )
+
+    return tuple(skeletons)
+
+
 def assemble_system(model: NormalizedModel) -> AssembledSystem:
     """Assemble the currently supported acoustic topology.
 
@@ -2657,6 +2765,9 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
     dual_radiator_topologies = _collect_dual_radiator_topologies(
         direct_front_radiation_topologies=direct_front_radiation_topologies,
     )
+    back_loaded_horn_skeletons = _collect_back_loaded_horn_skeletons(
+        dual_radiator_topologies=dual_radiator_topologies,
+    )
 
     return AssembledSystem(
         node_order=node_order,
@@ -2680,4 +2791,5 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         front_chamber_throat_side_coupling_topologies=front_chamber_throat_side_coupling_topologies,
         direct_front_radiation_topologies=direct_front_radiation_topologies,
         dual_radiator_topologies=dual_radiator_topologies,
+        back_loaded_horn_skeletons=back_loaded_horn_skeletons,
     )
