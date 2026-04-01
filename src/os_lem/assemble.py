@@ -692,6 +692,27 @@ class FrontRearRadiationSumObservability:
 
 
 @dataclass(slots=True, frozen=True)
+class RearRadiationDelayPathObservability:
+    """One bounded rear-path timing / phase observability carrier.
+
+    Supported in this patch: exactly one direct-front radiator plus one rear
+    mouth radiator carried by one back-loaded-horn-class skeleton. The purpose
+    is narrowly bounded: expose the explicit rear-path branch and the two
+    radiators needed to study rear-path-induced phase rotation and apparent
+    delay relative to the direct front output.
+    """
+
+    front_node: int
+    front_node_name: str
+    front_radiator_id: str
+    rear_path_element_id: str
+    rear_path_element_kind: ElementKind
+    rear_mouth_node: int
+    rear_mouth_node_name: str
+    rear_radiator_id: str
+
+
+@dataclass(slots=True, frozen=True)
 class AssembledElement:
     """Topology-resolved element entry.
 
@@ -732,6 +753,7 @@ class AssembledSystem:
     direct_front_radiation_topologies: tuple[DirectFrontRadiationTopology, ...]
     dual_radiator_topologies: tuple[DualRadiatorTopology, ...]
     front_rear_radiation_sum_observabilities: tuple[FrontRearRadiationSumObservability, ...]
+    rear_radiation_delay_path_observabilities: tuple[RearRadiationDelayPathObservability, ...]
     back_loaded_horn_skeletons: tuple[BackLoadedHornSkeleton, ...]
 
 
@@ -2583,6 +2605,32 @@ def _collect_front_rear_radiation_sum_observabilities(
     return tuple(observabilities)
 
 
+def _collect_rear_radiation_delay_path_observabilities(
+    *,
+    back_loaded_horn_skeletons: tuple[BackLoadedHornSkeleton, ...],
+) -> tuple[RearRadiationDelayPathObservability, ...]:
+    observabilities: list[RearRadiationDelayPathObservability] = []
+    for skeleton in back_loaded_horn_skeletons:
+        if skeleton.front_node == skeleton.mouth_node:
+            continue
+        if skeleton.front_radiator_id == skeleton.mouth_radiator_id:
+            continue
+        observabilities.append(
+            RearRadiationDelayPathObservability(
+                front_node=skeleton.front_node,
+                front_node_name=skeleton.front_node_name,
+                front_radiator_id=skeleton.front_radiator_id,
+                rear_path_element_id=skeleton.rear_path_element_id,
+                rear_path_element_kind=skeleton.rear_path_element_kind,
+                rear_mouth_node=skeleton.mouth_node,
+                rear_mouth_node_name=skeleton.mouth_node_name,
+                rear_radiator_id=skeleton.mouth_radiator_id,
+            )
+        )
+
+    return tuple(observabilities)
+
+
 def _collect_back_loaded_horn_skeletons(
     *,
     dual_radiator_topologies: tuple[DualRadiatorTopology, ...],
@@ -2815,6 +2863,9 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
     back_loaded_horn_skeletons = _collect_back_loaded_horn_skeletons(
         dual_radiator_topologies=dual_radiator_topologies,
     )
+    rear_radiation_delay_path_observabilities = _collect_rear_radiation_delay_path_observabilities(
+        back_loaded_horn_skeletons=back_loaded_horn_skeletons,
+    )
 
     return AssembledSystem(
         node_order=node_order,
@@ -2839,5 +2890,6 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         direct_front_radiation_topologies=direct_front_radiation_topologies,
         dual_radiator_topologies=dual_radiator_topologies,
         front_rear_radiation_sum_observabilities=front_rear_radiation_sum_observabilities,
+        rear_radiation_delay_path_observabilities=rear_radiation_delay_path_observabilities,
         back_loaded_horn_skeletons=back_loaded_horn_skeletons,
     )

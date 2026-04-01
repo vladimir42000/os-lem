@@ -7,7 +7,12 @@ from typing import Any, Mapping, Sequence
 
 import numpy as np
 
-from .assemble import AssembledElement, AssembledSystem, FrontRearRadiationSumObservability
+from .assemble import (
+    AssembledElement,
+    AssembledSystem,
+    FrontRearRadiationSumObservability,
+    RearRadiationDelayPathObservability,
+)
 from .constants import C0, P_REF, RHO0
 from .elements.duct import duct_admittance
 from .elements.radiator import (
@@ -920,6 +925,89 @@ def front_rear_radiation_sum_spl(
         rear_observable_contract=rear_observable_contract,
     )
     return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
+
+
+def rear_radiation_path_pressure_transfer(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    observability: RearRadiationDelayPathObservability,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    front_observable_contract: str | None = None,
+    rear_observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the explicit complex rear/front radiation transfer over a sweep."""
+
+    p_front = radiator_observation_pressure(
+        sweep,
+        system,
+        observability.front_radiator_id,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=front_observable_contract,
+    )
+    p_rear = radiator_observation_pressure(
+        sweep,
+        system,
+        observability.rear_radiator_id,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=rear_observable_contract,
+    )
+    transfer = np.zeros(len(sweep.frequency_hz), dtype=np.complex128)
+    np.divide(p_rear, p_front, out=transfer, where=np.abs(p_front) > 1.0e-30)
+    return transfer
+
+
+def rear_radiation_path_phase_deg(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    observability: RearRadiationDelayPathObservability,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    front_observable_contract: str | None = None,
+    rear_observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the unwrapped rear/front radiation phase offset in degrees."""
+
+    transfer = rear_radiation_path_pressure_transfer(
+        sweep,
+        system,
+        observability,
+        distance_m,
+        radiation_space=radiation_space,
+        front_observable_contract=front_observable_contract,
+        rear_observable_contract=rear_observable_contract,
+    )
+    return np.rad2deg(np.unwrap(np.angle(transfer)))
+
+
+def rear_radiation_path_group_delay(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    observability: RearRadiationDelayPathObservability,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    front_observable_contract: str | None = None,
+    rear_observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the apparent rear/front radiation group delay in seconds."""
+
+    transfer = rear_radiation_path_pressure_transfer(
+        sweep,
+        system,
+        observability,
+        distance_m,
+        radiation_space=radiation_space,
+        front_observable_contract=front_observable_contract,
+        rear_observable_contract=rear_observable_contract,
+    )
+    phase = np.unwrap(np.angle(transfer))
+    omega = 2.0 * np.pi * sweep.frequency_hz
+    return -np.gradient(phase, omega)
 
 
 def radiator_spl(
