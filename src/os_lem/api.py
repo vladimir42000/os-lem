@@ -29,10 +29,10 @@ from .parser import normalize_model
 from .units import parse_value
 from .solve import (
     SolvedFrequencySweep,
-    radiator_observation_pressure,
     radiator_spl,
     solve_frequency_point,
     solve_frequency_sweep,
+    summed_radiator_spl,
     waveguide_line_profile_particle_velocity,
     waveguide_line_profile_pressure,
     waveguide_line_profile_volume_velocity,
@@ -302,23 +302,15 @@ def _evaluate_observation(
         ), "dB"
 
     if otype == "spl_sum":
-        total = np.zeros_like(sweep.frequency_hz, dtype=np.complex128)
         parent_space = _resolve_radiation_space(model, data.get("radiation_space"))
         parent_contract = _resolve_observable_contract(data.get("observable_contract"))
-        for term in data["terms"]:
-            target = str(term["target"])
-            distance_m = _parse_distance_m(term.get("distance", 1.0))
-            term_space = term.get("radiation_space", parent_space)
-            term_contract = _resolve_observable_contract(term.get("observable_contract", parent_contract))
-            total = total + radiator_observation_pressure(
-                sweep,
-                system,
-                target,
-                distance_m,
-                radiation_space=term_space,
-                observable_contract=term_contract,
-            )
-        return 20.0 * np.log10(np.maximum(np.abs(total), 1.0e-30) / 2.0e-5), "dB"
+        return summed_radiator_spl(
+            sweep,
+            system,
+            data["terms"],
+            radiation_space=parent_space,
+            observable_contract=parent_contract,
+        ), "dB"
 
     if otype in {"element_volume_velocity", "element_particle_velocity"}:
         return _evaluate_element_observation(system, sweep, data, quantity=otype)

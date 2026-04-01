@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Mapping
+from typing import Any, Mapping, Sequence
 
 import numpy as np
 
-from .assemble import AssembledElement, AssembledSystem
+from .assemble import AssembledElement, AssembledSystem, FrontRearRadiationSumObservability
 from .constants import C0, P_REF, RHO0
 from .elements.duct import duct_admittance
 from .elements.radiator import (
@@ -804,6 +804,122 @@ def radiator_observation_pressure(
         observation_pressure[idx] = p_obs
 
     return observation_pressure
+
+
+def _coerce_distance_m(value: Any) -> float:
+    if isinstance(value, str):
+        text = value.strip()
+        if text.endswith(" m"):
+            return float(text[:-2].strip())
+        return float(text)
+    return float(value)
+
+
+def summed_radiator_observation_pressure(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    radiator_terms: Sequence[Mapping[str, Any]],
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the complex summed far-field pressure for a bounded radiator set.
+
+    Each term must provide ``target`` and may optionally override ``distance``,
+    ``radiation_space``, and ``observable_contract``. Parent defaults are used
+    when a term omits one of those fields.
+    """
+
+    total = np.zeros(len(sweep.frequency_hz), dtype=np.complex128)
+    for term in radiator_terms:
+        target = str(term["target"])
+        distance_m = _coerce_distance_m(term.get("distance", 1.0))
+        term_space = term.get("radiation_space", radiation_space)
+        term_contract = term.get("observable_contract", observable_contract)
+        total = total + radiator_observation_pressure(
+            sweep,
+            system,
+            target,
+            distance_m,
+            term_space,
+            observable_contract=None if term_contract is None else str(term_contract),
+        )
+    return total
+
+
+def summed_radiator_spl(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    radiator_terms: Sequence[Mapping[str, Any]],
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return dB SPL for a bounded complex sum of radiator observation pressures."""
+
+    p_obs = summed_radiator_observation_pressure(
+        sweep,
+        system,
+        radiator_terms,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+    return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
+
+
+def front_rear_radiation_sum_pressure(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    observability: FrontRearRadiationSumObservability,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    front_observable_contract: str | None = None,
+    rear_observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return one explicit front-plus-rear summed observation pressure."""
+
+    return summed_radiator_observation_pressure(
+        sweep,
+        system,
+        [
+            {
+                "target": observability.front_radiator_id,
+                "distance": distance_m,
+                "observable_contract": front_observable_contract,
+            },
+            {
+                "target": observability.rear_radiator_id,
+                "distance": distance_m,
+                "observable_contract": rear_observable_contract,
+            },
+        ],
+        radiation_space=radiation_space,
+    )
+
+
+def front_rear_radiation_sum_spl(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    observability: FrontRearRadiationSumObservability,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    front_observable_contract: str | None = None,
+    rear_observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return one explicit front-plus-rear summed SPL trace in dB."""
+
+    p_obs = front_rear_radiation_sum_pressure(
+        sweep,
+        system,
+        observability,
+        distance_m,
+        radiation_space=radiation_space,
+        front_observable_contract=front_observable_contract,
+        rear_observable_contract=rear_observable_contract,
+    )
+    return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
 
 
 def radiator_spl(

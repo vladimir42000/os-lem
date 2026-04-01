@@ -673,6 +673,25 @@ class BackLoadedHornSkeleton:
     mouth_radiator_id: str
 
 @dataclass(slots=True, frozen=True)
+class FrontRearRadiationSumObservability:
+    """One bounded front/rear radiation-sum observability carrier.
+
+    Supported in this patch: exactly one distinct direct-front radiator plus
+    one distinct rear mouth radiator carried by one already assembled
+    dual-radiator topology. This is intentionally not a general radiation scene
+    graph; it only records the minimal two-radiator sum case needed to make the
+    combined front-plus-rear output explicit and reusable.
+    """
+
+    front_node: int
+    front_node_name: str
+    front_radiator_id: str
+    rear_mouth_node: int
+    rear_mouth_node_name: str
+    rear_radiator_id: str
+
+
+@dataclass(slots=True, frozen=True)
 class AssembledElement:
     """Topology-resolved element entry.
 
@@ -712,6 +731,7 @@ class AssembledSystem:
     front_chamber_throat_side_coupling_topologies: tuple[FrontChamberThroatSideCouplingTopology, ...]
     direct_front_radiation_topologies: tuple[DirectFrontRadiationTopology, ...]
     dual_radiator_topologies: tuple[DualRadiatorTopology, ...]
+    front_rear_radiation_sum_observabilities: tuple[FrontRearRadiationSumObservability, ...]
     back_loaded_horn_skeletons: tuple[BackLoadedHornSkeleton, ...]
 
 
@@ -2539,6 +2559,30 @@ def _collect_dual_radiator_topologies(
     return tuple(topologies)
 
 
+def _collect_front_rear_radiation_sum_observabilities(
+    *,
+    dual_radiator_topologies: tuple[DualRadiatorTopology, ...],
+) -> tuple[FrontRearRadiationSumObservability, ...]:
+    observabilities: list[FrontRearRadiationSumObservability] = []
+    for topology in dual_radiator_topologies:
+        if topology.front_node == topology.mouth_node:
+            continue
+        if topology.front_radiator_id == topology.mouth_radiator_id:
+            continue
+        observabilities.append(
+            FrontRearRadiationSumObservability(
+                front_node=topology.front_node,
+                front_node_name=topology.front_node_name,
+                front_radiator_id=topology.front_radiator_id,
+                rear_mouth_node=topology.mouth_node,
+                rear_mouth_node_name=topology.mouth_node_name,
+                rear_radiator_id=topology.mouth_radiator_id,
+            )
+        )
+
+    return tuple(observabilities)
+
+
 def _collect_back_loaded_horn_skeletons(
     *,
     dual_radiator_topologies: tuple[DualRadiatorTopology, ...],
@@ -2765,6 +2809,9 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
     dual_radiator_topologies = _collect_dual_radiator_topologies(
         direct_front_radiation_topologies=direct_front_radiation_topologies,
     )
+    front_rear_radiation_sum_observabilities = _collect_front_rear_radiation_sum_observabilities(
+        dual_radiator_topologies=dual_radiator_topologies,
+    )
     back_loaded_horn_skeletons = _collect_back_loaded_horn_skeletons(
         dual_radiator_topologies=dual_radiator_topologies,
     )
@@ -2791,5 +2838,6 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         front_chamber_throat_side_coupling_topologies=front_chamber_throat_side_coupling_topologies,
         direct_front_radiation_topologies=direct_front_radiation_topologies,
         dual_radiator_topologies=dual_radiator_topologies,
+        front_rear_radiation_sum_observabilities=front_rear_radiation_sum_observabilities,
         back_loaded_horn_skeletons=back_loaded_horn_skeletons,
     )
