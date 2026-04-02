@@ -10,6 +10,7 @@ import numpy as np
 from .assemble import (
     AssembledElement,
     AssembledSystem,
+    FrontRearRadiationContributionObservability,
     FrontRearRadiationSumObservability,
     RearRadiationDelayPathObservability,
 )
@@ -870,6 +871,96 @@ def summed_radiator_spl(
         observable_contract=observable_contract,
     )
     return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
+
+
+def front_radiation_contribution_pressure(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    observability: FrontRearRadiationContributionObservability,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the explicit front-radiator contribution pressure over a sweep."""
+
+    return radiator_observation_pressure(
+        sweep,
+        system,
+        observability.front_radiator_id,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+
+
+
+def front_radiation_contribution_spl(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    observability: FrontRearRadiationContributionObservability,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the explicit front-radiator contribution SPL over a sweep."""
+
+    p_obs = front_radiation_contribution_pressure(
+        sweep,
+        system,
+        observability,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+    return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
+
+
+
+def rear_radiation_contribution_pressure(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    observability: FrontRearRadiationContributionObservability,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the explicit rear-radiator contribution pressure over a sweep."""
+
+    return radiator_observation_pressure(
+        sweep,
+        system,
+        observability.rear_radiator_id,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+
+
+
+def rear_radiation_contribution_spl(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    observability: FrontRearRadiationContributionObservability,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the explicit rear-radiator contribution SPL over a sweep."""
+
+    p_obs = rear_radiation_contribution_pressure(
+        sweep,
+        system,
+        observability,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+    return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
+
 
 
 def front_rear_radiation_sum_pressure(
