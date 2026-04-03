@@ -77,6 +77,36 @@ class BranchedHornSkeleton:
 
 
 @dataclass(slots=True, frozen=True)
+class DirectPlusBranchedRearPathSkeleton:
+    """One bounded direct-front plus branched-rear-path skeleton.
+
+    Supported in this patch: exactly one direct front radiator on the driver
+    front node plus one minimal branched rear horn path from the driver rear
+    node into one three-branch junction with exactly two rear mouth radiators.
+
+    This keeps the opening narrow and explicit. It is not a general graph
+    framework; it only records one first direct-plus-branched-rear topology
+    built from the already landed direct-front and branched-rear motifs.
+    """
+
+    front_node: int
+    front_node_name: str
+    front_radiator_id: str
+    rear_node: int
+    rear_node_name: str
+    junction_node: int
+    junction_node_name: str
+    stem_element_id: str
+    stem_element_kind: ElementKind
+    rear_branch_element_ids: tuple[str, str]
+    rear_branch_element_kinds: tuple[ElementKind, ElementKind]
+    rear_mouth_nodes: tuple[int, int]
+    rear_mouth_node_names: tuple[str, str]
+    rear_mouth_radiator_ids: tuple[str, str]
+
+
+
+@dataclass(slots=True, frozen=True)
 class RecombinationTopology:
     """One bounded recombination topology carried by the assembled system.
 
@@ -759,6 +789,7 @@ class AssembledSystem:
     parallel_branch_bundles: tuple[ParallelBranchBundle, ...]
     acoustic_junctions: tuple[AcousticJunction, ...]
     branched_horn_skeletons: tuple[BranchedHornSkeleton, ...]
+    direct_plus_branched_rear_path_skeletons: tuple[DirectPlusBranchedRearPathSkeleton, ...]
     recombination_topologies: tuple[RecombinationTopology, ...]
     split_merge_horn_skeletons: tuple[SplitMergeHornSkeleton, ...]
     tapped_driver_skeletons: tuple[TappedDriverSkeleton, ...]
@@ -927,6 +958,54 @@ def _collect_branched_horn_skeletons(
         )
 
     return tuple(skeletons)
+
+
+def _collect_direct_plus_branched_rear_path_skeletons(
+    *,
+    driver_front_index: int,
+    node_order: tuple[str, ...],
+    shunt_elements: list[AssembledElement],
+    branched_horn_skeletons: tuple[BranchedHornSkeleton, ...],
+) -> tuple[DirectPlusBranchedRearPathSkeleton, ...]:
+    radiators_by_node: dict[int, list[AssembledElement]] = {}
+    for element in shunt_elements:
+        if element.kind == "radiator":
+            radiators_by_node.setdefault(element.node_a, []).append(element)
+
+    front_radiators = radiators_by_node.get(driver_front_index, [])
+    if len(front_radiators) != 1:
+        return ()
+
+    front_radiator = front_radiators[0]
+    skeletons: list[DirectPlusBranchedRearPathSkeleton] = []
+
+    for skeleton in branched_horn_skeletons:
+        if driver_front_index in skeleton.mouth_nodes:
+            continue
+        if front_radiator.id in skeleton.mouth_radiator_ids:
+            continue
+
+        skeletons.append(
+            DirectPlusBranchedRearPathSkeleton(
+                front_node=driver_front_index,
+                front_node_name=node_order[driver_front_index],
+                front_radiator_id=front_radiator.id,
+                rear_node=skeleton.rear_node,
+                rear_node_name=skeleton.rear_node_name,
+                junction_node=skeleton.junction_node,
+                junction_node_name=skeleton.junction_node_name,
+                stem_element_id=skeleton.stem_element_id,
+                stem_element_kind=skeleton.stem_element_kind,
+                rear_branch_element_ids=skeleton.branch_element_ids,
+                rear_branch_element_kinds=skeleton.branch_element_kinds,
+                rear_mouth_nodes=skeleton.mouth_nodes,
+                rear_mouth_node_names=skeleton.mouth_node_names,
+                rear_mouth_radiator_ids=skeleton.mouth_radiator_ids,
+            )
+        )
+
+    return tuple(skeletons)
+
 
 
 def _collect_recombination_topologies(
@@ -2815,6 +2894,12 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         branch_elements=branch_elements,
         acoustic_junctions=acoustic_junctions,
     )
+    direct_plus_branched_rear_path_skeletons = _collect_direct_plus_branched_rear_path_skeletons(
+        driver_front_index=driver_front_index,
+        node_order=node_order,
+        shunt_elements=shunt_elements,
+        branched_horn_skeletons=branched_horn_skeletons,
+    )
     recombination_topologies = _collect_recombination_topologies(
         node_order=node_order,
         shunt_elements=shunt_elements,
@@ -2920,6 +3005,7 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         parallel_branch_bundles=parallel_branch_bundles,
         acoustic_junctions=acoustic_junctions,
         branched_horn_skeletons=branched_horn_skeletons,
+        direct_plus_branched_rear_path_skeletons=direct_plus_branched_rear_path_skeletons,
         recombination_topologies=recombination_topologies,
         split_merge_horn_skeletons=split_merge_horn_skeletons,
         tapped_driver_skeletons=tapped_driver_skeletons,
