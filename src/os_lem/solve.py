@@ -11,6 +11,7 @@ from .assemble import (
     AssembledElement,
     AssembledSystem,
     DirectPlusBranchedRearPathContributionContract,
+    DirectPlusSplitMergeRearPathContributionContract,
     FrontRearRadiationContributionObservability,
     FrontRearRadiationSumObservability,
     RearRadiationDelayPathObservability,
@@ -955,6 +956,96 @@ def direct_plus_branched_rear_path_rear_contribution_spl(
     """Return the coherent summed rear contribution SPL for one branched-rear contract."""
 
     p_obs = direct_plus_branched_rear_path_rear_contribution_pressure(
+        sweep,
+        system,
+        contract,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+    return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
+
+
+
+def direct_plus_split_merge_rear_path_front_contribution_pressure(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    contract: DirectPlusSplitMergeRearPathContributionContract,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the direct-front contribution pressure for one split/merge rear contract."""
+
+    return radiator_observation_pressure(
+        sweep,
+        system,
+        contract.front_radiator_id,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+
+
+
+def direct_plus_split_merge_rear_path_front_contribution_spl(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    contract: DirectPlusSplitMergeRearPathContributionContract,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the direct-front contribution SPL for one split/merge rear contract."""
+
+    p_obs = direct_plus_split_merge_rear_path_front_contribution_pressure(
+        sweep,
+        system,
+        contract,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+    return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
+
+
+
+def direct_plus_split_merge_rear_path_rear_contribution_pressure(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    contract: DirectPlusSplitMergeRearPathContributionContract,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the recombined rear contribution pressure for one split/merge rear contract."""
+
+    return radiator_observation_pressure(
+        sweep,
+        system,
+        contract.rear_mouth_radiator_id,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+
+
+
+def direct_plus_split_merge_rear_path_rear_contribution_spl(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    contract: DirectPlusSplitMergeRearPathContributionContract,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the recombined rear contribution SPL for one split/merge rear contract."""
+
+    p_obs = direct_plus_split_merge_rear_path_rear_contribution_pressure(
         sweep,
         system,
         contract,
