@@ -130,6 +130,40 @@ class DirectPlusBranchedRearPathContributionContract:
 
 
 @dataclass(slots=True, frozen=True)
+class DirectPlusSplitMergeRearPathSkeleton:
+    """One bounded direct-front plus split/merge rear-path skeleton.
+
+    Supported in this patch: exactly one direct front radiator on the driver
+    front node plus one minimal split/merge rear horn path from the driver rear
+    node through one split junction, two bounded interior legs, one merge
+    junction, and one shared rear mouth radiator.
+
+    This keeps the opening narrow and explicit. It is not a general graph
+    framework; it only records one first direct-plus-split-merge-rear topology
+    built from the already landed direct-front and split/merge rear motifs.
+    """
+
+    front_node: int
+    front_node_name: str
+    front_radiator_id: str
+    rear_node: int
+    rear_node_name: str
+    split_node: int
+    split_node_name: str
+    merge_node: int
+    merge_node_name: str
+    stem_element_id: str
+    stem_element_kind: ElementKind
+    rear_leg_element_ids: tuple[str, str]
+    rear_leg_element_kinds: tuple[ElementKind, ElementKind]
+    shared_exit_element_id: str
+    shared_exit_element_kind: ElementKind
+    rear_mouth_node: int
+    rear_mouth_node_name: str
+    rear_mouth_radiator_id: str
+
+
+@dataclass(slots=True, frozen=True)
 class RecombinationTopology:
     """One bounded recombination topology carried by the assembled system.
 
@@ -814,6 +848,7 @@ class AssembledSystem:
     branched_horn_skeletons: tuple[BranchedHornSkeleton, ...]
     direct_plus_branched_rear_path_skeletons: tuple[DirectPlusBranchedRearPathSkeleton, ...]
     direct_plus_branched_rear_path_contribution_contracts: tuple[DirectPlusBranchedRearPathContributionContract, ...]
+    direct_plus_split_merge_rear_path_skeletons: tuple[DirectPlusSplitMergeRearPathSkeleton, ...]
     recombination_topologies: tuple[RecombinationTopology, ...]
     split_merge_horn_skeletons: tuple[SplitMergeHornSkeleton, ...]
     tapped_driver_skeletons: tuple[TappedDriverSkeleton, ...]
@@ -1225,6 +1260,56 @@ def _collect_split_merge_horn_skeletons(
                 )
             )
             break
+
+    return tuple(skeletons)
+
+
+def _collect_direct_plus_split_merge_rear_path_skeletons(
+    *,
+    driver_front_index: int,
+    node_order: tuple[str, ...],
+    shunt_elements: list[AssembledElement],
+    split_merge_horn_skeletons: tuple[SplitMergeHornSkeleton, ...],
+) -> tuple[DirectPlusSplitMergeRearPathSkeleton, ...]:
+    radiators_by_node: dict[int, list[AssembledElement]] = {}
+    for element in shunt_elements:
+        if element.kind == "radiator":
+            radiators_by_node.setdefault(element.node_a, []).append(element)
+
+    front_radiators = radiators_by_node.get(driver_front_index, [])
+    if len(front_radiators) != 1:
+        return ()
+
+    front_radiator = front_radiators[0]
+    skeletons: list[DirectPlusSplitMergeRearPathSkeleton] = []
+    for skeleton in split_merge_horn_skeletons:
+        if driver_front_index == skeleton.mouth_node:
+            continue
+        if front_radiator.id == skeleton.mouth_radiator_id:
+            continue
+
+        skeletons.append(
+            DirectPlusSplitMergeRearPathSkeleton(
+                front_node=driver_front_index,
+                front_node_name=node_order[driver_front_index],
+                front_radiator_id=front_radiator.id,
+                rear_node=skeleton.rear_node,
+                rear_node_name=skeleton.rear_node_name,
+                split_node=skeleton.split_node,
+                split_node_name=skeleton.split_node_name,
+                merge_node=skeleton.merge_node,
+                merge_node_name=skeleton.merge_node_name,
+                stem_element_id=skeleton.stem_element_id,
+                stem_element_kind=skeleton.stem_element_kind,
+                rear_leg_element_ids=skeleton.leg_element_ids,
+                rear_leg_element_kinds=skeleton.leg_element_kinds,
+                shared_exit_element_id=skeleton.shared_exit_element_id,
+                shared_exit_element_kind=skeleton.shared_exit_element_kind,
+                rear_mouth_node=skeleton.mouth_node,
+                rear_mouth_node_name=skeleton.mouth_node_name,
+                rear_mouth_radiator_id=skeleton.mouth_radiator_id,
+            )
+        )
 
     return tuple(skeletons)
 
@@ -2974,6 +3059,12 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         parallel_branch_bundles=parallel_branch_bundles,
         acoustic_junctions=acoustic_junctions,
     )
+    direct_plus_split_merge_rear_path_skeletons = _collect_direct_plus_split_merge_rear_path_skeletons(
+        driver_front_index=driver_front_index,
+        node_order=node_order,
+        shunt_elements=shunt_elements,
+        split_merge_horn_skeletons=split_merge_horn_skeletons,
+    )
     tapped_driver_skeletons = _collect_tapped_driver_skeletons(
         driver_front_index=driver_front_index,
         shunt_elements=shunt_elements,
@@ -3066,6 +3157,7 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         branched_horn_skeletons=branched_horn_skeletons,
         direct_plus_branched_rear_path_skeletons=direct_plus_branched_rear_path_skeletons,
         direct_plus_branched_rear_path_contribution_contracts=direct_plus_branched_rear_path_contribution_contracts,
+        direct_plus_split_merge_rear_path_skeletons=direct_plus_split_merge_rear_path_skeletons,
         recombination_topologies=recombination_topologies,
         split_merge_horn_skeletons=split_merge_horn_skeletons,
         tapped_driver_skeletons=tapped_driver_skeletons,
