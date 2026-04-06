@@ -237,6 +237,43 @@ class DirectPlusBranchedSplitMergeRearPathSkeleton:
 
 
 @dataclass(slots=True, frozen=True)
+class DirectPlusBranchedSplitMergeRearPathContributionContract:
+    """One bounded contribution contract for a direct-plus-branched-split-merge rear path.
+
+    Supported in this patch: exactly one direct front radiator on the driver
+    front node plus a branched rear path with one direct rear exit and one
+    recombined split/merge rear exit. The contract is intentionally narrow:
+    the front contribution is the direct front radiator alone, while the rear
+    contribution is the coherent complex sum of the direct rear mouth radiator
+    and the merged rear mouth radiator at the requested observation point.
+    """
+
+    front_node: int
+    front_node_name: str
+    front_radiator_id: str
+    rear_junction_node: int
+    rear_junction_node_name: str
+    direct_branch_element_id: str
+    direct_branch_element_kind: ElementKind
+    direct_rear_mouth_node: int
+    direct_rear_mouth_node_name: str
+    direct_rear_mouth_radiator_id: str
+    split_feed_element_id: str
+    split_feed_element_kind: ElementKind
+    split_node: int
+    split_node_name: str
+    merge_node: int
+    merge_node_name: str
+    recombined_leg_element_ids: tuple[str, str]
+    recombined_leg_element_kinds: tuple[ElementKind, ElementKind]
+    shared_exit_element_id: str
+    shared_exit_element_kind: ElementKind
+    merged_rear_mouth_node: int
+    merged_rear_mouth_node_name: str
+    merged_rear_mouth_radiator_id: str
+
+
+@dataclass(slots=True, frozen=True)
 class RecombinationTopology:
     """One bounded recombination topology carried by the assembled system.
 
@@ -924,6 +961,7 @@ class AssembledSystem:
     direct_plus_split_merge_rear_path_skeletons: tuple[DirectPlusSplitMergeRearPathSkeleton, ...]
     direct_plus_split_merge_rear_path_contribution_contracts: tuple[DirectPlusSplitMergeRearPathContributionContract, ...]
     direct_plus_branched_split_merge_rear_path_skeletons: tuple[DirectPlusBranchedSplitMergeRearPathSkeleton, ...]
+    direct_plus_branched_split_merge_rear_path_contribution_contracts: tuple[DirectPlusBranchedSplitMergeRearPathContributionContract, ...]
     recombination_topologies: tuple[RecombinationTopology, ...]
     split_merge_horn_skeletons: tuple[SplitMergeHornSkeleton, ...]
     tapped_driver_skeletons: tuple[TappedDriverSkeleton, ...]
@@ -1536,6 +1574,55 @@ def _collect_direct_plus_branched_split_merge_rear_path_skeletons(
             break
 
     return tuple(skeletons)
+
+
+def _collect_direct_plus_branched_split_merge_rear_path_contribution_contracts(
+    *,
+    direct_plus_branched_split_merge_rear_path_skeletons: tuple[DirectPlusBranchedSplitMergeRearPathSkeleton, ...],
+) -> tuple[DirectPlusBranchedSplitMergeRearPathContributionContract, ...]:
+    contracts: list[DirectPlusBranchedSplitMergeRearPathContributionContract] = []
+    for skeleton in direct_plus_branched_split_merge_rear_path_skeletons:
+        if skeleton.front_node in (skeleton.direct_rear_mouth_node, skeleton.merged_rear_mouth_node):
+            continue
+        if skeleton.front_radiator_id in (
+            skeleton.direct_rear_mouth_radiator_id,
+            skeleton.merged_rear_mouth_radiator_id,
+        ):
+            continue
+        if skeleton.direct_rear_mouth_node == skeleton.merged_rear_mouth_node:
+            continue
+        if skeleton.direct_rear_mouth_radiator_id == skeleton.merged_rear_mouth_radiator_id:
+            continue
+
+        contracts.append(
+            DirectPlusBranchedSplitMergeRearPathContributionContract(
+                front_node=skeleton.front_node,
+                front_node_name=skeleton.front_node_name,
+                front_radiator_id=skeleton.front_radiator_id,
+                rear_junction_node=skeleton.junction_node,
+                rear_junction_node_name=skeleton.junction_node_name,
+                direct_branch_element_id=skeleton.direct_branch_element_id,
+                direct_branch_element_kind=skeleton.direct_branch_element_kind,
+                direct_rear_mouth_node=skeleton.direct_rear_mouth_node,
+                direct_rear_mouth_node_name=skeleton.direct_rear_mouth_node_name,
+                direct_rear_mouth_radiator_id=skeleton.direct_rear_mouth_radiator_id,
+                split_feed_element_id=skeleton.split_feed_element_id,
+                split_feed_element_kind=skeleton.split_feed_element_kind,
+                split_node=skeleton.split_node,
+                split_node_name=skeleton.split_node_name,
+                merge_node=skeleton.merge_node,
+                merge_node_name=skeleton.merge_node_name,
+                recombined_leg_element_ids=skeleton.recombined_leg_element_ids,
+                recombined_leg_element_kinds=skeleton.recombined_leg_element_kinds,
+                shared_exit_element_id=skeleton.shared_exit_element_id,
+                shared_exit_element_kind=skeleton.shared_exit_element_kind,
+                merged_rear_mouth_node=skeleton.merged_rear_mouth_node,
+                merged_rear_mouth_node_name=skeleton.merged_rear_mouth_node_name,
+                merged_rear_mouth_radiator_id=skeleton.merged_rear_mouth_radiator_id,
+            )
+        )
+
+    return tuple(contracts)
 
 
 def _collect_tapped_driver_skeletons(
@@ -3301,6 +3388,9 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         acoustic_junctions=acoustic_junctions,
         recombination_topologies=recombination_topologies,
     )
+    direct_plus_branched_split_merge_rear_path_contribution_contracts = _collect_direct_plus_branched_split_merge_rear_path_contribution_contracts(
+        direct_plus_branched_split_merge_rear_path_skeletons=direct_plus_branched_split_merge_rear_path_skeletons,
+    )
     tapped_driver_skeletons = _collect_tapped_driver_skeletons(
         driver_front_index=driver_front_index,
         shunt_elements=shunt_elements,
@@ -3396,6 +3486,7 @@ def assemble_system(model: NormalizedModel) -> AssembledSystem:
         direct_plus_split_merge_rear_path_skeletons=direct_plus_split_merge_rear_path_skeletons,
         direct_plus_split_merge_rear_path_contribution_contracts=direct_plus_split_merge_rear_path_contribution_contracts,
         direct_plus_branched_split_merge_rear_path_skeletons=direct_plus_branched_split_merge_rear_path_skeletons,
+        direct_plus_branched_split_merge_rear_path_contribution_contracts=direct_plus_branched_split_merge_rear_path_contribution_contracts,
         recombination_topologies=recombination_topologies,
         split_merge_horn_skeletons=split_merge_horn_skeletons,
         tapped_driver_skeletons=tapped_driver_skeletons,
