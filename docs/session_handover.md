@@ -3,46 +3,38 @@
 ## Accepted checkpoint for this handover
 
 Accepted control-plane checkpoint for the current bookkeeping state:
-- branch: `chore/v0.5.0-close-readiness-and-control-plane-alignment`
-- commit: `ca9e346`
-- observed tests on the retained validated technical basis: `318 passed`
-- retained validated technical basis: `152c7d2`
-- operator probe worktree state: no tracked modifications; local probe artifacts may be untracked
+- branch: `chore/post-v0.5.0-control-plane-alignment`
+- commit: `2a96338`
+- validated `v0.5.0` close basis: `152c7d2`
+- observed tests on the validated close basis: `318 passed`
+- operator probe worktree state: clean working tree expected; local probe artifacts may be untracked
 
 ---
 
-## Closed v0.5.0 surface carried forward here
+## Landed control-plane chain recorded here
 
-This handover records `v0.5.0` as closed on the working line with the following retained validated technical surface:
-- reusable direct+rear observability stack landed and exercised
-- back-loaded-horn-class support is bounded and regression-covered
-- direct-plus-branched rear-path family is bounded and regression-covered
-- direct-plus-split-merge rear-path family is bounded and regression-covered
-- direct-plus-branched-split-merge rear-path family is bounded and regression-covered
-- front-chamber throat-side coupling extension on the combined rear-path family is bounded and regression-covered
-- multi-family consistency and observability probes are landed
-- stability-envelope and minimal-release-surface probes are landed
+This handover records the bounded close-and-successor decision chain:
+- `ca9e346` — align `v0.5.0` close readiness and control plane
+- `2a96338` — post `v0.5.0` milestone decision and control-plane reset
+- current patch — `v0.6.0` opening and scope freeze
 
-The retained validated technical basis for successor control remains `152c7d2`.
+The accepted live control line remains the post-`v0.5.0` control-plane branch.
+The validated technical close basis remains `152c7d2`.
 
 ---
 
 ## Frontend contract note
 
-Carried statement on the retained validated technical basis:
+Carried statement on this accepted line:
 - `No frontend contract change`
 
-The frozen frontend contract v1 checkpoint remains `81727af854207ccc94eeeede26988c688571cb30`.
-The post-`v0.5.0` milestone decision does not change that stable frontend surface.
+The stable truthful anchor remains `Closed Box`.
+This opening patch intentionally does not precommit whether the next truthful exposure boundary becomes extended frontend contract v1 or frontend contract v2.
 
 ---
 
-## Successor milestone decision recorded here
+## Live sequencing note
 
-This handover records the successor working-line decision:
-- `v0.5.0` is closed on the working line
-- `v0.6.0` is opened as the successor working-line milestone
-- `v0.6.0` intent is bounded successor-line continuation above the validated `v0.5.0` surface
-- `v0.6.0` does not authorize blind technical growth; it still requires one exact bounded AUDIT before the first technical patch is opened
-
-The single next live action remains tracked only in `docs/next_patch.md`.
+The single next live action is kept only in `docs/next_patch.md` to avoid duplicated sequencing state.
+The next live action after this opening patch is:
+- `AUDIT: freeze the first bounded v0.6.0 exposure/coherence patch above the Closed Box truthful anchor.`
