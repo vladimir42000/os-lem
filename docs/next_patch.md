@@ -7,25 +7,26 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 ---
 
-## Current state after v0.5 close-readiness alignment
+## Current state after post-v0.5.0 milestone decision
 
-- active working-line milestone: `v0.5.0`
-- accepted working branch: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
-- accepted working commit: `152c7d2`
-- observed suite on the accepted working line: `318 passed`
+- active working-line milestone: `v0.6.0`
+- accepted control-plane checkpoint: `ca9e346`
+- retained validated technical basis: `152c7d2`
+- observed suite on the retained validated technical basis: `318 passed`
 - carried statement: `No frontend contract change`
-- close-readiness result: `ready to close now`
-- further bounded technical patch required before close: `no`
+- `v0.5.0` state: `closed on the working line`
+- successor milestone state: `v0.6.0 opened`
 
 ---
 
 ## Next live action
 
-- `immediate v0.5 close on the current validated line`
+- `run one bounded AUDIT to name the first exact v0.6.0 technical patch above the validated v0.5.0 close basis`
 
 ---
 
 ## Guard rail
 
-Do not open a new topology family, solver feature, API change, or frontend change before the close action is resolved.
-If closure is deferred, reopen with one exact bounded follow-up action only.
+Do not open technical growth blindly after milestone close.
+Do not start `v0.6.0` development until one bounded AUDIT names the first exact technical patch.
+Do not authorize passive radiator work, multi-driver active architecture, electrical-network graph work, solver redesign, API/frontend redesign, or repo-wide cleanup unless a later control-plane decision opens that scope explicitly.

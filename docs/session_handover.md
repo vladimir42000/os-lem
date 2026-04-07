@@ -2,17 +2,18 @@
 
 ## Accepted checkpoint for this handover
 
-Accepted working-line checkpoint for the current bookkeeping state:
-- branch: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
-- commit: `152c7d2`
-- observed tests: `318 passed`
+Accepted control-plane checkpoint for the current bookkeeping state:
+- branch: `chore/v0.5.0-close-readiness-and-control-plane-alignment`
+- commit: `ca9e346`
+- observed tests on the retained validated technical basis: `318 passed`
+- retained validated technical basis: `152c7d2`
 - operator probe worktree state: no tracked modifications; local probe artifacts may be untracked
 
 ---
 
-## Validated v0.5 surface recorded here
+## Closed v0.5.0 surface carried forward here
 
-This handover records the accepted v0.5 convergence surface used for close-readiness:
+This handover records `v0.5.0` as closed on the working line with the following retained validated technical surface:
 - reusable direct+rear observability stack landed and exercised
 - back-loaded-horn-class support is bounded and regression-covered
 - direct-plus-branched rear-path family is bounded and regression-covered
@@ -22,23 +23,26 @@ This handover records the accepted v0.5 convergence surface used for close-readi
 - multi-family consistency and observability probes are landed
 - stability-envelope and minimal-release-surface probes are landed
 
-The accepted working line for live control is now `152c7d2`.
+The retained validated technical basis for successor control remains `152c7d2`.
 
 ---
 
 ## Frontend contract note
 
-Carried statement on this accepted line:
+Carried statement on the retained validated technical basis:
 - `No frontend contract change`
 
 The frozen frontend contract v1 checkpoint remains `81727af854207ccc94eeeede26988c688571cb30`.
-The validated v0.5 surface does not change that stable frontend surface.
+The post-`v0.5.0` milestone decision does not change that stable frontend surface.
 
 ---
 
-## Live sequencing note
+## Successor milestone decision recorded here
 
-The single next live action is kept only in `docs/next_patch.md` to avoid duplicated sequencing state.
-The close-readiness result frozen by this bookkeeping update is:
-- `v0.5.0 is ready to close now on the current validated line`
-- `no additional bounded technical patch is required before close`
+This handover records the successor working-line decision:
+- `v0.5.0` is closed on the working line
+- `v0.6.0` is opened as the successor working-line milestone
+- `v0.6.0` intent is bounded successor-line continuation above the validated `v0.5.0` surface
+- `v0.6.0` does not authorize blind technical growth; it still requires one exact bounded AUDIT before the first technical patch is opened
+
+The single next live action remains tracked only in `docs/next_patch.md`.

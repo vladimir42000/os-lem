@@ -59,7 +59,7 @@ Use `v0.4.0` to push os-lem from a narrow released waveguide baseline toward the
 
 ---
 
-## Active working-line milestone
+## Most recently closed working-line milestone
 
 Name:
 - `v0.5.0`
@@ -68,19 +68,19 @@ Title:
 - `direct+rear reusable graph convergence`
 
 Milestone status:
-- close-ready on the working line
+- closed on the working line
 - opening checkpoint: `9766931`
-- latest explicit frontend checkpoint: `81727af854207ccc94eeeede26988c688571cb30`
-- current accepted close-ready working commit: `152c7d2`
-- observed suite on the current accepted working line: `318 passed`
-- frontend impact through the current accepted topology chain: `No frontend contract change`
+- close-control checkpoint: `ca9e346`
+- retained validated technical close basis: `152c7d2`
+- observed suite on the retained validated technical basis: `318 passed`
+- frontend impact through the validated topology chain: `No frontend contract change`
 - further bounded technical patch required before close: `no`
 
-### Intent carried by the active milestone
+### Intent carried by the milestone
 
 Use `v0.5.0` to converge a bounded reusable direct+rear graph family surface with explicit observability, bounded smoke/reference coverage, bounded contribution contracts, bounded regression locks, and bounded cross-family stability checks, while keeping the stable frontend contract frozen.
 
-### Validated surface carried by the current accepted working line
+### Closed scope delivered on the working line
 
 - back-loaded-horn-class direct+rear support with bounded smoke and regression coverage
 - explicit front/rear radiation-sum observability
@@ -93,7 +93,7 @@ Use `v0.5.0` to converge a bounded reusable direct+rear graph family surface wit
 - bounded multi-family consistency and observability probe coverage
 - bounded stability-envelope and minimal-release-surface probe coverage
 
-### Still explicitly out of scope within `v0.5.0`
+### Still out of scope after milestone close
 
 - passive radiator work
 - multi-driver active architecture
@@ -102,7 +102,30 @@ Use `v0.5.0` to converge a bounded reusable direct+rear graph family surface wit
 - frontend/API redesign
 - broad Akabak-fidelity campaign beyond bounded smoke/reference checks
 
-### Current milestone-control note
+---
 
-This file records `v0.5.0` as close-ready on the current accepted working line.
-It does not own the single next live action; that remains singularly tracked in `docs/next_patch.md`.
+## Active working-line milestone
+
+Name:
+- `v0.6.0`
+
+Title:
+- `bounded successor-line continuation`
+
+Milestone status:
+- opened by post-v0.5.0 control-plane decision
+- predecessor close-control checkpoint: `ca9e346`
+- retained validated technical basis carried into the successor line: `152c7d2`
+- observed suite on the carried basis at decision time: `318 passed`
+- frontend impact at opening time: `No frontend contract change`
+
+### Intent carried by the milestone
+
+Use `v0.6.0` to continue from the validated `v0.5.0` surface only through one exact bounded technical patch at a time, after an explicit AUDIT names that patch, while preserving the frozen frontend contract and avoiding silent post-close scope drift.
+
+### Guard rails carried by the milestone
+
+- do not open technical growth blindly
+- do not treat this decision as authorization for a new topology family by default
+- do not broaden into passive radiator work, multi-driver active architecture, electrical-network element graph work, solver redesign, API/frontend redesign, or repo-wide cleanup unless a later control-plane decision opens that scope explicitly
+- keep the single live next action in `docs/next_patch.md`
