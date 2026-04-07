@@ -11,37 +11,37 @@
 ## Current accepted working-line truth
 
 - active working-line milestone: `v0.5.0`
-- accepted working branch for the current live control state: `feat/v0.5.0-seed-front-chamber-throat-side-coupling-topology`
-- accepted working commit for the current live control state: `4e4fb45d6df5dce73ebd62a8d8448147680c8ef5`
-- observed green suite on the accepted working line: `targeted topology regression set 8 passed`
+- accepted working branch for the current live control state: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
+- accepted working commit for the current live control state: `152c7d2`
+- observed green suite on the accepted working line: `318 passed`
 - operator probe worktree state at bookkeeping time: no tracked modifications; local probe artifacts may be untracked
 
-The current accepted working line is now ahead of the last bookkeeping checkpoint.
-The latest landed chain above that older bookkeeping line is:
-- `2fbb2c81955115b8c2356c38c333aeb30a2e57bb` — driver-front chamber Akabak smoke comparison landed
-- `4e4fb45d6df5dce73ebd62a8d8448147680c8ef5` — front-chamber throat-side coupling topology landed
+The current accepted line is the validated v0.5 convergence surface.
+It is the line on which close-readiness is now judged.
+
+Validated v0.5 surface carried by the accepted line:
+- back-loaded-horn-class direct+rear support with bounded smoke and regression coverage
+- explicit front/rear radiation-sum observability
+- explicit rear-delay/path observability
+- explicit front/rear contribution observability
+- direct-plus-branched rear-path family with seed, smoke, contract, and regression coverage
+- direct-plus-split-merge rear-path family with seed, smoke, contract, and regression coverage
+- direct-plus-branched-split-merge rear-path family with seed, smoke, contract, and regression coverage
+- direct-plus-branched-split-merge rear-path front-chamber throat-side coupling variant with seed, smoke, contract, and regression coverage
+- bounded multi-family consistency and observability probe coverage
+- bounded stability-envelope and minimal-release-surface probe coverage
 
 ---
 
 ## Milestone state
 
 - active working-line milestone: `v0.5.0`
-- milestone title: `opening decision`
-- milestone branch of record: `milestone/v0.5.0-opening`
-- milestone status: active on the working line
+- milestone title: `direct+rear reusable graph convergence`
+- milestone status: close-ready on the working line
+- close-readiness result: `ready to close now`
+- further bounded technical patch required before close: `no`
 
-Latest landed bounded topology / validation chain on the accepted line:
-- rear chamber tapped skeleton
-- rear chamber tapped Akabak smoke
-- rear-chamber port injection topology
-- throat chamber topology
-- blind throat-side segment topology
-- throat-side Akabak smoke
-- driver-front chamber topology
-- driver-front chamber Akabak smoke
-- front-chamber throat-side coupling topology
-
-This remains a working-line capability-expansion track, not a public release promotion.
+This is a truthful working-line close-readiness state, not a public release promotion by itself.
 
 ---
 
@@ -50,13 +50,13 @@ This remains a working-line capability-expansion track, not a public release pro
 - latest explicit frontend checkpoint: `81727af854207ccc94eeeede26988c688571cb30`
 - carried statement on the current accepted line: `No frontend contract change`
 
-The landed chain through `2fbb2c81955115b8c2356c38c333aeb30a2e57bb` and `4e4fb45d6df5dce73ebd62a8d8448147680c8ef5` does not change the frozen frontend contract v1 surface.
+The validated v0.5 surface does not change the frozen frontend contract v1 surface.
 
 ---
 
 ## Current control-plane truth
 
-- the accepted live control line is `4e4fb45d6df5dce73ebd62a8d8448147680c8ef5`
-- `2fbb2c81955115b8c2356c38c333aeb30a2e57bb` driver-front chamber smoke is landed on the validated line below it
-- `4e4fb45d6df5dce73ebd62a8d8448147680c8ef5` front-chamber throat-side coupling topology is landed on the current accepted line
+- the validated v0.5 line is `152c7d2` on `test/v0.5.0-stability-envelope-and-minimal-release-surface`
+- the accepted line is sufficient to support an immediate v0.5 close decision
+- no additional technical patch is required before close
 - the single next live action is intentionally tracked only in `docs/next_patch.md`
