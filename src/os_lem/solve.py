@@ -12,6 +12,7 @@ from .assemble import (
     AssembledSystem,
     DirectPlusBranchedRearPathContributionContract,
     DirectPlusBranchedSplitMergeRearPathContributionContract,
+    DirectPlusBranchedSplitMergeRearPathFrontChamberThroatSideContributionContract,
     DirectPlusSplitMergeRearPathContributionContract,
     FrontRearRadiationContributionObservability,
     FrontRearRadiationSumObservability,
@@ -1139,6 +1140,98 @@ def direct_plus_branched_split_merge_rear_path_rear_contribution_spl(
     """Return the coherent summed rear contribution SPL for one branched-split-merge rear contract."""
 
     p_obs = direct_plus_branched_split_merge_rear_path_rear_contribution_pressure(
+        sweep,
+        system,
+        contract,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+    return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
+
+
+
+def direct_plus_branched_split_merge_rear_path_front_chamber_throat_side_front_contribution_pressure(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    contract: DirectPlusBranchedSplitMergeRearPathFrontChamberThroatSideContributionContract,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the direct-front contribution pressure for one front-coupled branched-split-merge rear contract."""
+
+    return radiator_observation_pressure(
+        sweep,
+        system,
+        contract.front_radiator_id,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+
+
+
+def direct_plus_branched_split_merge_rear_path_front_chamber_throat_side_front_contribution_spl(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    contract: DirectPlusBranchedSplitMergeRearPathFrontChamberThroatSideContributionContract,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the direct-front contribution SPL for one front-coupled branched-split-merge rear contract."""
+
+    p_obs = direct_plus_branched_split_merge_rear_path_front_chamber_throat_side_front_contribution_pressure(
+        sweep,
+        system,
+        contract,
+        distance_m,
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+    return 20.0 * np.log10(np.maximum(np.abs(p_obs), 1.0e-30) / P_REF)
+
+
+
+def direct_plus_branched_split_merge_rear_path_front_chamber_throat_side_rear_contribution_pressure(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    contract: DirectPlusBranchedSplitMergeRearPathFrontChamberThroatSideContributionContract,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the coherent summed rear contribution pressure for one front-coupled branched-split-merge rear contract."""
+
+    return summed_radiator_observation_pressure(
+        sweep,
+        system,
+        [
+            {"target": contract.direct_rear_mouth_radiator_id, "distance": distance_m},
+            {"target": contract.merged_rear_mouth_radiator_id, "distance": distance_m},
+        ],
+        radiation_space=radiation_space,
+        observable_contract=observable_contract,
+    )
+
+
+
+def direct_plus_branched_split_merge_rear_path_front_chamber_throat_side_rear_contribution_spl(
+    sweep: SolvedFrequencySweep,
+    system: AssembledSystem,
+    contract: DirectPlusBranchedSplitMergeRearPathFrontChamberThroatSideContributionContract,
+    distance_m: float,
+    *,
+    radiation_space: str | None = None,
+    observable_contract: str | None = None,
+) -> np.ndarray:
+    """Return the coherent summed rear contribution SPL for one front-coupled branched-split-merge rear contract."""
+
+    p_obs = direct_plus_branched_split_merge_rear_path_front_chamber_throat_side_rear_contribution_pressure(
         sweep,
         system,
         contract,
