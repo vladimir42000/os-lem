@@ -1,0 +1,8 @@
+poc_offset_tqwt_pass1_benchmark
+frequency_points=533
+spl_min_db=52.530724
+spl_max_db=100.976165
+zin_min_ohm=7.240219
+zin_max_ohm=159.732783
+excursion_max_mm=1.268001
+spl_phase_exported=false

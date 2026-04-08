@@ -1,0 +1,59 @@
+meta:
+  name: poc_offset_tqwt_pass1_benchmark
+  radiation_space: 2pi
+
+driver:
+  id: drv1
+  model: em_explicit
+  Re: 7.16 ohm
+  Le: 1.27 mH
+  Bl: 6.33
+  Mms: 0.01521
+  Cms: 6.22e-04
+  Rms: 1.39
+  Sd: 132.70 cm2
+  source_voltage_rms: 2.83
+  node_front: front_path
+  node_rear: rear_path
+
+elements:
+  - id: closed_to_driver
+    type: waveguide_1d
+    node_a: closed_end
+    node_b: rear_path
+    length: 28.3 cm
+    area_start: 615.0 cm2
+    area_end: 529.91 cm2
+    profile: conical
+    segments: 29
+
+  - id: driver_to_mouth
+    type: waveguide_1d
+    node_a: front_path
+    node_b: mouth
+    length: 117.7 cm
+    area_start: 529.91 cm2
+    area_end: 176.0 cm2
+    profile: conical
+    segments: 118
+
+  - id: mouth_rad
+    type: radiator
+    node: mouth
+    model: flanged_piston
+    area: 176.0 cm2
+
+observations:
+  - id: zin
+    type: input_impedance
+    target: drv1
+
+  - id: xcone
+    type: cone_displacement
+    target: drv1
+
+  - id: spl_mouth
+    type: spl
+    target: mouth_rad
+    distance: 1 m
+    radiation_space: 2pi
