@@ -1,0 +1,15 @@
+poc3_blh_benchmark_pass1_comparison_summary
+hornresp_total_spl_mae_db=4.896901
+hornresp_front_spl_mae_db=2.279926
+hornresp_mouth_spl_mae_db=14.513826
+hornresp_impedance_mag_mae_ohm=0.158622
+hornresp_impedance_phase_mae_deg=0.691623
+hornresp_excursion_mae_mm=0.174121
+akabak_total_spl_mae_db=0.767164
+akabak_total_phase_reference_available=true
+akabak_impedance_mag_mae_ohm=0.109208
+akabak_excursion_mae_mm=0.154971
+dominant_mismatch_classification=model-equivalence
+classification_reason=electro-mechanical traces remain materially closer than the acoustic superposition traces, so the dominant mismatch is classified as model-equivalence rather than stuffing or numerical failure
+dominant_phase_reference_note=akabak_total_phase_available_but_current_oslem_high_level_surface_does_not_export_truthful_total_spl_phase
+akabak_phase_span_deg=348.943220

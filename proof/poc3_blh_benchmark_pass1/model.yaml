@@ -1,0 +1,91 @@
+meta:
+  name: poc3_blh_benchmark_pass1
+  radiation_space: 2pi
+
+driver:
+  id: drv1
+  model: em_explicit
+  Re: 7.20 ohm
+  Le: 0.60 mH
+  Bl: 1.71
+  Mms: 0.00087
+  Cms: 1.30e-03
+  Rms: 0.15
+  Sd: 22.00 cm2
+  source_voltage_rms: 2.83
+  node_front: front
+  node_rear: rear
+
+elements:
+  - id: front_rad
+    type: radiator
+    node: front
+    model: infinite_baffle_piston
+    area: 22.00 cm2
+
+  - id: throat_chamber
+    type: waveguide_1d
+    node_a: rear
+    node_b: throat
+    length: 6.00 cm
+    area_start: 100.00 cm2
+    area_end: 100.00 cm2
+    profile: conical
+    segments: 4
+
+  - id: horn_seg1
+    type: waveguide_1d
+    node_a: throat
+    node_b: bend
+    length: 87.70 cm
+    area_start: 24.00 cm2
+    area_end: 439.00 cm2
+    profile: conical
+    segments: 36
+
+  - id: horn_seg2
+    type: waveguide_1d
+    node_a: bend
+    node_b: mouth
+    length: 30.90 cm
+    area_start: 439.00 cm2
+    area_end: 736.00 cm2
+    profile: conical
+    segments: 12
+
+  - id: mouth_rad
+    type: radiator
+    node: mouth
+    model: infinite_baffle_piston
+    area: 736.00 cm2
+
+observations:
+  - id: zin
+    type: input_impedance
+    target: drv1
+
+  - id: xcone
+    type: cone_displacement
+    target: drv1
+
+  - id: spl_front
+    type: spl
+    target: front_rad
+    distance: 1 m
+    radiation_space: 2pi
+
+  - id: spl_mouth
+    type: spl
+    target: mouth_rad
+    distance: 1 m
+    radiation_space: 2pi
+
+  - id: spl_total
+    type: spl_sum
+    terms:
+      - target: front_rad
+        distance: 1 m
+        radiation_space: 2pi
+      - target: mouth_rad
+        distance: 1 m
+        radiation_space: 2pi

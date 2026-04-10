@@ -1,0 +1,99 @@
+|DATA EXPORTED FROM HORNRESP - RESONANCES NOT MASKED
+
+|COMMENT: Visaton FRS 8 M BLH
+
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|REQUIRED AKABAK SETTINGS:
+
+|File > Preferences > Physical system constants:
+
+|Sound velocity c = 344m/s
+|Medium density rho = 1.205kg/m3
+
+|Sum > Acoustic power:
+
+|Frequency range = 10Hz to 20kHz
+|Points = 533
+|Input voltage = 2.83V rms
+|Integration = 2Pi-sr
+|Integration steps = 1 degree ... 1 degree
+|Integration method = Cross
+
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Def_Const |Hornresp Input Parameter Values
+{
+|Length, area and volume values converted to metres, square metres and cubic metres:
+
+S1  =    24.00e-4;  |Horn segment 1 throat area (sq m)
+S2  =   439.00e-4;  |Horn segment 1 mouth area and horn segment 2 throat area (sq m)
+S3  =   736.00e-4;  |Horn segment 2 mouth area (sq m)
+
+L12 =    87.70e-2;  |Horn segment 1 axial length (m)
+L23 =    30.90e-2;  |Horn segment 2 axial length (m)
+
+Vtc =   600.00e-6;  |Throat chamber volume (cubic m)
+Atc =   100.00e-4;  |Throat chamber cross-sectional area (sq m)
+
+|Parameter Conversions:
+
+Sd  = 22.00e-4;  |Diaphragm area (sq m)
+
+Ltc = Vtc / Atc;
+}
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|Network node numbers for this back-loaded horn system:
+
+|       0-Voltage-1
+|                 |
+|Radiator(1)-5-Driver-6-Chamber-8-Segment-9-Segment-10-Radiator(2)
+
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Def_Driver 'Driver'
+
+  Sd=22.00cm2
+  Bl=1.71Tm
+  Cms=1.30E-03m/N
+  Rms=0.15Ns/m
+  fs=149.70Hz  |Mmd = 0.81g not recognised by AkAbak, fs calculated and used instead
+  Le=0.60mH
+  Re=7.20ohm
+  ExpoLe=1
+
+System 'System'
+
+  Driver Def='Driver''Driver'
+    Node=1=0=5=6
+
+  Radiator 'Diaphragm'
+    Node=5
+    SD={Sd}
+    Label=1
+
+  Duct 'Throat chamber'
+    Node=6=8
+    SD={Atc}
+    Len={Ltc}
+    Visc=0
+
+  Waveguide 'Horn segment 1'
+    Node=8=9
+    STh={S1}
+    SMo={S2}
+    Len={L12}
+    Conical
+
+  Waveguide 'Horn segment 2'
+    Node=9=10
+    STh={S2}
+    SMo={S3}
+    Len={L23}
+    Conical
+
+  Radiator 'Horn mouth'
+    Node=10
+    SD={S3}
+    Label=2
