@@ -1,0 +1,81 @@
+meta:
+  name: poc2_conical_no_fill_benchmark
+  radiation_space: 2pi
+
+driver:
+  id: drv1
+  model: em_explicit
+  Re: 7.16 ohm
+  Le: 1.27 mH
+  Bl: 6.33
+  Mms: 0.01521
+  Cms: 6.22e-04
+  Rms: 1.39
+  Sd: 132.70 cm2
+  source_voltage_rms: 2.83
+  node_front: front
+  node_rear: rear
+
+elements:
+  - id: front_rad
+    type: radiator
+    node: front
+    model: infinite_baffle_piston
+    area: 132.70 cm2
+
+  - id: rear_stub
+    type: waveguide_1d
+    node_a: rear
+    node_b: closed_end
+    length: 33.10 cm
+    area_start: 393.71 cm2
+    area_end: 455.00 cm2
+    profile: conical
+    segments: 12
+
+  - id: rear_main
+    type: waveguide_1d
+    node_a: rear
+    node_b: mouth
+    length: 129.90 cm
+    area_start: 393.71 cm2
+    area_end: 196.00 cm2
+    profile: conical
+    segments: 48
+
+  - id: mouth_rad
+    type: radiator
+    node: mouth
+    model: infinite_baffle_piston
+    area: 196.00 cm2
+
+observations:
+  - id: zin
+    type: input_impedance
+    target: drv1
+
+  - id: xcone
+    type: cone_displacement
+    target: drv1
+
+  - id: spl_front
+    type: spl
+    target: front_rad
+    distance: 1 m
+    radiation_space: 2pi
+
+  - id: spl_mouth
+    type: spl
+    target: mouth_rad
+    distance: 1 m
+    radiation_space: 2pi
+
+  - id: spl_total
+    type: spl_sum
+    terms:
+      - target: front_rad
+        distance: 1 m
+        radiation_space: 2pi
+      - target: mouth_rad
+        distance: 1 m
+        radiation_space: 2pi

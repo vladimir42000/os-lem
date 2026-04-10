@@ -1,0 +1,12 @@
+Generated files:
+spl_total_three_way.png
+spl_front_three_way.png
+spl_mouth_three_way.png
+
+Notes:
+- total SPL plot omits os-lem front and os-lem mouth for readability
+- front and mouth are plotted separately as three-way comparisons
+- AkAbak pressure files are converted to dB re 20 uPa
+- All input parsers now skip non-numeric metadata/header lines automatically
+- Hornresp total was not requested; total plot shows os-lem total and optional AkAbak total only
+- AkAbak total was not requested; total plot shows only available total curves

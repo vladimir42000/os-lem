@@ -1,0 +1,90 @@
+|DATA EXPORTED FROM HORNRESP - RESONANCES NOT MASKED
+
+|COMMENT: AIYIMA Cu TQWT nice 58 L 40 Hz
+
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|REQUIRED AKABAK SETTINGS:
+
+|File > Preferences > Physical system constants:
+
+|Sound velocity c = 344m/s
+|Medium density rho = 1.205kg/m3
+
+|Sum > Acoustic power:
+
+|Frequency range = 10Hz to 20kHz
+|Points = 533
+|Input voltage = 2.83V rms
+|Integration = 2Pi-sr
+|Integration steps = 1 degree ... 1 degree
+|Integration method = Cross
+
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Def_Const |Hornresp Input Parameter Values
+{
+|Length, area and volume values converted to metres, square metres and cubic metres:
+
+S1  =   455.00e-4;  |Horn segment 1 throat area (sq m)
+S2  =   393.71e-4;  |Horn segment 1 mouth area and horn segment 2 throat area (sq m)
+S3  =   196.00e-4;  |Horn segment 2 mouth area (sq m)
+
+L12 =    33.10e-2;  |Horn segment 1 axial length (m)
+L23 =   129.90e-2;  |Horn segment 2 axial length (m)
+
+|Parameter Conversions:
+
+Sd  = 132.70e-4;  |Diaphragm area (sq m)
+}
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|Network node numbers for this offset driver horn system:
+
+|       0-Voltage-1
+|                 |
+|Radiator(1)-5-Driver-
+|                     |
+|           8-Segment-9-Segment-10-Radiator(2)
+
+|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Def_Driver 'Driver'
+
+  Sd=132.70cm2
+  Bl=6.33Tm
+  Cms=6.22E-04m/N
+  Rms=1.39Ns/m
+  fs=50.31Hz  |Mmd = 15.21g not recognised by AkAbak, fs calculated and used instead
+  Le=1.27mH
+  Re=7.16ohm
+  ExpoLe=1
+
+System 'System'
+
+  Driver Def='Driver''Driver'
+    Node=1=0=5=9
+
+  Radiator 'Diaphragm'
+    Node=5
+    SD={Sd}
+    Label=1
+
+  Waveguide 'Horn segment 1'
+    Node=9=8
+    STh={S2}
+    SMo={S1}
+    Len={L12}
+    Conical
+
+  Waveguide 'Horn segment 2'
+    Node=10=9
+    STh={S3}
+    SMo={S2}
+    Len={L23}
+    Conical
+
+  Radiator 'Horn mouth'
+    Node=10
+    SD={S3}
+    Label=2

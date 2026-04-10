@@ -1,0 +1,8 @@
+poc2_conical_no_fill_benchmark_comparison_summary
+hornresp_spl_mae_db=4.711962
+hornresp_impedance_mae_ohm=0.019286
+hornresp_phase_mae_deg=0.074867
+hornresp_excursion_mae_mm=0.167186
+akabak_spl_mae_db=0.842723
+akabak_impedance_mae_ohm=0.054706
+akabak_excursion_mae_mm=0.116666
