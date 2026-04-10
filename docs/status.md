@@ -11,15 +11,15 @@
 ## Current accepted working-line truth
 
 - active working-line milestone: `v0.6.0`
-- accepted control-plane branch for the current live state: `chore/post-v0.5.0-control-plane-alignment`
-- accepted control-plane commit for the current live state: `2a96338`
+- accepted benchmark-led working-line branch for the current live state: `proof/poc2-conical-no-fill-benchmark-realignment`
+- accepted benchmark-led working-line commit for the current live state: `d1a1d8a`
 - validated `v0.5.0` close-basis branch: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
 - validated `v0.5.0` close-basis commit: `152c7d2`
-- observed green suite on the validated close basis: `318 passed`
-- operator probe worktree state at control-plane bookkeeping time: clean working tree expected; local probe artifacts may be untracked
+- observed green suite on the accepted benchmark-led line: `318 passed`
+- operator probe worktree state at bookkeeping time: local proof artifacts may remain untracked
 
-The current accepted control-plane line is a post-close alignment state above the validated `v0.5.0` technical basis.
-The active milestone is now `v0.6.0`, opened as a bounded exposure/coherence milestone.
+The active working line is now a benchmark-led `v0.6.0` state above the validated `v0.5.0` kernel surface.
+This line carries the landed `POC2` benchmark realignment plus the benchmark analysis note.
 
 ---
 
@@ -40,27 +40,49 @@ The active milestone is now `v0.6.0`, opened as a bounded exposure/coherence mil
 - name: `v0.6.0`
 - title: `truthful exposure and coherence`
 - status: opened on the working line
-- opening scope is carried by the current control-plane documents
-- milestone branch of record: not yet frozen as a dedicated milestone branch; current control-plane truth remains on `chore/post-v0.5.0-control-plane-alignment`
+- opening/scope checkpoint: `667f3a5`
+- current benchmark-led proof checkpoint: `d1a1d8a`
+- milestone branch of record is not separately frozen beyond the current accepted working-line truth
 
 ### Intent carried by `v0.6.0`
 
 Use `v0.6.0` to turn the validated `v0.5.0` kernel surface into a truthful exposure/coherence milestone.
-This is not a new capability-expansion milestone.
+At the current checkpoint, `v0.6.0` is operating in benchmark-led development mode.
 
 The bounded intent is:
-- preserve Closed Box as the stable truthful anchor
-- define the next truthful exposure boundary above the current stable anchor
-- target one additional truthful end-to-end non-trivial workflow only if it can be exposed honestly on the landed kernel surface
-- avoid assuming in advance whether that truthful exposure boundary becomes `extended frontend contract v1` or `frontend contract v2`
+- preserve `Closed Box` as the stable truthful anchor
+- preserve `POC2` as the current proof-of-reality reference benchmark
+- freeze a reusable benchmark protocol before further real-world comparison work drifts
+- avoid blind topology or solver growth while benchmark interpretation remains the main task
 
-### Explicitly out of scope for `v0.6.0` opening state
+### Explicitly out of scope at this benchmark-led checkpoint
 
-- new topology-family growth before a bounded exposure/coherence decision is frozen
+- new topology-family growth by default
 - solver redesign or new solver feature campaigns
-- frontend/API contract redesign by assumption
+- frontend/API contract redesign
 - repo-wide cleanup or housekeeping detours
 - public release promotion unsupported by repo truth
+
+---
+
+## Benchmark-led development state
+
+### Current reference benchmark
+
+- reference-truth benchmark: `proof/poc2_conical_no_fill_benchmark/`
+- benchmark protocol document: `proof/BENCHMARK_PROTOCOL.md`
+
+### Why `POC2` is the current anchor
+
+`POC2` is the current proof-of-reality anchor because it removed the earlier avoidable ambiguity around flare-law / semantic equivalence and produced a materially cleaner benchmark surface.
+
+### Current protocol state
+
+The benchmark protocol is now frozen for future benchmark-led work.
+All future benchmark conclusions must distinguish among:
+- model-equivalence issues
+- missing-physics issues
+- solver/pathology issues
 
 ---
 
@@ -68,12 +90,13 @@ The bounded intent is:
 
 - stable truthful anchor remains: `Closed Box`
 - carried statement on the current accepted line: `No frontend contract change`
-- contract naming beyond the stable truthful anchor is intentionally not precommitted at this opening stage
+- benchmark-led work at this checkpoint does not expand frontend/API contract scope
 
 ---
 
 ## Current control-plane truth
 
-- `v0.5.0` is closed on the working line
-- `v0.6.0` is now the active working-line milestone
+- `v0.5.0` remains closed on the working line
+- `v0.6.0` remains the active working-line milestone
+- the current live state is benchmark-led and protocol-frozen
 - the single next live action is intentionally tracked only in `docs/next_patch.md`

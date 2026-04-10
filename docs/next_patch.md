@@ -7,25 +7,27 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 ---
 
-## Current state after `v0.6.0` opening and scope freeze
+## Current state after benchmark protocol freeze
 
 - active working-line milestone: `v0.6.0`
-- accepted control-plane branch: `chore/post-v0.5.0-control-plane-alignment`
-- accepted control-plane commit: `2a96338`
+- accepted benchmark-led working-line branch: `proof/poc2-conical-no-fill-benchmark-realignment`
+- accepted benchmark-led working-line commit: `d1a1d8a`
 - validated `v0.5.0` close basis: `152c7d2`
-- observed suite on the validated close basis: `318 passed`
+- observed suite on the accepted benchmark-led line: `318 passed`
 - carried statement: `No frontend contract change`
 - stable truthful anchor: `Closed Box`
+- reference-truth benchmark: `POC2`
+- benchmark protocol: `proof/BENCHMARK_PROTOCOL.md`
 
 ---
 
 ## Next live action
 
-- `AUDIT: freeze the first bounded v0.6.0 exposure/coherence patch above the Closed Box truthful anchor, without assuming in advance whether the truthful exposure boundary becomes extended frontend contract v1 or frontend contract v2.`
+- `AUDIT: nominate the next bounded benchmark-led comparison or diagnosis patch under the frozen protocol, using POC2 as the reference benchmark and explicitly classifying any dominant mismatch as model-equivalence, missing-physics, or solver/pathology.`
 
 ---
 
 ## Guard rail
 
-Do not open new topology families before that bounded v0.6.0 exposure/coherence decision is frozen.
-Do not assume a new frontend/API contract name in advance of accepted repo truth.
+Do not open new topology families before a bounded benchmark-led comparison/diagnosis step justifies it.
+Do not bypass the frozen benchmark protocol for future proof-of-reality comparison work.

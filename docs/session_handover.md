@@ -2,24 +2,25 @@
 
 ## Accepted checkpoint for this handover
 
-Accepted control-plane checkpoint for the current bookkeeping state:
-- branch: `chore/post-v0.5.0-control-plane-alignment`
-- commit: `2a96338`
+Accepted benchmark-led checkpoint for the current bookkeeping state:
+- branch: `proof/poc2-conical-no-fill-benchmark-realignment`
+- commit: `d1a1d8a`
 - validated `v0.5.0` close basis: `152c7d2`
-- observed tests on the validated close basis: `318 passed`
-- operator probe worktree state: clean working tree expected; local probe artifacts may be untracked
+- observed tests on the accepted benchmark-led line: `318 passed`
+- operator probe worktree state: local proof artifacts may remain untracked
 
 ---
 
-## Landed control-plane chain recorded here
+## Landed proof/control chain recorded here
 
-This handover records the bounded close-and-successor decision chain:
-- `ca9e346` — align `v0.5.0` close readiness and control plane
-- `2a96338` — post `v0.5.0` milestone decision and control-plane reset
-- current patch — `v0.6.0` opening and scope freeze
+This handover records the bounded proof/control chain relevant to the current live state:
+- `667f3a5` — open `v0.6.0` and freeze scope
+- `b250c41` — realign `POC2` conical no-fill benchmark
+- `d1a1d8a` — add `POC2` benchmark analysis and known limitations
+- current patch — freeze benchmark protocol for benchmark-led development
 
-The accepted live control line remains the post-`v0.5.0` control-plane branch.
 The validated technical close basis remains `152c7d2`.
+The current accepted live line remains the benchmark-led `POC2` proof branch.
 
 ---
 
@@ -29,12 +30,27 @@ Carried statement on this accepted line:
 - `No frontend contract change`
 
 The stable truthful anchor remains `Closed Box`.
-This opening patch intentionally does not precommit whether the next truthful exposure boundary becomes extended frontend contract v1 or frontend contract v2.
+This benchmark-led protocol patch does not change frontend/API exposure scope.
+
+---
+
+## Benchmark-led protocol note
+
+The current reference-truth benchmark is:
+- `proof/poc2_conical_no_fill_benchmark/`
+
+The frozen reusable protocol is:
+- `proof/BENCHMARK_PROTOCOL.md`
+
+Future benchmark-led conclusions must distinguish between:
+- model-equivalence issues
+- missing-physics issues
+- solver/pathology issues
 
 ---
 
 ## Live sequencing note
 
 The single next live action is kept only in `docs/next_patch.md` to avoid duplicated sequencing state.
-The next live action after this opening patch is:
-- `AUDIT: freeze the first bounded v0.6.0 exposure/coherence patch above the Closed Box truthful anchor.`
+The next live action after this protocol freeze is:
+- `AUDIT: nominate the next bounded benchmark-led comparison or diagnosis patch under the frozen protocol.`
