@@ -4,9 +4,9 @@
 
 Accepted benchmark-led checkpoint for the current bookkeeping state:
 - branch: `proof/poc3-blh-benchmark-pass1`
-- commit: `a5957e7`
+- commit: `6dc38d3`
 - validated `v0.5.0` close basis: `152c7d2`
-- observed tests on the accepted benchmark-led line: `328 passed`
+- observed tests on the accepted benchmark-led line: `346 passed`
 - operator probe worktree state: local proof artifacts may remain untracked
 
 ---
@@ -92,3 +92,26 @@ The durable interpretation note for that line is:
 
 This line is definition-first, YAML-first, and intentionally bounded.
 It is not a general optimizer product line and it does not replace the current POC3 benchmark control plane.
+
+## TQWT engineering-probe robustness continuity
+
+Current accepted bounded TQWT engineering-probe line:
+- `6baf52d` — `Add TQWT side resonator optimization probe definition`
+- `2c11690` — `Add TQWT side resonator optimization probe phase-1 coarse search`
+- `bf1b274` — `Add TQWT side resonator optimization probe phase-1 note`
+- `6dc38d3` — `Add TQWT side resonator optimization probe repeatability and budget sensitivity`
+
+Current durable reading:
+- bounded reruns remain interpretable
+- improvement over baseline remains real
+- best region remains broadly stable across bounded reruns
+- modestly larger proof-sized budget improves the median best score
+- `chamber_neck` remains the dominant best-region reading inside the bounded proof surface
+
+Do not overclaim this as:
+- global optimality
+- universal chamber_neck superiority
+- justification for a general optimizer framework
+- justification for multi-resonator growth
+
+Use `docs/tqwt_side_resonator_optimization_probe_robustness_note.md` as the control-plane summary for this line.

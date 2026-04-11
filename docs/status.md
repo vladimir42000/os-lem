@@ -12,10 +12,10 @@
 
 - active working-line milestone: `v0.6.0`
 - accepted benchmark-led working-line branch for the current live state: `proof/poc3-blh-benchmark-pass1`
-- accepted benchmark-led working-line commit for the current live state: `a5957e7`
+- accepted benchmark-led working-line commit for the current live state: `6dc38d3`
 - validated `v0.5.0` close-basis branch: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
 - validated `v0.5.0` close-basis commit: `152c7d2`
-- observed green suite on the accepted benchmark-led line: `328 passed`
+- observed green suite on the accepted benchmark-led line: `346 passed`
 - operator probe worktree state at bookkeeping time: local proof artifacts may remain untracked
 
 The active working line is now a benchmark-led `v0.6.0` state above the validated `v0.5.0` kernel surface.
@@ -41,7 +41,7 @@ This line carries the landed `POC3` BLH benchmark pass, the supported graph surf
 - title: `truthful exposure and coherence`
 - status: opened on the working line
 - opening/scope checkpoint: `667f3a5`
-- current benchmark-led proof checkpoint: `a5957e7`
+- current benchmark-led proof checkpoint: `6dc38d3`
 - milestone branch of record is not separately frozen beyond the current accepted working-line truth
 
 ### Intent carried by `v0.6.0`
@@ -113,3 +113,27 @@ All future benchmark conclusions must distinguish among:
 
 This probe is definition-first and phase-1 coarse-search only.
 It is not a general optimizer framework and it does not alter the benchmark-led POC3 control-plane reading.
+
+---
+
+## TQWT engineering-probe robustness state
+
+### Current bounded TQWT engineering-probe line
+
+The accepted TQWT engineering-probe line now includes:
+- `6baf52d` — `Add TQWT side resonator optimization probe definition`
+- `2c11690` — `Add TQWT side resonator optimization probe phase-1 coarse search`
+- `bf1b274` — `Add TQWT side resonator optimization probe phase-1 note`
+- `6dc38d3` — `Add TQWT side resonator optimization probe repeatability and budget sensitivity`
+
+Current repo truth supports the following bounded reading:
+- the coarse-search probe is repeatable enough for engineering interpretation
+- improvement over baseline remains real in the bounded rerun surface
+- the best region remains broadly stable in the bounded reruns
+- a modestly larger proof-sized budget materially improves the median best score
+- `chamber_neck` is the dominant best-region reading within the bounded proof surface
+
+Bounded robustness interpretation note:
+- `docs/tqwt_side_resonator_optimization_probe_robustness_note.md`
+
+This remains an engineering-probe line, not a general optimizer framework claim.

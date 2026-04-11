@@ -11,9 +11,9 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 - active working-line milestone: `v0.6.0`
 - accepted benchmark-led working-line branch: `proof/poc3-blh-benchmark-pass1`
-- accepted benchmark-led working-line commit: `a5957e7`
+- accepted benchmark-led working-line commit: `6dc38d3`
 - validated `v0.5.0` close basis: `152c7d2`
-- observed suite on the accepted benchmark-led line: `328 passed`
+- observed suite on the accepted benchmark-led line: `346 passed`
 - carried statement: `No frontend contract change`
 - stable truthful anchor: `Closed Box`
 - active benchmark-meaningful case: `POC3`
@@ -54,3 +54,20 @@ The landed TQWT + one-side-resonator engineering probe now has:
 
 This note does not freeze a new implementation patch by itself.
 Any future follow-up must stay bounded and must not silently expand into a general optimizer framework, broader topology work, or a rewrite of the current POC3 benchmark reading.
+
+## Post-robustness TQWT engineering-probe posture
+
+The bounded TQWT engineering-probe line now has:
+- a frozen definition
+- a landed phase-1 coarse-search implementation
+- a landed phase-1 interpretation note
+- a landed repeatability / budget-sensitivity proof
+- a bounded robustness interpretation note
+
+Current control-plane reading:
+- the positive phase-1 result is robust enough to support careful discussion of a later bounded refinement step
+- no phase-2 refinement is automatically justified by default
+- no optimizer framework build-out is justified
+- no topology-family growth is justified
+
+Absent new direction, future steps in this area must remain tightly bounded and separately justified.

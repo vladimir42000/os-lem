@@ -63,7 +63,7 @@ Title:
 Milestone status:
 - opened on the working line
 - opening checkpoint: `667f3a5`
-- current benchmark-led checkpoint: `a5957e7`
+- current benchmark-led checkpoint: `6dc38d3`
 - latest stable truthful anchor: `Closed Box`
 - frontend impact at the current checkpoint: `No frontend contract change`
 
@@ -120,3 +120,25 @@ The current `v0.6.0` line now also carries one bounded engineering-probe branch 
 
 This probe is intentionally constrained to one validated TQWT / offset TL family with exactly one side resonator and a fixed phase-1 coarse-search surface.
 It is not a general optimizer product and does not supersede the benchmark-led POC3 control plane.
+
+## Bounded TQWT engineering-probe robustness checkpoint
+
+A bounded engineering-probe line now exists above validated topology capability for:
+- TQWT / offset TL
+- conical
+- no fill
+- one fixed driver
+- exactly one side resonator
+
+The line has now reached a robustness-classified state:
+- definition frozen
+- phase-1 coarse search landed
+- phase-1 interpretation note landed
+- repeatability / budget-sensitivity proof landed
+- robustness note landed
+
+This checkpoint supports only careful discussion of a later bounded refinement step.
+It does not support:
+- general optimizer framework claims
+- topology-family growth by default
+- multi-resonator growth by default
