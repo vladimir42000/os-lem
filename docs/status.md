@@ -101,3 +101,15 @@ All future benchmark conclusions must distinguish among:
 
 - stable truthful anchor remains: `Closed Box`
 - carried statement on the current accepted line: `No frontend contract change`
+
+---
+
+## Bounded engineering probe state
+
+- active bounded engineering probe: `TQWT + one-side-resonator optimization probe`
+- definition checkpoint: `6baf52d`
+- phase-1 coarse-search checkpoint: `2c11690`
+- bounded phase-1 interpretation note: `docs/tqwt_side_resonator_optimization_probe_phase1_note.md`
+
+This probe is definition-first and phase-1 coarse-search only.
+It is not a general optimizer framework and it does not alter the benchmark-led POC3 control-plane reading.

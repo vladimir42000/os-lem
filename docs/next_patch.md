@@ -42,3 +42,15 @@ Authoritative source-grounded freeze:
 Live rule:
 - future benchmark-led work must treat the supported graph/compiler surface freeze as the current architectural boundary
 - no implicit promotion from recipe-carried families to arbitrary authored graph support
+
+---
+
+## TQWT side-resonator phase-1 note status
+
+The landed TQWT + one-side-resonator engineering probe now has:
+- a frozen probe definition
+- a landed phase-1 coarse-search implementation
+- a bounded phase-1 interpretation note at `docs/tqwt_side_resonator_optimization_probe_phase1_note.md`
+
+This note does not freeze a new implementation patch by itself.
+Any future follow-up must stay bounded and must not silently expand into a general optimizer framework, broader topology work, or a rewrite of the current POC3 benchmark reading.

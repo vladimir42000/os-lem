@@ -108,3 +108,15 @@ Current `v0.6.0` exposure/coherence boundary includes an explicit supported grap
 - generic primitive/coupling core is frozen explicitly
 - recipe-specific carriers remain distinct from the generic core
 - arbitrary authored multi-driver / self-loop / unsupported-physics claims remain out of scope until explicitly justified by repo truth
+
+---
+
+## Bounded engineering probe above the benchmark line
+
+The current `v0.6.0` line now also carries one bounded engineering-probe branch of work above validated topology capability:
+
+- `6baf52d` — `Add TQWT side resonator optimization probe definition`
+- `2c11690` — `Add TQWT side resonator optimization probe phase-1 coarse search`
+
+This probe is intentionally constrained to one validated TQWT / offset TL family with exactly one side resonator and a fixed phase-1 coarse-search surface.
+It is not a general optimizer product and does not supersede the benchmark-led POC3 control plane.

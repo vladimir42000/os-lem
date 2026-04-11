@@ -77,3 +77,18 @@ Frozen distinction:
 - generic core = primitive inventory + legal couplings + generic junction / parallel-branch assembly
 - recipe layer = recognized bounded topology / contract / observability carriers
 - arbitrary authoring beyond this boundary is not yet promised by current repo truth
+
+---
+
+## TQWT side-resonator engineering probe
+
+The current working line also carries one bounded engineering probe above validated topology capability:
+
+- `6baf52d` — `Add TQWT side resonator optimization probe definition`
+- `2c11690` — `Add TQWT side resonator optimization probe phase-1 coarse search`
+
+The durable interpretation note for that line is:
+- `docs/tqwt_side_resonator_optimization_probe_phase1_note.md`
+
+This line is definition-first, YAML-first, and intentionally bounded.
+It is not a general optimizer product line and it does not replace the current POC3 benchmark control plane.
