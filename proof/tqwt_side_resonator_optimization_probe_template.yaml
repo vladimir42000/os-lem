@@ -1,0 +1,89 @@
+probe:
+  name: tqwt_side_resonator_optimization_probe
+  milestone: v0.6.0
+  family: tqwt_offset_tl_conical_no_fill_fixed_driver
+  purpose: bounded engineering probe definition
+  execution_mode: definition_only
+
+baseline:
+  reference_model_id: tqwt_offset_tl_conical_no_fill_fixed_driver
+  geometry_is_frozen: true
+  fill: none
+  driver_is_fixed: true
+  driver_offset_norm: 0.0
+
+parameters:
+  x_attach_norm: ${x_attach_norm}
+  resonator_type: ${resonator_type}
+  L_res_m: ${L_res_m}
+  S_res_m2: ${S_res_m2}
+  V_res_m3: ${V_res_m3}
+
+mapping:
+  attach_node_policy: nearest_main_line_boundary
+  side_pipe:
+    attach:
+      main_line_x_norm: ${x_attach_norm}
+    branch:
+      kind: waveguide_1d
+      profile: conical
+      length_m: ${L_res_m}
+      s_in_m2: ${S_res_m2}
+      s_out_m2: ${S_res_m2}
+    terminal:
+      kind: volume
+      volume_m3: 1.0e-6
+      role: closed_end_approximation
+  chamber_neck:
+    attach:
+      main_line_x_norm: ${x_attach_norm}
+    neck:
+      kind: duct
+      length_m: ${L_res_m}
+      area_m2: ${S_res_m2}
+    chamber:
+      kind: volume
+      volume_m3: ${V_res_m3}
+
+evaluation:
+  runner: os_lem.api.run_simulation
+  outputs:
+    - spl
+    - cone_displacement
+    - input_impedance
+  band_hz: [40.0, 250.0]
+  smoothing_window_bins: 5
+
+objective:
+  score: ripple_db + excursion_penalty + output_penalty + geometry_penalty
+  excursion_limit_mm: 4.0
+  allowed_mean_drop_db: 1.5
+  excursion_penalty_weight: 6.0
+  output_penalty_weight: 3.0
+  invalid_geometry_penalty: 1000000.0
+
+constraints:
+  x_attach_norm: [0.15, 0.85]
+  L_res_m: [0.05, 1.20]
+  S_res_m2: [1.0e-4, 6.0e-3]
+  V_res_m3: [2.0e-4, 2.0e-2]
+  driver_offset_norm: [0.0, 0.0]
+
+execution_plan:
+  phase_1:
+    method: random_uniform
+    seed: 2026
+    samples_per_resonator_type: 256
+    total_samples: 512
+  phase_2:
+    status: future_extension_only
+    implementation: not_in_this_patch
+
+future_outputs:
+  - ranked_top_solutions
+  - full_parameter_sets
+  - rendered_yaml_files
+  - spl_vs_baseline_plots
+  - excursion_vs_baseline_plots
+  - optional_impedance_plots
+  - summary_table
