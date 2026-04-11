@@ -11,15 +11,15 @@
 ## Current accepted working-line truth
 
 - active working-line milestone: `v0.6.0`
-- accepted benchmark-led working-line branch for the current live state: `proof/poc2-conical-no-fill-benchmark-realignment`
-- accepted benchmark-led working-line commit for the current live state: `d1a1d8a`
+- accepted benchmark-led working-line branch for the current live state: `proof/poc3-blh-benchmark-pass1`
+- accepted benchmark-led working-line commit for the current live state: `c5d4a8d`
 - validated `v0.5.0` close-basis branch: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
 - validated `v0.5.0` close-basis commit: `152c7d2`
-- observed green suite on the accepted benchmark-led line: `318 passed`
+- observed green suite on the accepted benchmark-led line: `324 passed`
 - operator probe worktree state at bookkeeping time: local proof artifacts may remain untracked
 
 The active working line is now a benchmark-led `v0.6.0` state above the validated `v0.5.0` kernel surface.
-This line carries the landed `POC2` benchmark realignment plus the benchmark analysis note.
+This line carries the landed `POC3` BLH benchmark pass, the supported graph surface freeze, and the bounded mouth-semantics isolation reading.
 
 ---
 
@@ -41,7 +41,7 @@ This line carries the landed `POC2` benchmark realignment plus the benchmark ana
 - title: `truthful exposure and coherence`
 - status: opened on the working line
 - opening/scope checkpoint: `667f3a5`
-- current benchmark-led proof checkpoint: `d1a1d8a`
+- current benchmark-led proof checkpoint: `c5d4a8d`
 - milestone branch of record is not separately frozen beyond the current accepted working-line truth
 
 ### Intent carried by `v0.6.0`
@@ -51,8 +51,8 @@ At the current checkpoint, `v0.6.0` is operating in benchmark-led development mo
 
 The bounded intent is:
 - preserve `Closed Box` as the stable truthful anchor
-- preserve `POC2` as the current proof-of-reality reference benchmark
-- freeze a reusable benchmark protocol before further real-world comparison work drifts
+- preserve the frozen benchmark protocol as the control boundary for future comparison-led work
+- use the current landed `POC3` BLH benchmark reading as the active benchmark-meaningful working case
 - avoid blind topology or solver growth while benchmark interpretation remains the main task
 
 ### Explicitly out of scope at this benchmark-led checkpoint
@@ -67,18 +67,25 @@ The bounded intent is:
 
 ## Benchmark-led development state
 
-### Current reference benchmark
+### Current active benchmark case
 
-- reference-truth benchmark: `proof/poc2_conical_no_fill_benchmark/`
+- active benchmark case: `proof/poc3_blh_benchmark_pass1/`
 - benchmark protocol document: `proof/BENCHMARK_PROTOCOL.md`
+- bounded benchmark interpretation note: `docs/poc3_benchmark_analysis_and_known_limitations.md`
 
-### Why `POC2` is the current anchor
+### Current benchmark reading
 
-`POC2` is the current proof-of-reality anchor because it removed the earlier avoidable ambiguity around flare-law / semantic equivalence and produced a materially cleaner benchmark surface.
+The current landed POC3 case is benchmark-meaningful.
+Current repo truth supports the following bounded reading:
+- strong electro-mechanical agreement
+- strong total SPL agreement, especially versus AkAbak
+- moderate front SPL mismatch
+- dominant mouth-side SPL observation mismatch
+- dominant mismatch classification remains `model-equivalence`
 
 ### Current protocol state
 
-The benchmark protocol is now frozen for future benchmark-led work.
+The benchmark protocol remains frozen for future benchmark-led work.
 All future benchmark conclusions must distinguish among:
 - model-equivalence issues
 - missing-physics issues
@@ -110,3 +117,13 @@ Frozen distinction:
 - generic core = primitive inventory + legal couplings + generic junction / parallel-branch assembly
 - recipe layer = recognized bounded topology / contract / observability carriers
 - arbitrary authoring beyond this boundary is not yet promised by current repo truth
+
+## v0.6.0 POC3 benchmark interpretation freeze
+
+Authoritative bounded interpretation note:
+- `docs/poc3_benchmark_analysis_and_known_limitations.md`
+
+Frozen reading:
+- current POC3 benchmark is benchmark-meaningful
+- dominant remaining residual is mouth-side SPL observation mismatch
+- current dominant mismatch classification remains `model-equivalence`
