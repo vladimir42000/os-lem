@@ -54,3 +54,13 @@ Future benchmark-led conclusions must distinguish between:
 The single next live action is kept only in `docs/next_patch.md` to avoid duplicated sequencing state.
 The next live action after this protocol freeze is:
 - `AUDIT: nominate the next bounded benchmark-led comparison or diagnosis patch under the frozen protocol.`
+
+## v0.6.0 Supported Graph Surface Freeze
+
+Authoritative surface freeze:
+- `docs/supported_graph_surface_freeze.md`
+
+Frozen distinction:
+- generic core = primitive inventory + legal couplings + generic junction / parallel-branch assembly
+- recipe layer = recognized bounded topology / contract / observability carriers
+- arbitrary authoring beyond this boundary is not yet promised by current repo truth

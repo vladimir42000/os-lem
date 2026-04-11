@@ -31,3 +31,12 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 Do not open new topology families before a bounded benchmark-led comparison/diagnosis step justifies it.
 Do not bypass the frozen benchmark protocol for future proof-of-reality comparison work.
+
+## Supported Graph Surface Freeze
+
+Authoritative source-grounded freeze:
+- `docs/supported_graph_surface_freeze.md`
+
+Live rule:
+- future benchmark-led work must treat the supported graph/compiler surface freeze as the current architectural boundary
+- no implicit promotion from recipe-carried families to arbitrary authored graph support

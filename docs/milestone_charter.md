@@ -99,3 +99,10 @@ The bounded milestone intent is:
 
 This file records the active `v0.6.0` milestone against the current accepted benchmark-led line.
 It does not own the next live action; that remains singularly tracked in `docs/next_patch.md`.
+
+## Supported Graph Surface Freeze
+
+Current v0.6.0 exposure/coherence boundary includes an explicit supported graph/compiler surface freeze:
+- generic primitive/coupling core is frozen explicitly
+- recipe-specific carriers remain distinct from the generic core
+- arbitrary authored multi-driver / self-loop / unsupported-physics claims remain out of scope until explicitly justified by repo truth

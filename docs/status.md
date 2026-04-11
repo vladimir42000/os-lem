@@ -100,3 +100,13 @@ All future benchmark conclusions must distinguish among:
 - `v0.6.0` remains the active working-line milestone
 - the current live state is benchmark-led and protocol-frozen
 - the single next live action is intentionally tracked only in `docs/next_patch.md`
+
+## v0.6.0 Supported Graph Surface Freeze
+
+Authoritative surface freeze:
+- `docs/supported_graph_surface_freeze.md`
+
+Frozen distinction:
+- generic core = primitive inventory + legal couplings + generic junction / parallel-branch assembly
+- recipe layer = recognized bounded topology / contract / observability carriers
+- arbitrary authoring beyond this boundary is not yet promised by current repo truth
