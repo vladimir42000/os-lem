@@ -7,32 +7,32 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 ---
 
-## Current state after POC3 benchmark interpretation freeze
+## Current state after POC3 mouth observation convention sensitivity
 
 - active working-line milestone: `v0.6.0`
 - accepted benchmark-led working-line branch: `proof/poc3-blh-benchmark-pass1`
-- accepted benchmark-led working-line commit: `c5d4a8d`
+- accepted benchmark-led working-line commit: `a5957e7`
 - validated `v0.5.0` close basis: `152c7d2`
-- observed suite on the accepted benchmark-led line: `324 passed`
+- observed suite on the accepted benchmark-led line: `328 passed`
 - carried statement: `No frontend contract change`
 - stable truthful anchor: `Closed Box`
+- active benchmark-meaningful case: `POC3`
 - benchmark protocol: `proof/BENCHMARK_PROTOCOL.md`
-- active benchmark case: `POC3 BLH benchmark pass 1`
-- bounded benchmark interpretation note: `docs/poc3_benchmark_analysis_and_known_limitations.md`
+- bounded interpretation note: `docs/poc3_benchmark_analysis_and_known_limitations.md`
 
 ---
 
 ## Next live action
 
-- `AUDIT: nominate the next bounded benchmark-led step above the frozen POC3 benchmark interpretation, and do not reopen already-classified broad solver/stuffing claims without genuinely new repo-resident evidence.`
+- `AUDIT: nominate the next bounded same-case benchmark-led diagnostic or control-plane step above the frozen POC3 baseline and the landed supported-convention sensitivity proof, without silently promoting the strongest reported sensitivity variant to the new default truth.`
 
 ---
 
 ## Guard rail
 
-Do not open new topology families before a bounded benchmark-led comparison/diagnosis step justifies it.
+Do not open new topology families before a bounded benchmark-led step justifies it.
 Do not bypass the frozen benchmark protocol for future proof-of-reality comparison work.
-Do not relitigate the current POC3 mouth-side residual as an unclassified blanket failure without new evidence.
+Do not silently replace the frozen accepted POC3 baseline with a sensitivity variant absent explicit control-plane decision and stronger evidence.
 
 ## Supported Graph Surface Freeze
 
@@ -42,11 +42,3 @@ Authoritative source-grounded freeze:
 Live rule:
 - future benchmark-led work must treat the supported graph/compiler surface freeze as the current architectural boundary
 - no implicit promotion from recipe-carried families to arbitrary authored graph support
-
-## POC3 benchmark interpretation freeze
-
-Authoritative bounded interpretation note:
-- `docs/poc3_benchmark_analysis_and_known_limitations.md`
-
-Live rule:
-- future benchmark-led work may build on the current POC3 reading, but should not reopen its already-classified baseline interpretation without new repo-resident evidence

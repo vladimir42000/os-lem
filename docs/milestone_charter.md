@@ -63,7 +63,7 @@ Title:
 Milestone status:
 - opened on the working line
 - opening checkpoint: `667f3a5`
-- current benchmark-led checkpoint: `c5d4a8d`
+- current benchmark-led checkpoint: `a5957e7`
 - latest stable truthful anchor: `Closed Box`
 - frontend impact at the current checkpoint: `No frontend contract change`
 
@@ -74,19 +74,18 @@ At the current checkpoint, the active milestone is operating in benchmark-led de
 
 The bounded milestone intent is:
 - preserve `Closed Box` as the stable truthful anchor
-- preserve the reusable benchmark protocol as the control boundary for future comparison-led work
-- carry the supported graph/compiler surface freeze explicitly
-- freeze the current `POC3` benchmark interpretation so the dominant residual is not repeatedly reopened as an unclassified failure
-- allow future comparison-led diagnosis to justify or block further growth truthfully
+- preserve the frozen benchmark protocol as the control boundary for comparison-led work
+- use `POC3` as the current active benchmark-meaningful proof case
+- freeze a truthful accepted baseline reading for `POC3`
+- allow bounded same-case proof work above that baseline to refine interpretation without silently replacing it
 - avoid assuming ahead of accepted repo truth that new exposure work is already ready to broaden contract scope
 
 ### In scope at the current benchmark-led checkpoint
 
 - benchmark protocol discipline
 - bounded proof-of-reality comparison work
-- bounded diagnosis/realignment work driven by real benchmark evidence
+- bounded same-case diagnosis / interpretation work driven by real benchmark evidence
 - control-plane discipline around what remains in scope and out of scope
-- bounded benchmark interpretation freezes when the current evidence has become stable enough to record durably
 
 ### Explicitly out of scope at the current benchmark-led checkpoint
 
@@ -96,6 +95,7 @@ The bounded milestone intent is:
 - benchmark-case expansion without a bounded diagnostic reason
 - repo-wide hygiene and cleanup detours
 - ungrounded release promotion
+- silently promoting a supported sensitivity variant to default truth
 
 ### Current milestone-control note
 
@@ -104,16 +104,7 @@ It does not own the next live action; that remains singularly tracked in `docs/n
 
 ## Supported Graph Surface Freeze
 
-Current v0.6.0 exposure/coherence boundary includes an explicit supported graph/compiler surface freeze:
+Current `v0.6.0` exposure/coherence boundary includes an explicit supported graph/compiler surface freeze:
 - generic primitive/coupling core is frozen explicitly
 - recipe-specific carriers remain distinct from the generic core
 - arbitrary authored multi-driver / self-loop / unsupported-physics claims remain out of scope until explicitly justified by repo truth
-
-## POC3 benchmark interpretation freeze
-
-Current v0.6.0 control-plane state also includes a bounded frozen reading for the active `POC3` benchmark case:
-- current benchmark note: `docs/poc3_benchmark_analysis_and_known_limitations.md`
-- benchmark-meaningful overall reading is accepted
-- dominant remaining residual is mouth-side SPL observation mismatch
-- current dominant mismatch classification remains `model-equivalence`
-- this does not by itself justify broad solver redesign

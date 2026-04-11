@@ -12,14 +12,14 @@
 
 - active working-line milestone: `v0.6.0`
 - accepted benchmark-led working-line branch for the current live state: `proof/poc3-blh-benchmark-pass1`
-- accepted benchmark-led working-line commit for the current live state: `c5d4a8d`
+- accepted benchmark-led working-line commit for the current live state: `a5957e7`
 - validated `v0.5.0` close-basis branch: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
 - validated `v0.5.0` close-basis commit: `152c7d2`
-- observed green suite on the accepted benchmark-led line: `324 passed`
+- observed green suite on the accepted benchmark-led line: `328 passed`
 - operator probe worktree state at bookkeeping time: local proof artifacts may remain untracked
 
 The active working line is now a benchmark-led `v0.6.0` state above the validated `v0.5.0` kernel surface.
-This line carries the landed `POC3` BLH benchmark pass, the supported graph surface freeze, and the bounded mouth-semantics isolation reading.
+This line carries the landed `POC3` BLH benchmark pass, the supported graph surface freeze, the bounded mouth-semantics isolation reading, the bounded benchmark-analysis note, and the bounded mouth-observation-convention sensitivity proof.
 
 ---
 
@@ -41,7 +41,7 @@ This line carries the landed `POC3` BLH benchmark pass, the supported graph surf
 - title: `truthful exposure and coherence`
 - status: opened on the working line
 - opening/scope checkpoint: `667f3a5`
-- current benchmark-led proof checkpoint: `c5d4a8d`
+- current benchmark-led proof checkpoint: `a5957e7`
 - milestone branch of record is not separately frozen beyond the current accepted working-line truth
 
 ### Intent carried by `v0.6.0`
@@ -53,6 +53,7 @@ The bounded intent is:
 - preserve `Closed Box` as the stable truthful anchor
 - preserve the frozen benchmark protocol as the control boundary for future comparison-led work
 - use the current landed `POC3` BLH benchmark reading as the active benchmark-meaningful working case
+- distinguish clearly between the frozen accepted baseline and later supported-convention sensitivity above that baseline
 - avoid blind topology or solver growth while benchmark interpretation remains the main task
 
 ### Explicitly out of scope at this benchmark-led checkpoint
@@ -62,6 +63,7 @@ The bounded intent is:
 - frontend/API contract redesign
 - repo-wide cleanup or housekeeping detours
 - public release promotion unsupported by repo truth
+- silent replacement of the accepted benchmark baseline by a sensitivity variant
 
 ---
 
@@ -75,13 +77,15 @@ The bounded intent is:
 
 ### Current benchmark reading
 
-The current landed POC3 case is benchmark-meaningful.
+The current landed POC3 case remains benchmark-meaningful.
 Current repo truth supports the following bounded reading:
 - strong electro-mechanical agreement
 - strong total SPL agreement, especially versus AkAbak
 - moderate front SPL mismatch
-- dominant mouth-side SPL observation mismatch
+- dominant mouth-side mismatch on the frozen accepted baseline
 - dominant mismatch classification remains `model-equivalence`
+- supported convention sensitivity above that baseline is now also landed in repo truth
+- strongest reported supported variant materially improves the Hornresp mouth-side and total comparison, but does not silently redefine the accepted baseline
 
 ### Current protocol state
 
@@ -97,33 +101,3 @@ All future benchmark conclusions must distinguish among:
 
 - stable truthful anchor remains: `Closed Box`
 - carried statement on the current accepted line: `No frontend contract change`
-- benchmark-led work at this checkpoint does not expand frontend/API contract scope
-
----
-
-## Current control-plane truth
-
-- `v0.5.0` remains closed on the working line
-- `v0.6.0` remains the active working-line milestone
-- the current live state is benchmark-led and protocol-frozen
-- the single next live action is intentionally tracked only in `docs/next_patch.md`
-
-## v0.6.0 Supported Graph Surface Freeze
-
-Authoritative surface freeze:
-- `docs/supported_graph_surface_freeze.md`
-
-Frozen distinction:
-- generic core = primitive inventory + legal couplings + generic junction / parallel-branch assembly
-- recipe layer = recognized bounded topology / contract / observability carriers
-- arbitrary authoring beyond this boundary is not yet promised by current repo truth
-
-## v0.6.0 POC3 benchmark interpretation freeze
-
-Authoritative bounded interpretation note:
-- `docs/poc3_benchmark_analysis_and_known_limitations.md`
-
-Frozen reading:
-- current POC3 benchmark is benchmark-meaningful
-- dominant remaining residual is mouth-side SPL observation mismatch
-- current dominant mismatch classification remains `model-equivalence`
