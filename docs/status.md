@@ -12,7 +12,7 @@
 
 - active working-line milestone: `v0.6.0`
 - accepted benchmark-led working-line branch for the current live state: `proof/poc3-blh-benchmark-pass1`
-- accepted benchmark-led working-line commit for the current live state: `9f37e88`
+- accepted benchmark-led working-line commit for the current live state: `e1b5ab8`
 - validated `v0.5.0` close-basis branch: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
 - validated `v0.5.0` close-basis commit: `152c7d2`
 - observed green suite on the accepted benchmark-led line: `354 passed`
@@ -41,7 +41,7 @@ This line carries the landed `POC3` BLH benchmark pass, the supported graph surf
 - title: `truthful exposure and coherence`
 - status: opened on the working line
 - opening/scope checkpoint: `667f3a5`
-- current benchmark-led proof checkpoint: `9f37e88`
+- current benchmark-led proof checkpoint: `e1b5ab8`
 - milestone branch of record is not separately frozen beyond the current accepted working-line truth
 
 ### Intent carried by `v0.6.0`
@@ -145,3 +145,16 @@ This remains an engineering-probe line, not a general optimizer framework claim.
 - bounded local-refinement interpretation note: `docs/tqwt_side_resonator_optimization_probe_local_refinement_pass1_note.md`
 - durable control-plane reading: bounded local refinement added gain above the robust coarse-search line without changing the frozen probe contract
 - technical-scope reading: `v0.6.0` engineering work is technically complete in scope; next default step is close-readiness audit rather than more implementation by default
+
+## v0.6.0 close-readiness state
+
+
+- accepted live branch: `proof/poc3-blh-benchmark-pass1`
+- accepted live head: `e1b5ab8`
+- observed suite on accepted line: `354 passed`
+- control-plane posture: `close-readiness pending final close decision`
+- default next action: `final v0.6.0 close decision / control-plane handling`
+
+The bounded technical scope of `v0.6.0` is complete on the accepted line.
+The repo is no longer in default implementation-growth mode.
+The accepted line carries both the landed `POC3` benchmark/interpretation work and the landed bounded `TQWT` engineering-probe line through local-refinement pass 1.

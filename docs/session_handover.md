@@ -1,132 +1,48 @@
-# Session handover
+# os-lem session handover
 
-## Accepted checkpoint for this handover
+## Current accepted live truth
 
-Accepted benchmark-led checkpoint for the current bookkeeping state:
 - branch: `proof/poc3-blh-benchmark-pass1`
-- commit: `9f37e88`
-- validated `v0.5.0` close basis: `152c7d2`
-- observed tests on the accepted benchmark-led line: `354 passed`
-- operator probe worktree state: local proof artifacts may remain untracked
+- accepted head: `e1b5ab8`
+- observed suite on accepted line: `354 passed`
 
----
+## Current posture
 
-## Landed proof/control chain recorded here
+`v0.6.0` is technically complete in bounded scope on the accepted line.
+The repo is in close-readiness / control-plane alignment mode, not default implementation-growth mode.
 
-This handover records the bounded proof/control chain relevant to the current live state:
-- `667f3a5` — open `v0.6.0` and freeze scope
-- `efb5989` — freeze benchmark protocol for benchmark-led development
-- `e8e994d` — add `POC3` BLH benchmark pass 1
-- `05e0733` — add general graph surface audit
-- `9262170` — freeze supported graph surface for `v0.6.0`
-- `c5d4a8d` — add `POC3` mouth superposition semantics isolation
-- `ecb592d` — add `POC3` benchmark analysis and known limitations
-- `a5957e7` — add `POC3` mouth observation convention sensitivity
+## What is landed on the accepted line
 
-The validated technical close basis remains `152c7d2`.
-The current accepted live line remains the benchmark-led `POC3` proof branch.
+### POC3 line
+- baseline benchmark pass
+- graph surface audit
+- supported graph surface freeze
+- mouth superposition semantics isolation
+- benchmark analysis / known limitations freeze
+- mouth observation convention sensitivity
+- mouth convention sensitivity note
 
----
+### TQWT engineering-probe line
+- probe definition
+- phase-1 coarse search
+- phase-1 interpretation note
+- repeatability / budget sensitivity proof
+- robustness note
+- bounded local-refinement definition
+- bounded local-refinement pass 1
+- local-refinement pass 1 note
 
-## Frontend contract note
+## Live next action
 
-Carried statement on this accepted line:
-- `No frontend contract change`
+- final `v0.6.0` close decision / control-plane handling
 
-The stable truthful anchor remains `Closed Box`.
-This benchmark-led proof chain does not change frontend/API exposure scope.
+## Explicit non-goals for the live next action
 
----
+- no default technical growth
+- no new benchmark family
+- no solver/API/frontend detour
+- no optimizer framework expansion
 
-## Benchmark-led protocol note
+## Local-only artifacts
 
-The current active benchmark case is:
-- `proof/poc3_blh_benchmark_pass1/`
-
-The frozen reusable protocol is:
-- `proof/BENCHMARK_PROTOCOL.md`
-
-The bounded interpretation note is:
-- `docs/poc3_benchmark_analysis_and_known_limitations.md`
-
-Current control-plane reading:
-- accepted baseline remains frozen and benchmark-meaningful
-- supported convention sensitivity above that baseline is now also landed
-- the strongest reported supported variant materially changes the Hornresp mouth-side reading on the same case
-- that sensitivity result does not silently redefine the accepted default baseline
-
-Future benchmark-led conclusions must still distinguish between:
-- model-equivalence issues
-- missing-physics issues
-- solver/pathology issues
-
----
-
-## Live sequencing note
-
-The single next live action is kept only in `docs/next_patch.md` to avoid duplicated sequencing state.
-The next live action after the current proof chain is:
-- `AUDIT: nominate the next bounded same-case diagnostic or control-plane step above the frozen POC3 baseline and the landed supported-convention sensitivity proof.`
-
-## v0.6.0 Supported Graph Surface Freeze
-
-Authoritative surface freeze:
-- `docs/supported_graph_surface_freeze.md`
-
-Frozen distinction:
-- generic core = primitive inventory + legal couplings + generic junction / parallel-branch assembly
-- recipe layer = recognized bounded topology / contract / observability carriers
-- arbitrary authoring beyond this boundary is not yet promised by current repo truth
-
----
-
-## TQWT side-resonator engineering probe
-
-The current working line also carries one bounded engineering probe above validated topology capability:
-
-- `6baf52d` — `Add TQWT side resonator optimization probe definition`
-- `2c11690` — `Add TQWT side resonator optimization probe phase-1 coarse search`
-
-The durable interpretation note for that line is:
-- `docs/tqwt_side_resonator_optimization_probe_phase1_note.md`
-
-This line is definition-first, YAML-first, and intentionally bounded.
-It is not a general optimizer product line and it does not replace the current POC3 benchmark control plane.
-
-## TQWT engineering-probe robustness continuity
-
-Current accepted bounded TQWT engineering-probe line:
-- `6baf52d` — `Add TQWT side resonator optimization probe definition`
-- `2c11690` — `Add TQWT side resonator optimization probe phase-1 coarse search`
-- `bf1b274` — `Add TQWT side resonator optimization probe phase-1 note`
-- `6dc38d3` — `Add TQWT side resonator optimization probe repeatability and budget sensitivity`
-
-Current durable reading:
-- bounded reruns remain interpretable
-- improvement over baseline remains real
-- best region remains broadly stable across bounded reruns
-- modestly larger proof-sized budget improves the median best score
-- `chamber_neck` remains the dominant best-region reading inside the bounded proof surface
-
-Do not overclaim this as:
-- global optimality
-- universal chamber_neck superiority
-- justification for a general optimizer framework
-- justification for multi-resonator growth
-
-Use `docs/tqwt_side_resonator_optimization_probe_robustness_note.md` as the control-plane summary for this line.
-
----
-
-## TQWT engineering-probe local-refinement pass 1 continuity
-
-Current durable reading:
-- local-refinement pass 1 is landed
-- the pass remains inside the frozen one-side-resonator TQWT contract
-- additional gain was demonstrated without framework expansion pressure
-- `v0.6.0` should now move to final close-readiness audit unless genuinely new repo truth reopens scope
-
-Local byproducts remain non-authoritative unless explicitly curated:
-- local reports
-- local plots
-- local probe files
+Generated probe files, reports, and plots may remain untracked locally and are not authoritative repo truth unless curated explicitly later.

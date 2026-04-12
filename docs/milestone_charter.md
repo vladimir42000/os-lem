@@ -63,7 +63,7 @@ Title:
 Milestone status:
 - opened on the working line
 - opening checkpoint: `667f3a5`
-- current benchmark-led checkpoint: `9f37e88`
+- current benchmark-led checkpoint: `e1b5ab8`
 - latest stable truthful anchor: `Closed Box`
 - frontend impact at the current checkpoint: `No frontend contract change`
 
@@ -151,3 +151,20 @@ At the current accepted working-line truth, the technical implementation scope f
 - benchmark-led control line frozen and interpreted
 - bounded engineering-probe line frozen, implemented, and interpreted through local-refinement pass 1
 - default next action is close-readiness audit rather than further implementation growth
+
+- current benchmark-led proof checkpoint: `e1b5ab8`
+
+## v0.6.0 close-readiness alignment
+
+
+- accepted live branch: `proof/poc3-blh-benchmark-pass1`
+- accepted live head: `e1b5ab8`
+- observed suite on accepted line: `354 passed`
+- milestone posture: `technical scope complete; awaiting final close decision handling`
+- live default next action: `final v0.6.0 close-readiness / close-decision audit`
+
+This alignment does not itself declare the milestone closed.
+It removes stale implementation-growth ambiguity and aligns the control plane to the live accepted checkpoint.
+The accepted line truthfully includes:
+- landed `POC3` baseline and interpretation work
+- landed `TQWT` engineering-probe line through bounded local-refinement pass 1

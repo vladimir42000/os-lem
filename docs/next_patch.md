@@ -1,87 +1,45 @@
-# Next action
+# os-lem next patch
 
-## Live rule
+## Current accepted live truth
 
-This file is the single live-action document.
-It must stay aligned with `docs/status.md` and `docs/session_handover.md` without duplicating milestone decision history.
+- branch: `proof/poc3-blh-benchmark-pass1`
+- accepted head: `e1b5ab8`
+- observed suite on accepted line: `354 passed`
 
----
+## Live control-plane reading
 
-## Current state after POC3 mouth observation convention sensitivity
+The bounded technical scope of `v0.6.0` is complete on the accepted line.
+The default next action is no longer implementation growth.
+The live next action is final `v0.6.0` close decision / control-plane handling.
 
-- active working-line milestone: `v0.6.0`
-- accepted benchmark-led working-line branch: `proof/poc3-blh-benchmark-pass1`
-- accepted benchmark-led working-line commit: `9f37e88`
-- validated `v0.5.0` close basis: `152c7d2`
-- observed suite on the accepted benchmark-led line: `354 passed`
-- carried statement: `No frontend contract change`
-- stable truthful anchor: `Closed Box`
-- active benchmark-meaningful case: `POC3`
-- benchmark protocol: `proof/BENCHMARK_PROTOCOL.md`
-- bounded interpretation note: `docs/poc3_benchmark_analysis_and_known_limitations.md`
+## Landed technical lines carried by the accepted checkpoint
 
----
+### POC3 benchmark / interpretation line
+- `Add POC3 BLH benchmark pass 1`
+- `Add general graph surface audit`
+- `Freeze supported graph surface for v0.6.0`
+- `Add POC3 mouth superposition semantics isolation`
+- `Add POC3 benchmark analysis and known limitations`
+- `Add POC3 mouth observation convention sensitivity`
+- `Add POC3 mouth convention sensitivity note`
 
-## Next live action
+### TQWT engineering-probe line
+- `Add TQWT side resonator optimization probe definition`
+- `Add TQWT side resonator optimization probe phase-1 coarse search`
+- `Add TQWT side resonator optimization probe phase-1 note`
+- `Add TQWT side resonator optimization probe repeatability and budget sensitivity`
+- `Add TQWT side resonator optimization probe robustness note`
+- `Add TQWT side resonator optimization probe bounded local refinement definition`
+- `Add TQWT side resonator optimization probe bounded local refinement pass 1`
+- `Add TQWT side resonator optimization probe local refinement pass1 note`
 
-- `AUDIT: nominate the next bounded same-case benchmark-led diagnostic or control-plane step above the frozen POC3 baseline and the landed supported-convention sensitivity proof, without silently promoting the strongest reported sensitivity variant to the new default truth.`
+## One live next action only
 
----
+- prepare and execute final `v0.6.0` close-readiness / close-decision audit
 
-## Guard rail
+## Explicitly not the live next action
 
-Do not open new topology families before a bounded benchmark-led step justifies it.
-Do not bypass the frozen benchmark protocol for future proof-of-reality comparison work.
-Do not silently replace the frozen accepted POC3 baseline with a sensitivity variant absent explicit control-plane decision and stronger evidence.
-
-## Supported Graph Surface Freeze
-
-Authoritative source-grounded freeze:
-- `docs/supported_graph_surface_freeze.md`
-
-Live rule:
-- future benchmark-led work must treat the supported graph/compiler surface freeze as the current architectural boundary
-- no implicit promotion from recipe-carried families to arbitrary authored graph support
-
----
-
-## TQWT side-resonator phase-1 note status
-
-The landed TQWT + one-side-resonator engineering probe now has:
-- a frozen probe definition
-- a landed phase-1 coarse-search implementation
-- a bounded phase-1 interpretation note at `docs/tqwt_side_resonator_optimization_probe_phase1_note.md`
-
-This note does not freeze a new implementation patch by itself.
-Any future follow-up must stay bounded and must not silently expand into a general optimizer framework, broader topology work, or a rewrite of the current POC3 benchmark reading.
-
-## Post-robustness TQWT engineering-probe posture
-
-The bounded TQWT engineering-probe line now has:
-- a frozen definition
-- a landed phase-1 coarse-search implementation
-- a landed phase-1 interpretation note
-- a landed repeatability / budget-sensitivity proof
-- a bounded robustness interpretation note
-
-Current control-plane reading:
-- the positive phase-1 result is robust enough to support careful discussion of a later bounded refinement step
-- no phase-2 refinement is automatically justified by default
-- no optimizer framework build-out is justified
-- no topology-family growth is justified
-
-Absent new direction, future steps in this area must remain tightly bounded and separately justified.
-
----
-
-## Post-v0.6.0 technical completion handoff
-
-The next default step is no longer new technical implementation.
-
-Preferred next bounded step:
-- final `v0.6.0` close-readiness audit / control-plane handling
-
-Why this is next:
-- the benchmark-led line is frozen and interpreted
-- the bounded TQWT engineering-probe line now includes definition, coarse search, robustness classification, and bounded local-refinement pass 1
-- additional implementation is not required by default for the milestone's technical claim
+- further default implementation growth
+- reopening same-case POC3 diagnostics
+- more TQWT optimizer expansion by default
+- solver/API/frontend/topology work without fresh control-plane authorization
