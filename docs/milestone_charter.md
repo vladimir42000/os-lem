@@ -63,7 +63,7 @@ Title:
 Milestone status:
 - opened on the working line
 - opening checkpoint: `667f3a5`
-- current benchmark-led checkpoint: `6dc38d3`
+- current benchmark-led checkpoint: `9f37e88`
 - latest stable truthful anchor: `Closed Box`
 - frontend impact at the current checkpoint: `No frontend contract change`
 
@@ -142,3 +142,12 @@ It does not support:
 - general optimizer framework claims
 - topology-family growth by default
 - multi-resonator growth by default
+
+---
+
+## v0.6.0 technical completion posture
+
+At the current accepted working-line truth, the technical implementation scope for `v0.6.0` is treated as completed:
+- benchmark-led control line frozen and interpreted
+- bounded engineering-probe line frozen, implemented, and interpreted through local-refinement pass 1
+- default next action is close-readiness audit rather than further implementation growth

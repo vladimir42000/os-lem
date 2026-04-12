@@ -11,9 +11,9 @@ It must stay aligned with `docs/status.md` and `docs/session_handover.md` withou
 
 - active working-line milestone: `v0.6.0`
 - accepted benchmark-led working-line branch: `proof/poc3-blh-benchmark-pass1`
-- accepted benchmark-led working-line commit: `6dc38d3`
+- accepted benchmark-led working-line commit: `9f37e88`
 - validated `v0.5.0` close basis: `152c7d2`
-- observed suite on the accepted benchmark-led line: `346 passed`
+- observed suite on the accepted benchmark-led line: `354 passed`
 - carried statement: `No frontend contract change`
 - stable truthful anchor: `Closed Box`
 - active benchmark-meaningful case: `POC3`
@@ -71,3 +71,17 @@ Current control-plane reading:
 - no topology-family growth is justified
 
 Absent new direction, future steps in this area must remain tightly bounded and separately justified.
+
+---
+
+## Post-v0.6.0 technical completion handoff
+
+The next default step is no longer new technical implementation.
+
+Preferred next bounded step:
+- final `v0.6.0` close-readiness audit / control-plane handling
+
+Why this is next:
+- the benchmark-led line is frozen and interpreted
+- the bounded TQWT engineering-probe line now includes definition, coarse search, robustness classification, and bounded local-refinement pass 1
+- additional implementation is not required by default for the milestone's technical claim

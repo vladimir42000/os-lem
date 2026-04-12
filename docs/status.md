@@ -12,10 +12,10 @@
 
 - active working-line milestone: `v0.6.0`
 - accepted benchmark-led working-line branch for the current live state: `proof/poc3-blh-benchmark-pass1`
-- accepted benchmark-led working-line commit for the current live state: `6dc38d3`
+- accepted benchmark-led working-line commit for the current live state: `9f37e88`
 - validated `v0.5.0` close-basis branch: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
 - validated `v0.5.0` close-basis commit: `152c7d2`
-- observed green suite on the accepted benchmark-led line: `346 passed`
+- observed green suite on the accepted benchmark-led line: `354 passed`
 - operator probe worktree state at bookkeeping time: local proof artifacts may remain untracked
 
 The active working line is now a benchmark-led `v0.6.0` state above the validated `v0.5.0` kernel surface.
@@ -41,7 +41,7 @@ This line carries the landed `POC3` BLH benchmark pass, the supported graph surf
 - title: `truthful exposure and coherence`
 - status: opened on the working line
 - opening/scope checkpoint: `667f3a5`
-- current benchmark-led proof checkpoint: `6dc38d3`
+- current benchmark-led proof checkpoint: `9f37e88`
 - milestone branch of record is not separately frozen beyond the current accepted working-line truth
 
 ### Intent carried by `v0.6.0`
@@ -137,3 +137,11 @@ Bounded robustness interpretation note:
 - `docs/tqwt_side_resonator_optimization_probe_robustness_note.md`
 
 This remains an engineering-probe line, not a general optimizer framework claim.
+
+---
+
+## TQWT engineering-probe local-refinement pass 1 state
+
+- bounded local-refinement interpretation note: `docs/tqwt_side_resonator_optimization_probe_local_refinement_pass1_note.md`
+- durable control-plane reading: bounded local refinement added gain above the robust coarse-search line without changing the frozen probe contract
+- technical-scope reading: `v0.6.0` engineering work is technically complete in scope; next default step is close-readiness audit rather than more implementation by default

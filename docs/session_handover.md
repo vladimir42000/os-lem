@@ -4,9 +4,9 @@
 
 Accepted benchmark-led checkpoint for the current bookkeeping state:
 - branch: `proof/poc3-blh-benchmark-pass1`
-- commit: `6dc38d3`
+- commit: `9f37e88`
 - validated `v0.5.0` close basis: `152c7d2`
-- observed tests on the accepted benchmark-led line: `346 passed`
+- observed tests on the accepted benchmark-led line: `354 passed`
 - operator probe worktree state: local proof artifacts may remain untracked
 
 ---
@@ -115,3 +115,18 @@ Do not overclaim this as:
 - justification for multi-resonator growth
 
 Use `docs/tqwt_side_resonator_optimization_probe_robustness_note.md` as the control-plane summary for this line.
+
+---
+
+## TQWT engineering-probe local-refinement pass 1 continuity
+
+Current durable reading:
+- local-refinement pass 1 is landed
+- the pass remains inside the frozen one-side-resonator TQWT contract
+- additional gain was demonstrated without framework expansion pressure
+- `v0.6.0` should now move to final close-readiness audit unless genuinely new repo truth reopens scope
+
+Local byproducts remain non-authoritative unless explicitly curated:
+- local reports
+- local plots
+- local probe files
