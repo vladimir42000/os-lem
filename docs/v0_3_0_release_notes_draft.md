@@ -1,32 +1,53 @@
-# os-lem v0.3.0 release notes (draft)
+# v0.3.0 release notes draft
+
+> Editorial status note: `v0.3.0` is already the current public release baseline on `main`.
+> This file remains a draft editorial artifact for the already-public baseline; earlier pre-release gating language is historical context only and is not current repo truth.
 
 ## Draft status
 
-This file is a draft.
-
-`v0.3.0` is not released yet.
-The purpose of this draft is to freeze the wording early so the eventual merge to `main` stays honest and bounded.
+This file is a draft editorial note attached to the already-public `v0.3.0` baseline.
+It no longer serves as a pre-promotion gate.
 
 Working release title:
 - `waveguide observability and API maturity`
 
 ---
 
-## Release character
+## Public release character
 
-`v0.3.0` is intended to be a bounded maturity follow-up to the `v0.2.0` release.
+`v0.3.0` is the currently released public baseline on `main`.
 
-It does **not** attempt to turn `os-lem` into a broad transmission-line parity release or a broad solver-expansion release.
-Instead, it packages one disciplined next step:
+It is a bounded maturity release for:
+- promoted element observables in the supported API/output surface
+- parser/API contract hardening around that promoted surface
+- regression-backed documentation and governance alignment
 
-- promote already-existing element observables into the supported API/output surface
-- harden parser-side contract validation around that promoted surface
-- add end-to-end facade negative-path regression coverage
-- keep milestone governance, handover text, and capability wording aligned to the tested repo truth
+It does **not** present:
+- a broad transmission-line parity claim
+- a broad AkAbak or Hornresp parity claim
+- a `v0.6.0` working-line promotion
+- a `v0.7.0` opening
 
 ---
 
-## Planned inclusions in v0.3.0
+## Public-line suite truth
+
+At the public-line green-suite truth audit, the reproducible public-line test state is:
+
+- `127 passed, 1 failed`
+
+Observed failing surface:
+- `tests/debug/test_offset_line_compare_harness.py`
+
+Observed bounded cause:
+- missing file: `debug/hornresp_offset_line_drv.frd`
+
+This note records that public-line truth directly.
+It does not broaden the public capability story beyond the released `v0.3.0` baseline.
+
+---
+
+## Released scope summary
 
 ### Promoted supported observability surface
 - `element_volume_velocity`
@@ -41,21 +62,17 @@ Instead, it packages one disciplined next step:
 - explicit facade behavior around invalid promoted element-observable requests
 - preserved default behavior outside the promoted bounded surface
 
-### Regression hardening
+### Regression and governance significance
 - end-to-end facade regression coverage for valid promoted element observables
 - end-to-end facade regression coverage for invalid promoted element-observable requests
-- milestone validation observed green at `128 passed`
-
-### Process significance
-- disciplined patch-pack completion on a milestone branch
-- explicit close decision before release-promotion planning
-- clearer distinction between completed milestone truth and release-promotion work still pending
+- released public baseline on `main`
+- public-line suite truth recorded as observed, including the bounded known failure above
 
 ---
 
 ## Explicit non-claims
 
-`v0.3.0` should **not** claim:
+`v0.3.0` should **not** be read as claiming:
 
 - broad Hornresp parity
 - broad AkAbak parity
@@ -69,33 +86,8 @@ Instead, it packages one disciplined next step:
 
 ---
 
-## Recommended release wording
+## Suggested short public summary
 
-Suggested short release summary:
+> `v0.3.0` is the released public baseline on `main`, promoting bounded element observability into the supported API/output surface and hardening the contract around that surface.
 
-> `v0.3.0` promotes bounded element observability into the supported API/output surface, hardens the contract around that surface, and closes the milestone with regression-backed documentation and governance aligned to the tested repo state.
-
-Suggested one-sentence caveat:
-
-> This is an observability/API maturity release, not a broad transmission-line or solver-physics expansion claim.
-
----
-
-## Pre-release checklist
-
-Before merging `v0.3.0` to `main`, confirm:
-
-- milestone branch is green
-- release wording still matches the tested repository state
-- no unsupported parity or maturity language slipped into docs
-- the promoted supported observable surface remains documented narrowly and honestly
-- release-promotion work did not reopen closed milestone scope
-
----
-
-## Follow-on direction after v0.3.0
-
-Only after `v0.3.0` is either promoted or explicitly deferred should the project consider the next work family, such as:
-- later milestone seeding for new capability work
-- bounded release stabilization on top of `v0.3.0`
-- a separately justified next maturity track
+> Public-line test truth currently reproduces as `127 passed, 1 failed`, with the single known failure limited to the offset-line debug harness because `debug/hornresp_offset_line_drv.frd` is missing.

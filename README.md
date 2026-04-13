@@ -1,19 +1,15 @@
 # os-lem
 
+## Public baseline
+
+- Latest released version: `v0.3.0`
+- Public branch of record: `main`
+- Observed reproducible suite on the public release line: `127 passed, 1 failed`
+- Public project posture: released `v0.3.0` baseline only
+- Supported public scope: stable released baseline only; no working-line `v0.6.0` promotion and no `v0.7.0` opening are implied here
+- Known bounded public-line failure at audit time: `tests/debug/test_offset_line_compare_harness.py` due to missing `debug/hornresp_offset_line_drv.frd`
+
 Open, scriptable loudspeaker and enclosure simulator with a disciplined, test-first development style inspired by classic Akabak-era LEM workflows.
-
-## Release posture
-
-Latest released version:
-- `v0.2.0` on `main`
-
-Current green suite on the released line:
-- `118 passed`
-
-Current project posture:
-- `v0.2.0` is released
-- the offset-line observation-contract stabilization milestone is complete
-- the next work item is **post-release housekeeping**, not immediate new solver development
 
 ## What `v0.2.0` adds
 
@@ -55,14 +51,3 @@ Start with:
 - `docs/next_patch.md`
 - `docs/session_handover.md`
 - `docs/book_contract.md`
-
-## Immediate next work
-
-Recommended next branch:
-- `chore/post-v0.2.0-housekeeping`
-
-That patch should stay docs/governance only and should cover:
-- reciprocal repo links (`os-lem` <-> `os-lem-book`)
-- branch/tag cleanup guidance
-- stale milestone/debug branch review
-- next-milestone planning handoff
