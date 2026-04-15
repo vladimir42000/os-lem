@@ -1,7 +1,6 @@
 # os-lem status
 
 ## Released baseline
-
 - latest released version: `v0.3.0`
 - released branch of record: `main`
 - observed green suite on the release line: `128 passed`
@@ -9,152 +8,56 @@
 ---
 
 ## Current accepted working-line truth
+- active working-line milestone: `v0.7.0`
+- accepted working-line branch for the current live state: `feat/v0.7.0-seed-exponential-flare-contract`
+- accepted working-line commit for the current live state: `c25ab5e`
+- observed suite on the accepted working-line checkpoint: `362 passed`
 
-- active working-line milestone: `v0.6.0`
-- accepted benchmark-led working-line branch for the current live state: `proof/poc3-blh-benchmark-pass1`
-- accepted benchmark-led working-line commit for the current live state: `e1b5ab8`
-- validated `v0.5.0` close-basis branch: `test/v0.5.0-stability-envelope-and-minimal-release-surface`
-- validated `v0.5.0` close-basis commit: `152c7d2`
-- observed green suite on the accepted benchmark-led line: `354 passed`
-- operator probe worktree state at bookkeeping time: local proof artifacts may remain untracked
-
-The active working line is now a benchmark-led `v0.6.0` state above the validated `v0.5.0` kernel surface.
-This line carries the landed `POC3` BLH benchmark pass, the supported graph surface freeze, the bounded mouth-semantics isolation reading, the bounded benchmark-analysis note, and the bounded mouth-observation-convention sensitivity proof.
+The active working line is now the `v0.7.0` flare-opening line.
+Its accepted opening meaning is frozen by `docs/exponential_flare_opening_note.md`.
 
 ---
 
 ## Milestone state
 
 ### Most recent completed working-line milestone
-
-- name: `v0.5.0`
-- title: `bounded reusable topology growth and observability consolidation`
-- status: closed on the working line
-- validated close basis: `152c7d2`
-- close-readiness alignment checkpoint: `ca9e346`
-- post-close control-plane alignment checkpoint: `2a96338`
-- public release claim: not made by this control-plane state
-
-### Active working-line milestone
-
 - name: `v0.6.0`
 - title: `truthful exposure and coherence`
-- status: opened on the working line
-- opening/scope checkpoint: `667f3a5`
-- current benchmark-led proof checkpoint: `e1b5ab8`
-- milestone branch of record is not separately frozen beyond the current accepted working-line truth
+- status: closed on the working line
+- accepted close branch: `proof/poc3-blh-benchmark-pass1`
+- accepted close checkpoint: `ecec068`
+- observed suite on the accepted close checkpoint: `354 passed`
 
-### Intent carried by `v0.6.0`
+`v0.6.0` remains prior completed working-line truth only.
+It is no longer the active current milestone reading on this branch.
 
-Use `v0.6.0` to turn the validated `v0.5.0` kernel surface into a truthful exposure/coherence milestone.
-At the current checkpoint, `v0.6.0` is operating in benchmark-led development mode.
+### Active working-line milestone
+- name: `v0.7.0`
+- title: `bounded horn-flare expansion`
+- status: open on the working line
+- accepted opening branch: `feat/v0.7.0-seed-exponential-flare-contract`
+- accepted opening checkpoint: `c25ab5e`
+- opening note: `docs/exponential_flare_opening_note.md`
 
-The bounded intent is:
-- preserve `Closed Box` as the stable truthful anchor
-- preserve the frozen benchmark protocol as the control boundary for future comparison-led work
-- use the current landed `POC3` BLH benchmark reading as the active benchmark-meaningful working case
-- distinguish clearly between the frozen accepted baseline and later supported-convention sensitivity above that baseline
-- avoid blind topology or solver growth while benchmark interpretation remains the main task
+### Current `v0.7.0` posture
 
-### Explicitly out of scope at this benchmark-led checkpoint
+Current accepted `v0.7.0` posture is intentionally narrow:
+- one bounded shared named-flare contract surface for `waveguide_1d`
+- one concrete implementation only: `exponential`
+- truthful mapping into the current segmented 1D kernel discipline
+- no broader flare-engine claim
 
-- new topology-family growth by default
-- solver redesign or new solver feature campaigns
-- frontend/API contract redesign
-- repo-wide cleanup or housekeeping detours
-- public release promotion unsupported by repo truth
-- silent replacement of the accepted benchmark baseline by a sensitivity variant
-
----
-
-## Benchmark-led development state
-
-### Current active benchmark case
-
-- active benchmark case: `proof/poc3_blh_benchmark_pass1/`
-- benchmark protocol document: `proof/BENCHMARK_PROTOCOL.md`
-- bounded benchmark interpretation note: `docs/poc3_benchmark_analysis_and_known_limitations.md`
-
-### Current benchmark reading
-
-The current landed POC3 case remains benchmark-meaningful.
-Current repo truth supports the following bounded reading:
-- strong electro-mechanical agreement
-- strong total SPL agreement, especially versus AkAbak
-- moderate front SPL mismatch
-- dominant mouth-side mismatch on the frozen accepted baseline
-- dominant mismatch classification remains `model-equivalence`
-- supported convention sensitivity above that baseline is now also landed in repo truth
-- strongest reported supported variant materially improves the Hornresp mouth-side and total comparison, but does not silently redefine the accepted baseline
-
-### Current protocol state
-
-The benchmark protocol remains frozen for future benchmark-led work.
-All future benchmark conclusions must distinguish among:
-- model-equivalence issues
-- missing-physics issues
-- solver/pathology issues
+### Explicitly out of scope at the current checkpoint
+- any second flare law by default
+- arbitrary free-form flare engines
+- generalized horn-law frameworks
+- Studio/frontend work
+- optimizer work
+- public-promotion work
+- roadmap speculation beyond the accepted opening meaning
 
 ---
 
-## Frontend contract state
-
-- stable truthful anchor remains: `Closed Box`
-- carried statement on the current accepted line: `No frontend contract change`
-
----
-
-## Bounded engineering probe state
-
-- active bounded engineering probe: `TQWT + one-side-resonator optimization probe`
-- definition checkpoint: `6baf52d`
-- phase-1 coarse-search checkpoint: `2c11690`
-- bounded phase-1 interpretation note: `docs/tqwt_side_resonator_optimization_probe_phase1_note.md`
-
-This probe is definition-first and phase-1 coarse-search only.
-It is not a general optimizer framework and it does not alter the benchmark-led POC3 control-plane reading.
-
----
-
-## TQWT engineering-probe robustness state
-
-### Current bounded TQWT engineering-probe line
-
-The accepted TQWT engineering-probe line now includes:
-- `6baf52d` — `Add TQWT side resonator optimization probe definition`
-- `2c11690` — `Add TQWT side resonator optimization probe phase-1 coarse search`
-- `bf1b274` — `Add TQWT side resonator optimization probe phase-1 note`
-- `6dc38d3` — `Add TQWT side resonator optimization probe repeatability and budget sensitivity`
-
-Current repo truth supports the following bounded reading:
-- the coarse-search probe is repeatable enough for engineering interpretation
-- improvement over baseline remains real in the bounded rerun surface
-- the best region remains broadly stable in the bounded reruns
-- a modestly larger proof-sized budget materially improves the median best score
-- `chamber_neck` is the dominant best-region reading within the bounded proof surface
-
-Bounded robustness interpretation note:
-- `docs/tqwt_side_resonator_optimization_probe_robustness_note.md`
-
-This remains an engineering-probe line, not a general optimizer framework claim.
-
----
-
-## TQWT engineering-probe local-refinement pass 1 state
-
-- bounded local-refinement interpretation note: `docs/tqwt_side_resonator_optimization_probe_local_refinement_pass1_note.md`
-- durable control-plane reading: bounded local refinement added gain above the robust coarse-search line without changing the frozen probe contract
-- technical-scope reading: `v0.6.0` engineering work is technically complete in scope; next default step is close-readiness audit rather than more implementation by default
-
-## v0.6.0 close-readiness state
-
-
-- accepted live branch: `proof/poc3-blh-benchmark-pass1`
-- accepted live head: `e1b5ab8`
-- observed suite on accepted line: `354 passed`
-- control-plane posture: `close-readiness pending final close decision`
-- default next action: `final v0.6.0 close decision / control-plane handling`
-
-The bounded technical scope of `v0.6.0` is complete on the accepted line.
-The repo is no longer in default implementation-growth mode.
-The accepted line carries both the landed `POC3` benchmark/interpretation work and the landed bounded `TQWT` engineering-probe line through local-refinement pass 1.
+## Frontend / platform state
+- no Studio implication is carried by the current `v0.7.0` opening
+- no optimizer/platform implication is carried by the current `v0.7.0` opening

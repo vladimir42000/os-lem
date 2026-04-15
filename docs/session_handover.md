@@ -1,48 +1,43 @@
-# os-lem session handover
+# session handover
 
 ## Current accepted live truth
 
-- branch: `proof/poc3-blh-benchmark-pass1`
-- accepted head: `e1b5ab8`
-- observed suite on accepted line: `354 passed`
+The current accepted live truth on this branch is:
+- milestone: `v0.7.0`
+- branch: `feat/v0.7.0-seed-exponential-flare-contract`
+- accepted checkpoint: `c25ab5e`
+- title: `Seed exponential flare contract`
 
-## Current posture
+This branch now carries the accepted `v0.7.0` opening meaning.
+`v0.6.0` is prior completed context only and must not be read here as the active current milestone.
 
-`v0.6.0` is technically complete in bounded scope on the accepted line.
-The repo is in close-readiness / control-plane alignment mode, not default implementation-growth mode.
+## Frozen interpretation boundary
 
-## What is landed on the accepted line
+Interpret the accepted opening only as:
+- one bounded shared named-flare contract surface
+- one concrete implementation only: `exponential`
+- truthful mapping into the current segmented 1D kernel discipline
+- bounded parser / waveguide / solve support
+- focused validation surface present
 
-### POC3 line
-- baseline benchmark pass
-- graph surface audit
-- supported graph surface freeze
-- mouth superposition semantics isolation
-- benchmark analysis / known limitations freeze
-- mouth observation convention sensitivity
-- mouth convention sensitivity note
+Do **not** reinterpret this opening as:
+- tractrix support
+- hyperbolic support
+- parabolic support
+- Le Cléac'h support
+- a generalized horn-law framework
+- optimizer/platform implication
+- Studio implication
+- broader horn-family maturity claim
 
-### TQWT engineering-probe line
-- probe definition
-- phase-1 coarse search
-- phase-1 interpretation note
-- repeatability / budget sensitivity proof
-- robustness note
-- bounded local-refinement definition
-- bounded local-refinement pass 1
-- local-refinement pass 1 note
+## Control-plane rule
 
-## Live next action
+Meaning is frozen first.
+Later flare-family expansion requires a separately authorized bounded step.
+No next technical flare step is opened by the docs/control freeze itself.
 
-- final `v0.6.0` close decision / control-plane handling
+## Historical context
 
-## Explicit non-goals for the live next action
-
-- no default technical growth
-- no new benchmark family
-- no solver/API/frontend detour
-- no optimizer framework expansion
-
-## Local-only artifacts
-
-Generated probe files, reports, and plots may remain untracked locally and are not authoritative repo truth unless curated explicitly later.
+`v0.6.0` remains closed prior working-line context only:
+- accepted close branch: `proof/poc3-blh-benchmark-pass1`
+- accepted close checkpoint: `ecec068`
