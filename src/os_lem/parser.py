@@ -136,8 +136,6 @@ def _normalize_element(raw: dict[str, Any]):
         for req in ("id", "type", "node_a", "node_b", "length", "area_start", "area_end", "profile"):
             if req not in raw:
                 raise ValidationError(f"Missing required waveguide_1d field: {req}")
-        if raw["profile"] != "conical":
-            raise ValidationError("v1 waveguide_1d supports only profile: conical")
         length_m = parse_value(raw["length"])
         area_start_m2 = parse_value(raw["area_start"])
         area_end_m2 = parse_value(raw["area_end"])
@@ -151,6 +149,11 @@ def _normalize_element(raw: dict[str, Any]):
         if loss is not None:
             if loss < 0.0:
                 raise ValidationError(f"waveguide_1d[{raw['id']}].loss must be >= 0")
+        profile = raw.get("profile", "conical")
+        if not isinstance(profile, str):
+            raise ValidationError(f"waveguide_1d[{raw['id']}].profile must be a string")
+        if profile not in {"conical", "exponential"}:
+            raise ValidationError("v1 waveguide_1d supports only profile: conical, exponential")
         return Waveguide1DElement(
             id=str(raw["id"]),
             node_a=str(raw["node_a"]),
@@ -158,7 +161,7 @@ def _normalize_element(raw: dict[str, Any]):
             length_m=length_m,
             area_start_m2=area_start_m2,
             area_end_m2=area_end_m2,
-            profile="conical",
+            profile=profile,
             segments=segments,
             loss=loss,
         )

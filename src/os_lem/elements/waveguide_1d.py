@@ -105,3 +105,62 @@ def segment_sample_state(
         raise ValueError("x_m must be >= 0")
     transfer = uniform_segment_transfer(omega, x_m, area_m2, loss_np_per_m=loss_np_per_m)
     return transfer @ np.array([pressure_left, flow_left], dtype=complex)
+
+
+# --- v0.7.0 exponential named-flare contract override ---
+import math as _math
+import numpy as _np
+
+
+def _validate_named_flare_profile(profile: str) -> str:
+    if not isinstance(profile, str):
+        raise ValueError("waveguide_1d profile must be a string")
+    if profile not in {"conical", "exponential"}:
+        raise ValueError(f"unsupported waveguide_1d named flare profile {profile!r}")
+    return profile
+
+
+def area_at_position(
+    length_m: float,
+    area_start_m2: float,
+    area_end_m2: float,
+    x_m: float,
+    profile: str = "conical",
+) -> float:
+    profile = _validate_named_flare_profile(profile)
+    if length_m <= 0.0:
+        raise ValueError("length_m must be > 0")
+    if area_start_m2 <= 0.0 or area_end_m2 <= 0.0:
+        raise ValueError("areas must be > 0")
+
+    x = float(x_m)
+    if x <= 0.0:
+        return float(area_start_m2)
+    if x >= float(length_m):
+        return float(area_end_m2)
+    if profile == "conical":
+        return float(area_start_m2 + (area_end_m2 - area_start_m2) * (x / float(length_m)))
+    if _math.isclose(area_start_m2, area_end_m2, rel_tol=0.0, abs_tol=0.0):
+        return float(area_start_m2)
+    flare_rate = _math.log(area_end_m2 / area_start_m2) / float(length_m)
+    return float(area_start_m2 * _math.exp(flare_rate * x))
+
+
+def segment_midpoint_areas(
+    length_m: float,
+    area_start_m2: float,
+    area_end_m2: float,
+    segments: int,
+    profile: str = "conical",
+) -> _np.ndarray:
+    if segments <= 0:
+        raise ValueError("segments must be > 0")
+    dx = float(length_m) / int(segments)
+    x_mid = (_np.arange(int(segments), dtype=float) + 0.5) * dx
+    return _np.array(
+        [
+            area_at_position(length_m, area_start_m2, area_end_m2, float(x), profile)
+            for x in x_mid
+        ],
+        dtype=float,
+    )

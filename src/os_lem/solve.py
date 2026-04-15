@@ -1491,3 +1491,85 @@ def radiator_spl(
         observable_contract=observable_contract,
     )
     return 20.0 * np.log10(np.abs(p_obs) / P_REF)
+
+
+# --- v0.7.0 exponential segmented-boundary flow consistency override ---
+import numpy as _np
+from os_lem.elements.waveguide_1d import area_at_position as _wg_area_at_position
+from os_lem.elements.waveguide_1d import segment_midpoint_areas as _wg_segment_midpoint_areas
+from os_lem.elements.waveguide_1d import uniform_segment_admittance as _wg_uniform_segment_admittance
+
+_original_waveguide_line_profile_volume_velocity = waveguide_line_profile_volume_velocity
+_original_waveguide_line_profile_particle_velocity = waveguide_line_profile_particle_velocity
+
+
+def _waveguide_discrete_boundary_flows(point, system, waveguide_id):
+    element = _find_waveguide_element(system, waveguide_id)
+    payload = element.payload
+    idx = {name: i for i, name in enumerate(system.node_order)}
+    nodal_pressures = _waveguide_internal_nodal_pressures(
+        point.omega_rad_s,
+        payload,
+        point.pressures[idx[payload.node_a]],
+        point.pressures[idx[payload.node_b]],
+    )
+    dx = payload.length_m / payload.segments
+    areas = _wg_segment_midpoint_areas(
+        payload.length_m,
+        payload.area_start_m2,
+        payload.area_end_m2,
+        payload.segments,
+        profile=getattr(payload, "profile", "conical"),
+    )
+    endpoint_flow = point.waveguide_endpoint_flow[waveguide_id]
+    boundary_flows = _np.empty(payload.segments + 1, dtype=_np.complex128)
+    boundary_flows[0] = endpoint_flow.node_a
+    boundary_flows[-1] = -endpoint_flow.node_b
+    for seg_idx, area_m2 in enumerate(areas[:-1]):
+        Y_seg = _wg_uniform_segment_admittance(point.omega_rad_s, dx, float(area_m2))
+        q_seg = Y_seg @ _np.array(
+            [nodal_pressures[seg_idx], nodal_pressures[seg_idx + 1]],
+            dtype=_np.complex128,
+        )
+        boundary_flows[seg_idx + 1] = -q_seg[1]
+    return boundary_flows
+
+
+def waveguide_line_profile_volume_velocity(point, system, waveguide_id, points=101):
+    profile = _original_waveguide_line_profile_volume_velocity(point, system, waveguide_id, points)
+    element = _find_waveguide_element(system, waveguide_id)
+    payload = element.payload
+    values = _np.array(profile.values, copy=True)
+    endpoint_flow = point.waveguide_endpoint_flow[waveguide_id]
+    if values.size:
+        values[0] = endpoint_flow.node_a
+        values[-1] = -endpoint_flow.node_b
+    if int(points) == int(payload.segments) + 1 and values.size == int(payload.segments) + 1:
+        values[:] = _waveguide_discrete_boundary_flows(point, system, waveguide_id)
+    return WaveguideLineProfile(quantity=profile.quantity, x_m=profile.x_m, values=values)
+
+
+def waveguide_line_profile_particle_velocity(point, system, waveguide_id, points=101):
+    profile = _original_waveguide_line_profile_particle_velocity(point, system, waveguide_id, points)
+    flow_profile = waveguide_line_profile_volume_velocity(point, system, waveguide_id, points)
+    element = _find_waveguide_element(system, waveguide_id)
+    payload = element.payload
+    local_areas = _np.array(
+        [
+            _wg_area_at_position(
+                payload.length_m,
+                payload.area_start_m2,
+                payload.area_end_m2,
+                float(x_m),
+                getattr(payload, "profile", "conical"),
+            )
+            for x_m in profile.x_m
+        ],
+        dtype=float,
+    )
+    values = flow_profile.values / local_areas
+    endpoint_velocity = point.waveguide_endpoint_velocity[waveguide_id]
+    if values.size:
+        values[0] = endpoint_velocity.node_a
+        values[-1] = -endpoint_velocity.node_b
+    return WaveguideLineProfile(quantity=profile.quantity, x_m=profile.x_m, values=values)
