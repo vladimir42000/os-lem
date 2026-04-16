@@ -1,20 +1,18 @@
 # next patch
 
-## Current live action
+## In-flight action
 
-The accepted technical opening for `v0.7.0` is already landed at `c25ab5e`.
-The current live action is **docs/control freeze of the accepted opening meaning only**.
+Current in-flight control-plane action:
+- `docs/v0.7.0-exponential-reference-smoke-note`
 
-While this patch is in flight, no next technical flare step is opened.
-After this patch lands, the default next action is still **not** arbitrary technical growth by momentum.
-Any later flare expansion requires a separately authorized bounded step.
+Purpose:
+- freeze the meaning of the accepted exponential reference/smoke validation step
+- keep current `v0.7.0` reading bounded and coherent
+- avoid silently opening the next technical flare step by momentum
 
-## Explicit non-actions
+## Post-landing reading
 
-This live surface does **not** authorize by default:
-- a second flare law
-- generalized horn-law work
-- arbitrary flare-engine work
-- Studio/frontend work
-- optimizer work
-- public-promotion work
+After this docs/control patch lands:
+- no next technical flare step is opened by default
+- no second flare law is authorized by implication
+- any later flare-family expansion requires a separately authorized bounded step

@@ -1,37 +1,38 @@
 # milestone charter
 
-## Current active milestone charter
+## Active working-line milestone
 
-### Milestone
 - name: `v0.7.0`
-- title: `bounded horn-flare expansion`
+- title: `bounded horn-flare expansion within the segmented 1D kernel discipline`
 - status: open on the working line
-- accepted opening branch: `feat/v0.7.0-seed-exponential-flare-contract`
-- accepted opening checkpoint: `c25ab5e`
 
-### Opening choice
+## Accepted opening choice
 
-The accepted first opening choice for `v0.7.0` is:
-- one bounded shared named-flare contract surface for `waveguide_1d`
-- one concrete implementation only: `exponential`
+The current accepted `v0.7.0` opening choice is:
+- one bounded shared named-flare contract
+- one concrete first law only: `exponential`
 
-### Charter boundary
+Accepted checkpoints currently defining that posture:
+- `c25ab5e` — `Seed exponential flare contract`
+- `0fc40a3` — `Freeze v0.7.0 exponential opening meaning`
+- `6ca2c72` — `Add exponential flare reference smoke`
 
-The milestone is currently bounded by these constraints:
-- remain within the current segmented 1D kernel discipline
-- do not claim a generalized horn-law framework
-- do not claim arbitrary free-form flare expansion
-- do not imply Studio/frontend or optimizer expansion
+## Current charter reading
 
-### Immediate control-plane reading
+What the current charter does authorize:
+- bounded horn-flare expansion inside the current segmented `1D` kernel discipline
+- exponential-first opening
+- bounded validation tightening for that first accepted law
 
-The meaning of the accepted opening is frozen first.
-No additional flare-family technical step is opened by default from this charter update.
-Any later flare expansion requires a separately authorized bounded step.
+What the current charter does **not** authorize:
+- a second flare law by implication
+- tractrix / hyperbolic / parabolic / Le Cleac'h work by default
+- a generalized horn-law framework
+- optimizer/platform growth
+- Studio/frontend implications
+- broader horn-family maturity claims
 
-## Prior completed milestone context
+## Prior completed context
 
-`v0.6.0` is prior completed working-line context only:
-- title: `truthful exposure and coherence`
-- accepted close checkpoint: `ecec068`
-- status: closed on the working line
+`v0.6.0` remains prior/completed context only.
+It is not the active milestone posture on this branch.

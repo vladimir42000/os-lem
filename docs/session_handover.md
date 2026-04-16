@@ -1,43 +1,40 @@
 # session handover
 
-## Current accepted live truth
+## Current accepted repo truth
 
-The current accepted live truth on this branch is:
+Active current working-line reading:
 - milestone: `v0.7.0`
 - branch: `feat/v0.7.0-seed-exponential-flare-contract`
-- accepted checkpoint: `c25ab5e`
-- title: `Seed exponential flare contract`
+- current accepted checkpoint: `6ca2c72`
+- current accepted checkpoint title: `Add exponential flare reference smoke`
 
-This branch now carries the accepted `v0.7.0` opening meaning.
-`v0.6.0` is prior completed context only and must not be read here as the active current milestone.
+Accepted sequence for the current `v0.7.0` line:
+- `c25ab5e` — `Seed exponential flare contract`
+- `0fc40a3` — `Freeze v0.7.0 exponential opening meaning`
+- `6ca2c72` — `Add exponential flare reference smoke`
 
 ## Frozen interpretation boundary
 
-Interpret the accepted opening only as:
-- one bounded shared named-flare contract surface
-- one concrete implementation only: `exponential`
-- truthful mapping into the current segmented 1D kernel discipline
-- bounded parser / waveguide / solve support
-- focused validation surface present
+Current accepted interpretation boundary:
+- bounded named-flare contract only
+- exponential only
+- one bounded implementation seed
+- one bounded reference/smoke validation surface
+- segmented `1D` kernel discipline preserved
+- no second flare law yet
+- no generalized horn-law framework claim
+- no Studio / optimizer / platform implication
 
-Do **not** reinterpret this opening as:
-- tractrix support
-- hyperbolic support
-- parabolic support
-- Le Cléac'h support
-- a generalized horn-law framework
-- optimizer/platform implication
-- Studio implication
-- broader horn-family maturity claim
+## Current default control reading
 
-## Control-plane rule
+The meaning of the exponential reference/smoke step is frozen first.
 
-Meaning is frozen first.
-Later flare-family expansion requires a separately authorized bounded step.
-No next technical flare step is opened by the docs/control freeze itself.
+Default next-action reading after this docs step lands:
+- do not open the next technical flare step by momentum
+- do not assume any second flare law is authorized
+- only a separately authorized bounded step may expand flare-family technical work
 
 ## Historical context
 
-`v0.6.0` remains closed prior working-line context only:
-- accepted close branch: `proof/poc3-blh-benchmark-pass1`
-- accepted close checkpoint: `ecec068`
+`v0.6.0` remains prior/completed historical context only on this branch.
+It is not the active current milestone reading.
