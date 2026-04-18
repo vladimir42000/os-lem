@@ -115,9 +115,42 @@ import numpy as _np
 def _validate_named_flare_profile(profile: str) -> str:
     if not isinstance(profile, str):
         raise ValueError("waveguide_1d profile must be a string")
-    if profile not in {"conical", "exponential"}:
+    if profile not in {"conical", "exponential", "tractrix"}:
         raise ValueError(f"unsupported waveguide_1d named flare profile {profile!r}")
     return profile
+
+
+def _tractrix_monotone_coordinate(u: float) -> float:
+    return u - _math.tanh(u)
+
+
+def _tractrix_radius_at_fraction(radius_start_m: float, radius_end_m: float, fraction: float) -> float:
+    if radius_start_m <= 0.0 or radius_end_m <= 0.0:
+        raise ValueError("tractrix radii must be > 0")
+    if radius_end_m < radius_start_m:
+        raise ValueError("tractrix profile requires nondecreasing area from node_a to node_b")
+    if _math.isclose(radius_start_m, radius_end_m, rel_tol=0.0, abs_tol=0.0):
+        return float(radius_start_m)
+
+    a = float(radius_end_m)
+    u_start = _math.acosh(a / float(radius_start_m))
+    coordinate_start = _tractrix_monotone_coordinate(u_start)
+    target_coordinate = (1.0 - float(fraction)) * coordinate_start
+    if target_coordinate <= 0.0:
+        return float(radius_end_m)
+    if target_coordinate >= coordinate_start:
+        return float(radius_start_m)
+
+    lo = 0.0
+    hi = u_start
+    for _ in range(64):
+        mid = 0.5 * (lo + hi)
+        if _tractrix_monotone_coordinate(mid) < target_coordinate:
+            lo = mid
+        else:
+            hi = mid
+    u = 0.5 * (lo + hi)
+    return float(a / _math.cosh(u))
 
 
 def area_at_position(
@@ -142,8 +175,18 @@ def area_at_position(
         return float(area_start_m2 + (area_end_m2 - area_start_m2) * (x / float(length_m)))
     if _math.isclose(area_start_m2, area_end_m2, rel_tol=0.0, abs_tol=0.0):
         return float(area_start_m2)
-    flare_rate = _math.log(area_end_m2 / area_start_m2) / float(length_m)
-    return float(area_start_m2 * _math.exp(flare_rate * x))
+    if profile == "exponential":
+        flare_rate = _math.log(area_end_m2 / area_start_m2) / float(length_m)
+        return float(area_start_m2 * _math.exp(flare_rate * x))
+
+    if area_end_m2 < area_start_m2:
+        raise ValueError("tractrix profile requires area_end_m2 >= area_start_m2")
+    radius = _tractrix_radius_at_fraction(
+        _math.sqrt(area_start_m2 / _math.pi),
+        _math.sqrt(area_end_m2 / _math.pi),
+        x / float(length_m),
+    )
+    return float(_math.pi * radius * radius)
 
 
 def segment_midpoint_areas(

@@ -152,8 +152,10 @@ def _normalize_element(raw: dict[str, Any]):
         profile = raw.get("profile", "conical")
         if not isinstance(profile, str):
             raise ValidationError(f"waveguide_1d[{raw['id']}].profile must be a string")
-        if profile not in {"conical", "exponential"}:
-            raise ValidationError("v1 waveguide_1d supports only profile: conical, exponential")
+        if profile not in {"conical", "exponential", "tractrix"}:
+            raise ValidationError("v1 waveguide_1d supports only profile: conical, exponential, tractrix")
+        if profile == "tractrix" and area_end_m2 < area_start_m2:
+            raise ValidationError(f"waveguide_1d[{raw['id']}].tractrix requires area_end >= area_start")
         return Waveguide1DElement(
             id=str(raw["id"]),
             node_a=str(raw["node_a"]),
