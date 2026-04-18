@@ -115,7 +115,7 @@ import numpy as _np
 def _validate_named_flare_profile(profile: str) -> str:
     if not isinstance(profile, str):
         raise ValueError("waveguide_1d profile must be a string")
-    if profile not in {"conical", "exponential", "tractrix"}:
+    if profile not in {"conical", "exponential", "tractrix", "hyperbolic"}:
         raise ValueError(f"unsupported waveguide_1d named flare profile {profile!r}")
     return profile
 
@@ -178,6 +178,9 @@ def area_at_position(
     if profile == "exponential":
         flare_rate = _math.log(area_end_m2 / area_start_m2) / float(length_m)
         return float(area_start_m2 * _math.exp(flare_rate * x))
+    if profile == "hyperbolic":
+        inverse_area = (1.0 / area_start_m2) + ((1.0 / area_end_m2) - (1.0 / area_start_m2)) * (x / float(length_m))
+        return float(1.0 / inverse_area)
 
     if area_end_m2 < area_start_m2:
         raise ValueError("tractrix profile requires area_end_m2 >= area_start_m2")

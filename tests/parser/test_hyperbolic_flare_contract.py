@@ -40,12 +40,12 @@ def _base_model(profile: str) -> dict:
     }
 
 
-def test_parser_accepts_exponential_named_flare_contract() -> None:
-    model, _ = normalize_model(_base_model("exponential"))
-    assert model.waveguides[0].profile == "exponential"
+def test_parser_accepts_hyperbolic_named_flare_contract() -> None:
+    model, _ = normalize_model(_base_model("hyperbolic"))
+    assert model.waveguides[0].profile == "hyperbolic"
 
 
-@pytest.mark.parametrize("bad_profile", ["parabolic", "", 123])
-def test_parser_rejects_still_invalid_named_flare_tokens_after_exponential_opening(bad_profile) -> None:
+@pytest.mark.parametrize("bad_profile", ["parabolic", "Le Cleac'h", "", 123])
+def test_parser_rejects_non_contract_named_flare_tokens_after_hyperbolic_opening(bad_profile) -> None:
     with pytest.raises((ValidationError, TypeError, ValueError)):
         normalize_model(_base_model(bad_profile))
