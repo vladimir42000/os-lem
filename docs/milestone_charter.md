@@ -10,7 +10,7 @@
 
 The current accepted `v0.7.0` platform is:
 - one bounded shared named-flare contract
-- exactly two accepted laws: `exponential` and `tractrix`
+- exactly three accepted laws: `exponential`, `tractrix`, and `hyperbolic`
 
 Accepted checkpoints currently defining that posture:
 - `c25ab5e` — `Seed exponential flare contract`
@@ -22,18 +22,23 @@ Accepted checkpoints currently defining that posture:
 - `081fb8b` — `Add tractrix flare reference smoke`
 - `8641841` — `Add tractrix flare Akabak reference smoke`
 - `f39d5f7` — `Add two-law named flare contract regression`
+- `7156ebf` — `Freeze two-law named flare checkpoint`
+- `5dc75a4` — `Seed hyperbolic flare contract`
+- `a2a9ae6` — `Add hyperbolic flare reference smoke`
+- `742756a` — `Add hyperbolic flare Akabak reference smoke`
+- `725f3b4` — `Add three-law named flare contract regression`
 
 ## Current charter reading
 
 What the current charter does authorize:
 - bounded horn-flare expansion inside the current segmented `1D` kernel discipline
-- a shared named-flare platform hosting exactly two accepted laws
-- bounded validation tightening for those two accepted laws
-- one bounded shared regression-hardening surface for the current two-law contract
+- a shared named-flare platform hosting exactly three accepted laws
+- bounded validation tightening for those three accepted laws
+- one bounded shared regression-hardening surface for the current three-law contract
 
 What the current charter does **not** authorize:
-- a third flare law by implication
-- hyperbolic / parabolic / Le Cleac'h work by default
+- a fourth flare law by implication
+- parabolic / Le Cleac'h work by default
 - a generalized horn-law framework
 - an arbitrary free-form flare engine
 - optimizer/platform growth
