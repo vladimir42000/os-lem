@@ -45,7 +45,7 @@ def test_parser_accepts_tractrix_named_flare_contract() -> None:
     assert model.waveguides[0].profile == "tractrix"
 
 
-@pytest.mark.parametrize("bad_profile", ["parabolic", "", 123])
+@pytest.mark.parametrize("bad_profile", ["spherical", "", 123])
 def test_parser_rejects_non_contract_named_flare_tokens_after_tractrix_opening(bad_profile) -> None:
     with pytest.raises((ValidationError, TypeError, ValueError)):
         normalize_model(_base_model(bad_profile))

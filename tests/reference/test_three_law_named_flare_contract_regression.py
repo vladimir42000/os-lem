@@ -44,7 +44,7 @@ def test_three_law_named_flare_contract_accepts_the_three_current_named_laws(pro
     assert model.waveguides[0].profile == profile
 
 
-@pytest.mark.parametrize("bad_profile", ["parabolic", "Le Cleac'h", "", 123])
+@pytest.mark.parametrize("bad_profile", ["spherical", "Le Cleac'h", "", 123])
 def test_three_law_named_flare_contract_still_rejects_non_contract_named_law_tokens(bad_profile) -> None:
     with pytest.raises((ValidationError, TypeError, ValueError)):
         normalize_model(_named_flare_model(bad_profile))
