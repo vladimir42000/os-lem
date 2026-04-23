@@ -1,0 +1,65 @@
+| Akabak-oriented exponential flare smoke
+| Purpose: bounded external-style reference surface for the first accepted named flare law only
+| Representation: exponential flare approximated by 12 conical segments inside the current segmented 1D discipline
+
+System 'ExponentialFlareSmoke'
+
+Def_Driver 'Drv1'
+  Sd=132.00cm2
+  Re=5.80ohm
+  Le=0.35mH
+  Fs=34.00Hz
+  Qes=0.42
+  Qms=4.10
+  Vas=55.00L
+
+Source 'V1' Node=1=0
+  V=2.83V  Rs=0.00ohm
+
+Driver 'Drv' Def='Drv1' Node=1=0=2=3
+
+Radiator 'FrontRad' Node=2
+  Sd=132.00cm2  Win=2pi
+
+Enclosure 'RearVol' Node=3
+  Vb=18.00L  Lb=18.00cm
+
+| Exponential flare surrogate chain: 12 conical segments
+Waveguide 'Seg01' Node=3=11
+  STh=10.000000000000 cm2  SMo=11.435298360829 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg02' Node=11=12
+  STh=11.435298360829 cm2  SMo=13.076604860118 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg03' Node=12=13
+  STh=13.076604860118 cm2  SMo=14.953487812212 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg04' Node=13=14
+  STh=14.953487812212 cm2  SMo=17.099759466767 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg05' Node=14=15
+  STh=17.099759466767 cm2  SMo=19.554085140089 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg06' Node=15=16
+  STh=19.554085140089 cm2  SMo=22.360679774998 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg07' Node=16=17
+  STh=22.360679774998 cm2  SMo=25.570104477806 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg08' Node=17=18
+  STh=25.570104477806 cm2  SMo=29.240177382129 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg09' Node=18=19
+  STh=29.240177382129 cm2  SMo=33.437015248821 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg10' Node=19=20
+  STh=33.437015248821 cm2  SMo=38.236224566587 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg11' Node=20=21
+  STh=38.236224566587 cm2  SMo=43.724263611058 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'Seg12' Node=21=100
+  STh=43.724263611058 cm2  SMo=50.000000000000 cm2  Len=3.333333333333 cm  Conical
+
+Radiator 'MouthRad' Node=100
+  Sd=50.00cm2  Win=2pi

@@ -1,0 +1,65 @@
+| Akabak-oriented tractrix flare smoke
+| Purpose: bounded external-style reference surface for the second accepted named flare law only
+| Representation: tractrix flare approximated by 12 conical segments inside the current segmented 1D discipline
+
+System 'TractrixFlareSmoke'
+
+Def_Driver 'Drv1'
+  Sd=132.00cm2
+  Re=5.80ohm
+  Le=0.35mH
+  Fs=34.00Hz
+  Qes=0.42
+  Qms=4.10
+  Vas=55.00L
+
+Source 'V1' Node=1=0
+  V=2.83V  Rs=0.00ohm
+
+Driver 'Drv' Def='Drv1' Node=1=0=2=3
+
+Radiator 'FrontRad' Node=2
+  Sd=132.00cm2  Win=2pi
+
+Enclosure 'RearVol' Node=3
+  Vb=18.00L  Lb=18.00cm
+
+| Tractrix flare surrogate chain: 12 conical segments
+Waveguide 'trx_seg_01' Node=rear=trx_node_1
+  STh=10.000000000000 cm2  SMo=11.085233890202 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_02' Node=trx_node_1=trx_node_2
+  STh=11.085233890202 cm2  SMo=12.307155204928 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_03' Node=trx_node_2=trx_node_3
+  STh=12.307155204928 cm2  SMo=13.688673004885 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_04' Node=trx_node_3=trx_node_4
+  STh=13.688673004885 cm2  SMo=15.258558925662 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_05' Node=trx_node_4=trx_node_5
+  STh=15.258558925662 cm2  SMo=17.053824670529 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_06' Node=trx_node_5=trx_node_6
+  STh=17.053824670529 cm2  SMo=19.123565319264 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_07' Node=trx_node_6=trx_node_7
+  STh=19.123565319264 cm2  SMo=21.535593458484 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_08' Node=trx_node_7=trx_node_8
+  STh=21.535593458484 cm2  SMo=24.388933285682 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_09' Node=trx_node_8=trx_node_9
+  STh=24.388933285682 cm2  SMo=27.840410578993 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_10' Node=trx_node_9=trx_node_10
+  STh=27.840410578993 cm2  SMo=32.172875985263 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_11' Node=trx_node_10=trx_node_11
+  STh=32.172875985263 cm2  SMo=38.040506099973 cm2  Len=3.333333333333 cm  Conical
+
+Waveguide 'trx_seg_12' Node=trx_node_11=mouth
+  STh=38.040506099973 cm2  SMo=50.000000000000 cm2  Len=3.333333333333 cm  Conical
+
+Radiator 'MouthRad' Node=mouth
+  Sd=50.00cm2  Win=2pi

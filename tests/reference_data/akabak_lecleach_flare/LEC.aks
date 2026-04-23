@@ -1,0 +1,6 @@
+| Akabak-oriented Le Cleac'h flare smoke
+| This bounded reference bundle approximates the Le Cleac'h flare with 12 conical segments.
+| It is an Akabak-style external smoke surface only.
+Def_Driver 'drv1'
+Def_Enclosure 'rear_vol'
+Def_Horn '12 conical segments representing the Le Cleac'h flare path'

@@ -8,3 +8,8 @@ hornresp_offset_line_sum.frd
 hornresp_offset_line_drv.frd
 hornresp_offset_line_port.frd
 offset_line_compare_harness_out/
+
+# v0.7.0 offset-line harness fixture truth repair
+!hornresp_offset_line_drv.frd
+!hornresp_offset_line_port.frd
+!hornresp_offset_line_sum.frd
