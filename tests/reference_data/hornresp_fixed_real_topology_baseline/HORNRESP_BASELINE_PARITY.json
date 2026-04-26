@@ -1,0 +1,18 @@
+{
+  "authority": {
+    "name": "HornResp bounded fixed-real-topology baseline parity smoke fixture v1",
+    "family": "offset_line_tqwt_family",
+    "source_reference": "operator-bounded HornResp baseline parity surface for the fixed v0.8.0 real-topology adapter example",
+    "scope": "smoke-grade parity only; not an external accuracy certification or broad HornResp benchmark"
+  },
+  "frequency_hz": [30.0, 40.0, 60.0, 80.0, 120.0, 160.0],
+  "spl_total_db": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+  "smoke_grade_thresholds": {
+    "max_abs_spl_db": 240.0
+  },
+  "non_claims": [
+    "This fixture is a bounded HornResp parity smoke authority, not a tight acoustic accuracy target.",
+    "This fixture does not establish full external reference agreement.",
+    "This fixture does not authorize optimizer integration, broad import, arbitrary topology mutation, or platform growth."
+  ]
+}
