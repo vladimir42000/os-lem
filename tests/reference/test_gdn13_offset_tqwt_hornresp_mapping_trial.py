@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from os_lem.reference_gdn13_offset_tqwt_mapping_trial import (
+    PRIMARY_SPL_OBSERVABLE_ID,
+    SECONDARY_MOUTH_SPL_OBSERVABLE_ID,
     build_gdn13_offset_tqwt_model_dict,
     evaluate_gdn13_offset_tqwt_mapping_trial,
     gdn13_hornresp_driver_derived_parameters,
@@ -37,11 +39,14 @@ def test_gdn13_supplied_hornresp_files_are_latest_expected_inputs() -> None:
 def test_gdn13_offset_tqwt_model_dict_is_explicit_and_bounded() -> None:
     model_dict = build_gdn13_offset_tqwt_model_dict(profile="parabolic")
     element_ids = {element["id"] for element in model_dict["elements"]}
+    observation_ids = {observation["id"] for observation in model_dict["observations"]}
 
     assert model_dict["meta"]["mapping_trial_only"] is True
     assert model_dict["driver"]["node_rear"] == "tap_s2"
     assert model_dict["driver"]["node_front"] == "driver_front"
     assert {"rear_closed_stub_s1_to_s2", "forward_open_line_s2_to_s3", "mouth_s3_radiation"}.issubset(element_ids)
+    assert PRIMARY_SPL_OBSERVABLE_ID in observation_ids
+    assert SECONDARY_MOUTH_SPL_OBSERVABLE_ID in observation_ids
 
     rear_stub = next(element for element in model_dict["elements"] if element["id"] == "rear_closed_stub_s1_to_s2")
     forward_line = next(element for element in model_dict["elements"] if element["id"] == "forward_open_line_s2_to_s3")
@@ -69,7 +74,7 @@ def test_gdn13_driver_hornresp_inputs_are_mapped_to_existing_ts_classic_surface(
     assert 1.0 < driver.vas_l < 50.0
 
 
-def test_gdn13_offset_tqwt_hornresp_mapping_trial_runs_and_reports_metrics() -> None:
+def test_gdn13_offset_tqwt_hornresp_mapping_trial_runs_and_reports_aligned_spl_metrics() -> None:
     report = evaluate_gdn13_offset_tqwt_mapping_trial(
         hornresp_definition_path=_DEFINITION,
         hornresp_response_path=_RESPONSE,
@@ -77,38 +82,48 @@ def test_gdn13_offset_tqwt_hornresp_mapping_trial_runs_and_reports_metrics() -> 
     )
 
     assert report["task"] == "test/v0.8.0-gdn13-offset-tqwt-hornresp-mapping-trial"
+    assert report["alignment_scope"] == "fix/v0.8.0-gdn13-offset-tqwt-spl-observation-alignment"
     assert report["compared_columns"] == ["Freq (hertz)", "SPL (dB)", "Ze (ohms)"]
     assert report["frequency_count"] == 533
     assert report["low_frequency_count_le_600_hz"] > 100
     assert report["model_dict_construction_path"].endswith("build_gdn13_offset_tqwt_model_dict(profile='parabolic')")
     assert report["solver_call_path"] == "os_lem.api.run_simulation(model_dict, frequency_hz)"
-    assert (
-        report["mapping_trial_interpretation"]
-        == "Impedance/topology mapping is promising, but SPL observation/radiation/output convention remains unresolved."
-    )
-    assert report["spl_parity_non_claim"] == "not SPL parity success; SPL mismatch remains explicitly reported"
-    assert "not SPL parity success" in report["non_claims"]
+    assert report["primary_spl_observable"] == PRIMARY_SPL_OBSERVABLE_ID
+    assert SECONDARY_MOUTH_SPL_OBSERVABLE_ID in report["secondary_rejected_spl_observables"]
+    assert "Full-band SPL residuals remain visible" in report["mapping_trial_interpretation"]
+    assert "not full SPL parity" in report["spl_parity_non_claim"]
 
     impedance = report["impedance_comparison"]
-    spl = report["spl_comparison"]
+    primary_spl = report["primary_spl_comparison"]
+    mouth_spl = report["secondary_spl_diagnostics"][SECONDARY_MOUTH_SPL_OBSERVABLE_ID]
 
     assert impedance["full"]["max_abs"] >= 0.0
     assert impedance["low_frequency_le_600_hz"]["mean_abs"] >= 0.0
     assert impedance["hornresp_low_frequency_peak"]["frequency_hz"] > 0.0
     assert impedance["oslem_low_frequency_peak"]["frequency_hz"] > 0.0
 
-    assert spl["full"]["max_abs"] >= 0.0
-    assert spl["low_frequency_le_600_hz"]["mean_abs"] >= 0.0
-    assert spl["low_frequency_zero_mean_shape"]["mean_abs"] >= 0.0
-    assert spl["low_frequency_le_600_hz"]["mean_abs"] > 5.0
+    assert primary_spl["observable_id"] == PRIMARY_SPL_OBSERVABLE_ID
+    assert primary_spl["candidate_role"] == "primary total/combined diagnostic SPL observable selected by cc35311"
+    assert primary_spl["low_frequency_le_600_hz"]["mean_abs"] < 1.5
+    assert primary_spl["full"]["max_abs"] >= primary_spl["low_frequency_le_600_hz"]["max_abs"]
 
+    assert mouth_spl["observable_id"] == SECONDARY_MOUTH_SPL_OBSERVABLE_ID
+    assert mouth_spl["candidate_role"] == "secondary rejected mouth-only diagnostic SPL observable"
+    assert mouth_spl["low_frequency_le_600_hz"]["mean_abs"] > 5.0
+    assert mouth_spl["low_frequency_le_600_hz"]["mean_abs"] > primary_spl["low_frequency_le_600_hz"]["mean_abs"] + 5.0
+
+    assert report["spl_comparison"] == primary_spl
+    assert report["full_band_residuals_visible"] is True
     assert report["mismatch_interpretation"] in {
         "topology_or_driver_electrical_mapping_mismatch_likely",
+        "case_level_total_combined_spl_observation_alignment_supported",
+        "case_level_total_combined_spl_alignment_low_frequency_only_full_band_residuals_remain",
+        "case_level_total_combined_spl_observation_alignment_improves_but_remains_incomplete",
         "spl_observation_or_radiation_output_convention_unresolved",
-        "spl_observation_or_normalization_mismatch_likely",
-        "mixed_spl_and_possible_observation_mismatch",
-        "bounded_mapping_trial_no_large_first_order_mismatch_detected",
         "undetermined_nonpositive_peak_frequency",
     }
     assert "no general HornResp importer" in report["scope_guards"]
     assert "no optimizer implementation" in report["scope_guards"]
+    assert "no solver-core behavior change" in report["scope_guards"]
+    assert "not general HornResp SPL parity" in report["non_claims"]
+    assert "not full-band SPL parity" in report["non_claims"]

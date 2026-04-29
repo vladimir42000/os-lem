@@ -6,6 +6,12 @@ This module supports exactly one v0.8.0 mapping trial:
 - one explicit os-lem model_dict construction
 - one honest SPL / electrical impedance comparison report
 
+The GDN13 SPL comparison is intentionally case-level.  The primary SPL
+comparison uses the total/combined diagnostic SPL observable identified by the
+landed observation-convention matrix as the best low-frequency match to
+HornResp's SPL column.  Mouth-only SPL remains reported as a rejected secondary
+diagnostic, and full-band residuals remain visible.
+
 It is intentionally not a HornResp importer, not an optimizer bridge, and not a
 general topology framework.
 """
@@ -15,11 +21,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from math import pi, sqrt
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 import numpy as np
 
 from os_lem.api import run_simulation
+
+
+PRIMARY_SPL_OBSERVABLE_ID = "spl_total_diagnostic"
+SECONDARY_MOUTH_SPL_OBSERVABLE_ID = "spl_mouth"
+LOW_FREQUENCY_LIMIT_HZ = 600.0
 
 
 @dataclass(frozen=True)
@@ -255,14 +266,14 @@ def build_gdn13_offset_tqwt_model_dict(*, profile: str = "parabolic") -> dict[st
         "observations": [
             {"id": "zin", "type": "input_impedance", "target": "drv_gdn13"},
             {
-                "id": "spl_mouth",
+                "id": SECONDARY_MOUTH_SPL_OBSERVABLE_ID,
                 "type": "spl",
                 "target": "mouth_s3_radiation",
                 "distance": "1 m",
                 "radiation_space": "2pi",
             },
             {
-                "id": "spl_total_diagnostic",
+                "id": PRIMARY_SPL_OBSERVABLE_ID,
                 "type": "spl_sum",
                 "radiation_space": "2pi",
                 "terms": [
@@ -292,25 +303,51 @@ def _peak_summary(frequency_hz: np.ndarray, values: np.ndarray, mask: np.ndarray
     }
 
 
+def _spl_comparison_summary(
+    *,
+    candidate_id: str,
+    candidate_role: str,
+    oslem_spl_db: np.ndarray,
+    hornresp_spl_db: np.ndarray,
+    low_mask: np.ndarray,
+) -> dict[str, Any]:
+    delta = oslem_spl_db - hornresp_spl_db
+    low_delta = delta[low_mask]
+    oslem_low_centered = oslem_spl_db[low_mask] - float(np.mean(oslem_spl_db[low_mask]))
+    hornresp_low_centered = hornresp_spl_db[low_mask] - float(np.mean(hornresp_spl_db[low_mask]))
+    low_zero_mean_delta = oslem_low_centered - hornresp_low_centered
+    return {
+        "observable_id": candidate_id,
+        "candidate_role": candidate_role,
+        "metric_basis": f"HornResp SPL (dB) compared to os-lem {candidate_id} (dB)",
+        "full": _metric_summary(delta),
+        "low_frequency_le_600_hz": _metric_summary(low_delta),
+        "low_frequency_level_shift_db": float(np.mean(low_delta)),
+        "low_frequency_zero_mean_shape": _metric_summary(low_zero_mean_delta),
+    }
+
+
 def _interpret_mapping(
     *,
     hornresp_peak_hz: float,
     oslem_peak_hz: float,
     impedance_low_mean_abs_ohm: float,
-    spl_low_mean_abs_db: float,
-    spl_low_zero_mean_mae_db: float,
-    spl_low_level_shift_db: float,
+    primary_spl_low_mean_abs_db: float,
+    mouth_spl_low_mean_abs_db: float,
+    primary_spl_full_mean_abs_db: float,
 ) -> str:
     if hornresp_peak_hz <= 0.0 or oslem_peak_hz <= 0.0:
         return "undetermined_nonpositive_peak_frequency"
     octave_peak_error = abs(np.log2(oslem_peak_hz / hornresp_peak_hz))
     if octave_peak_error > 0.35 or impedance_low_mean_abs_ohm > 20.0:
         return "topology_or_driver_electrical_mapping_mismatch_likely"
-    if spl_low_zero_mean_mae_db <= 6.0 and abs(spl_low_level_shift_db) > 6.0:
-        return "spl_observation_or_radiation_output_convention_unresolved"
-    if spl_low_mean_abs_db > 6.0:
-        return "spl_observation_or_radiation_output_convention_unresolved"
-    return "bounded_mapping_trial_no_large_first_order_mismatch_detected"
+    if primary_spl_low_mean_abs_db <= 1.5 and mouth_spl_low_mean_abs_db > 5.0:
+        if primary_spl_full_mean_abs_db > 6.0:
+            return "case_level_total_combined_spl_alignment_low_frequency_only_full_band_residuals_remain"
+        return "case_level_total_combined_spl_observation_alignment_supported"
+    if primary_spl_low_mean_abs_db <= mouth_spl_low_mean_abs_db:
+        return "case_level_total_combined_spl_observation_alignment_improves_but_remains_incomplete"
+    return "spl_observation_or_radiation_output_convention_unresolved"
 
 
 def evaluate_gdn13_offset_tqwt_mapping_trial(
@@ -341,65 +378,83 @@ def evaluate_gdn13_offset_tqwt_mapping_trial(
 
     if result_a.zin_complex_ohm is None or result_b.zin_complex_ohm is None:
         raise RuntimeError("os-lem did not return input impedance for the GDN13 mapping trial")
-    if "spl_mouth" not in result_a.series or "spl_mouth" not in result_b.series:
-        raise RuntimeError("os-lem did not return the spl_mouth observation for the GDN13 mapping trial")
+    for observable_id in (PRIMARY_SPL_OBSERVABLE_ID, SECONDARY_MOUTH_SPL_OBSERVABLE_ID):
+        if observable_id not in result_a.series or observable_id not in result_b.series:
+            raise RuntimeError(f"os-lem did not return the {observable_id} observation for the GDN13 mapping trial")
 
-    oslem_spl_db = np.asarray(result_a.series["spl_mouth"], dtype=float)
-    oslem_spl_repeat_db = np.asarray(result_b.series["spl_mouth"], dtype=float)
+    oslem_primary_spl_db = np.asarray(result_a.series[PRIMARY_SPL_OBSERVABLE_ID], dtype=float)
+    oslem_primary_spl_repeat_db = np.asarray(result_b.series[PRIMARY_SPL_OBSERVABLE_ID], dtype=float)
+    oslem_mouth_spl_db = np.asarray(result_a.series[SECONDARY_MOUTH_SPL_OBSERVABLE_ID], dtype=float)
+    oslem_mouth_spl_repeat_db = np.asarray(result_b.series[SECONDARY_MOUTH_SPL_OBSERVABLE_ID], dtype=float)
     oslem_ze_ohm = np.abs(np.asarray(result_a.zin_complex_ohm, dtype=complex))
     oslem_ze_repeat_ohm = np.abs(np.asarray(result_b.zin_complex_ohm, dtype=complex))
 
     if np.asarray(result_a.frequencies_hz).shape != frequency_hz.shape:
         raise RuntimeError("os-lem frequency vector shape does not match HornResp table")
-    if oslem_spl_db.shape != frequency_hz.shape or oslem_ze_ohm.shape != frequency_hz.shape:
-        raise RuntimeError("os-lem output shape does not match HornResp table")
-    if not np.all(np.isfinite(oslem_spl_db)):
-        raise RuntimeError("os-lem SPL output contains non-finite values")
+    if oslem_primary_spl_db.shape != frequency_hz.shape or oslem_mouth_spl_db.shape != frequency_hz.shape:
+        raise RuntimeError("os-lem SPL output shape does not match HornResp table")
+    if oslem_ze_ohm.shape != frequency_hz.shape:
+        raise RuntimeError("os-lem impedance output shape does not match HornResp table")
+    if not np.all(np.isfinite(oslem_primary_spl_db)):
+        raise RuntimeError("os-lem primary SPL output contains non-finite values")
+    if not np.all(np.isfinite(oslem_mouth_spl_db)):
+        raise RuntimeError("os-lem mouth-only SPL output contains non-finite values")
     if not np.all(np.isfinite(oslem_ze_ohm)):
         raise RuntimeError("os-lem impedance output contains non-finite values")
 
-    np.testing.assert_allclose(oslem_spl_db, oslem_spl_repeat_db, rtol=1.0e-12, atol=1.0e-12)
+    np.testing.assert_allclose(oslem_primary_spl_db, oslem_primary_spl_repeat_db, rtol=1.0e-12, atol=1.0e-12)
+    np.testing.assert_allclose(oslem_mouth_spl_db, oslem_mouth_spl_repeat_db, rtol=1.0e-12, atol=1.0e-12)
     np.testing.assert_allclose(oslem_ze_ohm, oslem_ze_repeat_ohm, rtol=1.0e-12, atol=1.0e-12)
 
-    low_mask = frequency_hz <= 600.0
+    low_mask = frequency_hz <= LOW_FREQUENCY_LIMIT_HZ
     if int(np.count_nonzero(low_mask)) < 10:
         raise RuntimeError("HornResp table has too few low-frequency rows for the required trial metrics")
 
     impedance_delta = oslem_ze_ohm - hornresp_ze_ohm
-    spl_delta = oslem_spl_db - hornresp_spl_db
-    spl_low_delta = spl_delta[low_mask]
-    oslem_spl_low_centered = oslem_spl_db[low_mask] - float(np.mean(oslem_spl_db[low_mask]))
-    hornresp_spl_low_centered = hornresp_spl_db[low_mask] - float(np.mean(hornresp_spl_db[low_mask]))
-    spl_low_zero_mean_delta = oslem_spl_low_centered - hornresp_spl_low_centered
 
     hornresp_peak = _peak_summary(frequency_hz, hornresp_ze_ohm, low_mask)
     oslem_peak = _peak_summary(frequency_hz, oslem_ze_ohm, low_mask)
     impedance_low = _metric_summary(impedance_delta[low_mask])
-    spl_low = _metric_summary(spl_low_delta)
-    spl_full = _metric_summary(spl_delta)
-    spl_low_zero_mean = _metric_summary(spl_low_zero_mean_delta)
-    spl_low_level_shift_db = float(np.mean(spl_low_delta))
+    primary_spl = _spl_comparison_summary(
+        candidate_id=PRIMARY_SPL_OBSERVABLE_ID,
+        candidate_role="primary total/combined diagnostic SPL observable selected by cc35311",
+        oslem_spl_db=oslem_primary_spl_db,
+        hornresp_spl_db=hornresp_spl_db,
+        low_mask=low_mask,
+    )
+    mouth_spl = _spl_comparison_summary(
+        candidate_id=SECONDARY_MOUTH_SPL_OBSERVABLE_ID,
+        candidate_role="secondary rejected mouth-only diagnostic SPL observable",
+        oslem_spl_db=oslem_mouth_spl_db,
+        hornresp_spl_db=hornresp_spl_db,
+        low_mask=low_mask,
+    )
 
     interpretation = _interpret_mapping(
         hornresp_peak_hz=hornresp_peak["frequency_hz"],
         oslem_peak_hz=oslem_peak["frequency_hz"],
         impedance_low_mean_abs_ohm=impedance_low["mean_abs"],
-        spl_low_mean_abs_db=spl_low["mean_abs"],
-        spl_low_zero_mean_mae_db=spl_low_zero_mean["mean_abs"],
-        spl_low_level_shift_db=spl_low_level_shift_db,
+        primary_spl_low_mean_abs_db=primary_spl["low_frequency_le_600_hz"]["mean_abs"],
+        mouth_spl_low_mean_abs_db=mouth_spl["low_frequency_le_600_hz"]["mean_abs"],
+        primary_spl_full_mean_abs_db=primary_spl["full"]["mean_abs"],
     )
 
     driver = gdn13_hornresp_driver_derived_parameters()
     mapping_trial_interpretation = (
-        "Impedance/topology mapping is promising, but SPL observation/radiation/output "
-        "convention remains unresolved."
+        "Impedance/topology mapping is promising. Low-frequency SPL comparison is now aligned to "
+        "spl_total_diagnostic, the total/combined diagnostic observable identified by the observation-convention "
+        "matrix as the best current low-frequency match to HornResp's SPL column. Full-band SPL residuals remain "
+        "visible and non-trivial; this is not full SPL parity."
     )
 
     return {
         "task": "test/v0.8.0-gdn13-offset-tqwt-hornresp-mapping-trial",
-        "repair_scope": "fix/v0.8.0-gdn13-offset-tqwt-hornresp-mapping-trial-runtime-wording",
+        "alignment_scope": "fix/v0.8.0-gdn13-offset-tqwt-spl-observation-alignment",
         "mapping_trial_interpretation": mapping_trial_interpretation,
-        "spl_parity_non_claim": "not SPL parity success; SPL mismatch remains explicitly reported",
+        "spl_observation_alignment_basis": "cc35311 SPL observation-convention matrix selected spl_total_diagnostic as best low-frequency candidate",
+        "primary_spl_observable": PRIMARY_SPL_OBSERVABLE_ID,
+        "secondary_rejected_spl_observables": [SECONDARY_MOUTH_SPL_OBSERVABLE_ID],
+        "spl_parity_non_claim": "not full SPL parity; full-band residuals and mouth-only mismatch remain explicitly reported",
         "fixture_files": {
             "hornresp_definition": str(Path(hornresp_definition_path)),
             "hornresp_response": str(Path(hornresp_response_path)),
@@ -415,7 +470,9 @@ def evaluate_gdn13_offset_tqwt_mapping_trial(
             "driver_source_tap": "S2 tap, node tap_s2",
             "forward_open_line": "S2=98.06 cm2 to S3=102.00 cm2, length=106.46 cm",
             "mouth_radiation": "S3 mouth radiation, 2*pi observation",
-            "front_radiation": "diagnostic driver-front radiator retained as explicit os-lem driver load; HornResp SPL comparison uses spl_mouth",
+            "front_radiation": "diagnostic driver-front radiator retained as explicit os-lem driver-front SPL contribution",
+            "primary_spl_comparison": "HornResp SPL column compared to spl_total_diagnostic = driver-front plus mouth diagnostic SPL sum",
+            "secondary_spl_diagnostic": "mouth-only spl_mouth remains reported as rejected diagnostic context",
         },
         "driver_parameters_used": {
             "hornresp_inputs": {
@@ -444,32 +501,36 @@ def evaluate_gdn13_offset_tqwt_mapping_trial(
             "hornresp_low_frequency_peak": hornresp_peak,
             "oslem_low_frequency_peak": oslem_peak,
         },
-        "spl_comparison": {
-            "metric_basis": "HornResp SPL (dB) compared to os-lem spl_mouth (dB)",
-            "full": spl_full,
-            "low_frequency_le_600_hz": spl_low,
-            "low_frequency_level_shift_db": spl_low_level_shift_db,
-            "low_frequency_zero_mean_shape": spl_low_zero_mean,
+        "spl_comparison": primary_spl,
+        "primary_spl_comparison": primary_spl,
+        "secondary_spl_diagnostics": {
+            SECONDARY_MOUTH_SPL_OBSERVABLE_ID: mouth_spl,
         },
+        "full_band_residuals_visible": True,
         "determinism": {
-            "spl_repeat_allclose_rtol": 1.0e-12,
-            "spl_repeat_allclose_atol": 1.0e-12,
+            "primary_spl_repeat_allclose_rtol": 1.0e-12,
+            "primary_spl_repeat_allclose_atol": 1.0e-12,
+            "mouth_spl_repeat_allclose_rtol": 1.0e-12,
+            "mouth_spl_repeat_allclose_atol": 1.0e-12,
             "impedance_repeat_allclose_rtol": 1.0e-12,
             "impedance_repeat_allclose_atol": 1.0e-12,
         },
         "mismatch_interpretation": interpretation,
         "non_claims": [
-            "not HornResp parity",
-            "not SPL parity success",
-            "SPL observation/radiation/output convention remains unresolved",
-            "no Akabak/HornResp replacement claim",
+            "not general HornResp SPL parity",
+            "not full-band SPL parity",
+            "not full HornResp/Akabak replacement",
+            "not optimizer physical-claim authorization",
+            "not topology or solver semantic alteration",
+            "not resonator work",
         ],
         "scope_guards": [
-            "one mapping trial only",
+            "one GDN13 case-level SPL observation alignment only",
+            "no solver-core behavior change",
+            "no topology change",
             "no general HornResp importer",
             "no optimizer implementation",
             "no Studio work",
-            "no topology expansion",
-            "no Akabak/HornResp replacement claim",
+            "no public-promotion work",
         ],
     }
