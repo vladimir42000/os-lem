@@ -7,6 +7,7 @@ acoustic graph IR into os-lem model dictionaries and does not call the solver.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from math import pi, sqrt
 from numbers import Real
 from typing import Any, Mapping, Sequence
 
@@ -237,6 +238,7 @@ def _validate_horn_or_duct_segment(
             "area_b_cm2",
             "area_b_m2",
             "profile",
+            "segments",
             "metadata",
         },
         warnings,
@@ -246,6 +248,8 @@ def _validate_horn_or_duct_segment(
     _require_exactly_one_numeric(element, ("length_cm", "length_m"), errors, f"{label}.length")
     _require_exactly_one_numeric(element, ("area_a_cm2", "area_a_m2"), errors, f"{label}.area_a")
     _require_exactly_one_numeric(element, ("area_b_cm2", "area_b_m2"), errors, f"{label}.area_b")
+    if "segments" in element and not _is_positive_integer(element["segments"]):
+        errors.append(f"{label}.segments must be a positive integer when present")
 
     profile = element.get("profile")
     if not isinstance(profile, str) or not profile:
@@ -365,6 +369,10 @@ def _is_positive_number(value: Any) -> bool:
     return isinstance(value, Real) and not isinstance(value, bool) and value > 0
 
 
+def _is_positive_integer(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+
 def _warn_unknown_element_fields(
     element: Mapping[str, Any],
     supported_fields: set[str],
@@ -481,25 +489,34 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
 
     model_dict: dict[str, Any] | None = None
     if not errors:
-        model_dict = {
-            "meta": {
-                "name": metadata.get("name", "acoustic_graph_ir_compiler_skeleton_model"),
-                "source": "acoustic_graph_ir",
-                "acoustic_graph_ir_version": "v0.9.0",
-                "compiler_skeleton": True,
-                "graph_metadata": metadata,
-                "non_claims": [
-                    "compiler skeleton only",
-                    "no solver execution from graph IR",
-                    "no graph-defined parity claim",
-                ],
-            },
-            "nodes": [dict(node) for node in nodes],
-            "driver": driver_model,
-            "elements": compiled_elements,
-            "closed_terminations": closed_terminations,
-            "observations": [],
-        }
+        if metadata.get("compiler_target") == "existing_solver_model_dict":
+            model_dict = _build_existing_solver_model_dict(
+                metadata=metadata,
+                nodes=nodes,
+                driver_model=driver_model,
+                compiled_elements=compiled_elements,
+                closed_terminations=closed_terminations,
+            )
+        else:
+            model_dict = {
+                "meta": {
+                    "name": metadata.get("name", "acoustic_graph_ir_compiler_skeleton_model"),
+                    "source": "acoustic_graph_ir",
+                    "acoustic_graph_ir_version": "v0.9.0",
+                    "compiler_skeleton": True,
+                    "graph_metadata": metadata,
+                    "non_claims": [
+                        "compiler skeleton only",
+                        "no solver execution from graph IR",
+                        "no graph-defined parity claim",
+                    ],
+                },
+                "nodes": [dict(node) for node in nodes],
+                "driver": driver_model,
+                "elements": compiled_elements,
+                "closed_terminations": closed_terminations,
+                "observations": [],
+            }
 
     return AcousticGraphCompileResult(
         is_success=not errors,
@@ -516,31 +533,31 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
 
 def _compile_electrodynamic_driver(element: Mapping[str, Any]) -> dict[str, Any]:
     parameters = element["parameters"]
+    canonical = _canonical_driver_parameters(parameters)
+    derived = _derive_ts_classic_quantities(canonical)
     return {
         "id": element["id"],
         "type": "electrodynamic_driver",
-        "model": "acoustic_graph_ir_driver_skeleton",
+        "model": "ts_classic",
         "node_front": element["front_node"],
         "node_rear": element["rear_node"],
-        "parameters": {
-            "Sd_m2": _canonical_area_value(parameters, "Sd"),
-            "Bl_Tm": float(parameters["Bl_Tm"]),
-            "Cms_m_per_N": float(parameters["Cms_m_per_N"]),
-            "Rms_Ns_per_m": _canonical_one_of(parameters, ("Rms_Ns_per_m", "Rms"), "Rms"),
-            "Mmd_kg": _canonical_mass_value(parameters),
-            "Re_ohm": float(parameters["Re_ohm"]),
-            "Le_H": _canonical_inductance_value(parameters),
-        },
+        "Re": _format_quantity(canonical["Re_ohm"], "ohm"),
+        "Le": _format_quantity(canonical["Le_H"] * 1.0e3, "mH"),
+        "Fs": _format_quantity(derived["Fs_hz"], "Hz"),
+        "Qes": derived["Qes"],
+        "Qms": derived["Qms"],
+        "Vas": _format_quantity(derived["Vas_l"], "l"),
+        "Sd": _format_quantity(canonical["Sd_m2"] * 1.0e4, "cm2"),
+        "parameters": canonical,
         "source_graph_element_id": element["id"],
     }
-
 
 
 def _compile_horn_or_duct_segment(element: Mapping[str, Any]) -> dict[str, Any]:
     profile = element["profile"]
     if profile not in SUPPORTED_HORN_PROFILES:
         raise _CompileError(f"unsupported horn profile: {profile}")
-    return {
+    compiled = {
         "id": element["id"],
         "type": "waveguide_1d",
         "node_a": element["node_a"],
@@ -551,6 +568,9 @@ def _compile_horn_or_duct_segment(element: Mapping[str, Any]) -> dict[str, Any]:
         "profile": profile,
         "source_graph_element_id": element["id"],
     }
+    if "segments" in element:
+        compiled["segments"] = int(element["segments"])
+    return compiled
 
 
 
@@ -579,6 +599,183 @@ def _compile_radiation_load(element: Mapping[str, Any]) -> dict[str, Any]:
         "source_graph_element_id": element["id"],
     }
 
+
+
+
+def _build_existing_solver_model_dict(
+    *,
+    metadata: Mapping[str, Any],
+    nodes: list[Mapping[str, Any]],
+    driver_model: dict[str, Any] | None,
+    compiled_elements: list[dict[str, Any]],
+    closed_terminations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Build a bounded existing os-lem model_dict for solver-equivalence smoke.
+
+    This path is intentionally opt-in through graph metadata. It exists only to
+    validate graph-vs-handmapped internal equivalence and does not run the
+    solver or claim external HornResp parity.
+    """
+
+    if driver_model is None:
+        raise _CompileError("solver-model target requires one compiled electrodynamic_driver")
+
+    closed_nodes = {str(item["node"]) for item in closed_terminations}
+    solver_elements: list[dict[str, Any]] = []
+    front_radiator_id: str | None = None
+
+    if metadata.get("emit_default_diagnostic_observations"):
+        front_radiator_id = f"{driver_model['node_front']}_radiation_diagnostic"
+        solver_elements.append(
+            {
+                "id": front_radiator_id,
+                "type": "radiator",
+                "node": driver_model["node_front"],
+                "model": "infinite_baffle_piston",
+                "area": _format_quantity(driver_model["parameters"]["Sd_m2"] * 1.0e4, "cm2"),
+            }
+        )
+
+    mouth_radiator_id: str | None = None
+    mouth_radiation_space = "2pi"
+    for element in compiled_elements:
+        if element["type"] == "waveguide_1d":
+            solver_elements.append(_to_solver_waveguide_element(element, closed_nodes))
+        elif element["type"] == "radiator":
+            solver_radiator = _to_solver_radiator_element(element)
+            solver_elements.append(solver_radiator)
+            if mouth_radiator_id is None:
+                mouth_radiator_id = solver_radiator["id"]
+                mouth_radiation_space = str(element.get("radiation_space", "2pi"))
+        else:
+            raise _CompileError(f"cannot emit solver model for compiled element type {element['type']!r}")
+
+    observations: list[dict[str, Any]] = []
+    if metadata.get("emit_default_diagnostic_observations"):
+        if front_radiator_id is None or mouth_radiator_id is None:
+            raise _CompileError("default diagnostic observations require driver-front and mouth radiation targets")
+        observations = [
+            {"id": "zin", "type": "input_impedance", "target": driver_model["id"]},
+            {
+                "id": "spl_mouth",
+                "type": "spl",
+                "target": mouth_radiator_id,
+                "distance": "1 m",
+                "radiation_space": mouth_radiation_space,
+            },
+            {
+                "id": "spl_total_diagnostic",
+                "type": "spl_sum",
+                "radiation_space": mouth_radiation_space,
+                "terms": [
+                    {"target": front_radiator_id, "distance": "1 m"},
+                    {"target": mouth_radiator_id, "distance": "1 m"},
+                ],
+            },
+        ]
+
+    return {
+        "meta": {
+            "name": metadata.get("name", "acoustic_graph_ir_existing_solver_model"),
+            "source": "acoustic_graph_ir",
+            "acoustic_graph_ir_version": "v0.9.0",
+            "compiler_skeleton": True,
+            "compiler_target": "existing_solver_model_dict",
+            "graph_metadata": dict(metadata),
+            "non_claims": [
+                "graph-to-existing-model solver-equivalence smoke only",
+                "no external HornResp parity claim",
+                "no Akabak/HornResp replacement claim",
+                "does not replace accepted hand-mapped path",
+            ],
+        },
+        "driver": _to_solver_driver(driver_model),
+        "elements": solver_elements,
+        "observations": observations,
+    }
+
+
+def _to_solver_driver(driver_model: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "id": driver_model["id"],
+        "model": "ts_classic",
+        "Re": driver_model["Re"],
+        "Le": driver_model["Le"],
+        "Fs": driver_model["Fs"],
+        "Qes": driver_model["Qes"],
+        "Qms": driver_model["Qms"],
+        "Vas": driver_model["Vas"],
+        "Sd": driver_model["Sd"],
+        "node_front": driver_model["node_front"],
+        "node_rear": driver_model["node_rear"],
+    }
+
+
+def _to_solver_waveguide_element(element: Mapping[str, Any], closed_nodes: set[str]) -> dict[str, Any]:
+    node_a = str(element["node_a"])
+    node_b = str(element["node_b"])
+    area_start = str(element["area_start"])
+    area_end = str(element["area_end"])
+
+    # Existing hand-mapped offset-line construction orients the closed stub from
+    # the closed end toward the driver tap. Preserve that convention when the
+    # graph explicitly marks one endpoint as a closed termination.
+    if node_b in closed_nodes and node_a not in closed_nodes:
+        node_a, node_b = node_b, node_a
+        area_start, area_end = area_end, area_start
+
+    solver_element = {
+        "id": element["id"],
+        "type": "waveguide_1d",
+        "node_a": node_a,
+        "node_b": node_b,
+        "length": element["length"],
+        "area_start": area_start,
+        "area_end": area_end,
+        "profile": element["profile"],
+    }
+    if "segments" in element:
+        solver_element["segments"] = element["segments"]
+    return solver_element
+
+
+def _to_solver_radiator_element(element: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "id": element["id"],
+        "type": "radiator",
+        "node": element["node"],
+        "model": element["model"],
+        "area": element["area"],
+    }
+
+
+def _canonical_driver_parameters(parameters: Mapping[str, Any]) -> dict[str, float]:
+    return {
+        "Sd_m2": _canonical_area_value(parameters, "Sd"),
+        "Bl_Tm": float(parameters["Bl_Tm"]),
+        "Cms_m_per_N": float(parameters["Cms_m_per_N"]),
+        "Rms_Ns_per_m": _canonical_one_of(parameters, ("Rms_Ns_per_m", "Rms"), "Rms"),
+        "Mmd_kg": _canonical_mass_value(parameters),
+        "Re_ohm": float(parameters["Re_ohm"]),
+        "Le_H": _canonical_inductance_value(parameters),
+    }
+
+
+def _derive_ts_classic_quantities(canonical: Mapping[str, float]) -> dict[str, float]:
+    fs_hz = 1.0 / (2.0 * pi * sqrt(canonical["Mmd_kg"] * canonical["Cms_m_per_N"]))
+    qms = (2.0 * pi * fs_hz * canonical["Mmd_kg"]) / canonical["Rms_Ns_per_m"]
+    qes = (2.0 * pi * fs_hz * canonical["Mmd_kg"] * canonical["Re_ohm"]) / (
+        canonical["Bl_Tm"] * canonical["Bl_Tm"]
+    )
+    rho0 = 1.184
+    c0 = 343.0
+    vas_m3 = rho0 * c0 * c0 * canonical["Sd_m2"] * canonical["Sd_m2"] * canonical["Cms_m_per_N"]
+    return {
+        "Fs_hz": fs_hz,
+        "Qms": qms,
+        "Qes": qes,
+        "Vas_l": vas_m3 * 1000.0,
+    }
 
 
 def _canonical_length_value(source: Mapping[str, Any]) -> float:
@@ -634,3 +831,7 @@ def _format_m(value: float) -> str:
 
 def _format_m2(value: float) -> str:
     return f"{value:.12g} m2"
+
+
+def _format_quantity(value: float, unit: str) -> str:
+    return f"{value:.6g} {unit}"
