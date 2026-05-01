@@ -187,11 +187,11 @@ def test_unknown_element_type_does_not_compile() -> None:
     assert any("unknown element type" in error for error in result.errors)
 
 
-def test_structurally_valid_but_unsupported_acoustic_chamber_fails_explicitly() -> None:
+def test_structurally_valid_acoustic_chamber_compiles_with_volume_only_semantics() -> None:
     graph = _gdn13_shaped_graph()
     graph["elements"].append(
         {
-            "id": "side_chamber_not_yet_compiled",
+            "id": "side_chamber_compiled_volume_only",
             "type": "acoustic_chamber",
             "node": "tap_s2",
             "volume_l": 1.25,
@@ -200,10 +200,16 @@ def test_structurally_valid_but_unsupported_acoustic_chamber_fails_explicitly() 
 
     result = compile_acoustic_graph_ir_to_model_dict(graph)
 
-    assert result.is_success is False
-    assert result.model_dict is None
-    assert result.unsupported_element_ids == ["side_chamber_not_yet_compiled"]
-    assert any("acoustic_chamber has no accepted compiler target yet" in error for error in result.errors)
+    assert result.is_success is True
+    assert result.errors == []
+    assert result.model_dict is not None
+    assert result.unsupported_element_ids == []
+    assert "side_chamber_compiled_volume_only" in result.compiled_element_ids
+    chamber = result.model_dict["acoustic_chambers"][0]
+    assert chamber["id"] == "side_chamber_compiled_volume_only"
+    assert chamber["node"] == "tap_s2"
+    assert chamber["volume_m3"] == 0.00125
+    assert chamber["compiler_semantics"] == "volume_only_structural_chamber"
 
 
 def test_missing_unit_field_fails_explicitly() -> None:

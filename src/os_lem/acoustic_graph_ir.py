@@ -406,6 +406,7 @@ COMPILED_ELEMENT_TYPES: tuple[str, ...] = (
     "electrodynamic_driver",
     "horn_or_duct_segment",
     "closed_termination",
+    "acoustic_chamber",
     "radiation_load",
 )
 
@@ -451,6 +452,7 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
 
     driver_model: dict[str, Any] | None = None
     compiled_elements: list[dict[str, Any]] = []
+    compiled_chambers: list[dict[str, Any]] = []
     closed_terminations: list[dict[str, Any]] = []
 
     for element in elements:
@@ -468,14 +470,12 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
             elif element_type == "closed_termination":
                 closed_terminations.append(_compile_closed_termination(element))
                 compiled_element_ids.append(element_id)
+            elif element_type == "acoustic_chamber":
+                compiled_chambers.append(_compile_acoustic_chamber(element))
+                compiled_element_ids.append(element_id)
             elif element_type == "radiation_load":
                 compiled_elements.append(_compile_radiation_load(element))
                 compiled_element_ids.append(element_id)
-            elif element_type == "acoustic_chamber":
-                unsupported_element_ids.append(element_id)
-                errors.append(
-                    f"element {element_id!r} is structurally valid but acoustic_chamber has no accepted compiler target yet"
-                )
             else:
                 # The validator should catch this first; retain an explicit
                 # compiler guard so unknowns never pass silently.
@@ -487,6 +487,13 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
     if driver_model is None:
         errors.append("compiler skeleton requires exactly one electrodynamic_driver")
 
+    if metadata.get("compiler_target") == "existing_solver_model_dict" and compiled_chambers:
+        errors.append(
+            "existing_solver_model_dict target does not yet support acoustic_chamber solver emission; "
+            "acoustic_chamber compiler support is construction-only until a separately approved "
+            "chamber solver-mapping step"
+        )
+
     model_dict: dict[str, Any] | None = None
     if not errors:
         if metadata.get("compiler_target") == "existing_solver_model_dict":
@@ -495,6 +502,7 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
                 nodes=nodes,
                 driver_model=driver_model,
                 compiled_elements=compiled_elements,
+                compiled_chambers=compiled_chambers,
                 closed_terminations=closed_terminations,
             )
         else:
@@ -514,6 +522,7 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
                 "nodes": [dict(node) for node in nodes],
                 "driver": driver_model,
                 "elements": compiled_elements,
+                "acoustic_chambers": compiled_chambers,
                 "closed_terminations": closed_terminations,
                 "observations": [],
             }
@@ -584,6 +593,28 @@ def _compile_closed_termination(element: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def _compile_acoustic_chamber(element: Mapping[str, Any]) -> dict[str, Any]:
+    """Compile the approved acoustic_chamber primitive with volume-only semantics.
+
+    This is intentionally narrow compiler support for an already approved graph
+    IR primitive. It preserves chamber identity, node, and canonical volume for
+    later POC3 construction-equivalence work, but it does not add chamber loss,
+    stuffing, end-correction, radiation, or solver execution semantics.
+    """
+
+    volume_m3 = _canonical_volume_value(element)
+    return {
+        "id": element["id"],
+        "type": "acoustic_chamber",
+        "node": element["node"],
+        "volume": _format_m3(volume_m3),
+        "volume_m3": volume_m3,
+        "volume_l": volume_m3 * 1000.0,
+        "compiler_semantics": "volume_only_structural_chamber",
+        "source_graph_element_id": element["id"],
+    }
+
+
 
 def _compile_radiation_load(element: Mapping[str, Any]) -> dict[str, Any]:
     radiation_space = element["radiation_space"]
@@ -608,6 +639,7 @@ def _build_existing_solver_model_dict(
     nodes: list[Mapping[str, Any]],
     driver_model: dict[str, Any] | None,
     compiled_elements: list[dict[str, Any]],
+    compiled_chambers: list[dict[str, Any]],
     closed_terminations: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Build a bounded existing os-lem model_dict for solver-equivalence smoke.
@@ -798,6 +830,14 @@ def _canonical_area_value(source: Mapping[str, Any], stem: str) -> float:
 
 
 
+def _canonical_volume_value(source: Mapping[str, Any]) -> float:
+    if "volume_m3" in source:
+        return float(source["volume_m3"])
+    if "volume_l" in source:
+        return float(source["volume_l"]) * 1.0e-3
+    raise _CompileError("missing supported volume unit field; expected volume_m3 or volume_l")
+
+
 def _canonical_mass_value(source: Mapping[str, Any]) -> float:
     if "Mmd_kg" in source:
         return float(source["Mmd_kg"])
@@ -831,6 +871,10 @@ def _format_m(value: float) -> str:
 
 def _format_m2(value: float) -> str:
     return f"{value:.12g} m2"
+
+
+def _format_m3(value: float) -> str:
+    return f"{value:.12g} m3"
 
 
 def _format_quantity(value: float, unit: str) -> str:

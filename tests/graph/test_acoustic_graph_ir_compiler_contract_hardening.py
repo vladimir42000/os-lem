@@ -258,11 +258,11 @@ def test_structured_failure_cases_return_errors_without_model_dict(mutator, expe
     assert any(expected_substring in error for error in result.errors), result.errors
 
 
-def test_acoustic_chamber_is_structurally_valid_but_compile_blocked() -> None:
+def test_acoustic_chamber_now_compiles_for_minimal_volume_semantics() -> None:
     graph = _generic_non_gdn_graph()
     graph["elements"].append(
         {
-            "id": "structural_chamber_without_compiler_target",
+            "id": "structural_chamber_with_volume_only_compiler_target",
             "type": "acoustic_chamber",
             "node": "driver_front",
             "volume_l": 1.25,
@@ -273,10 +273,16 @@ def test_acoustic_chamber_is_structurally_valid_but_compile_blocked() -> None:
     result = _compile(graph)
 
     assert validation.is_valid, validation.errors
-    assert not result.is_success
-    assert result.model_dict is None
-    assert result.unsupported_element_ids == ["structural_chamber_without_compiler_target"]
-    assert any("acoustic_chamber has no accepted compiler target yet" in error for error in result.errors)
+    assert result.is_success, result.errors
+    assert result.model_dict is not None
+    assert result.unsupported_element_ids == []
+    assert "structural_chamber_with_volume_only_compiler_target" in result.compiled_element_ids
+    chamber = result.model_dict["acoustic_chambers"][0]
+    assert chamber["id"] == "structural_chamber_with_volume_only_compiler_target"
+    assert chamber["type"] == "acoustic_chamber"
+    assert chamber["node"] == "driver_front"
+    assert chamber["volume_m3"] == pytest.approx(0.00125)
+    assert chamber["compiler_semantics"] == "volume_only_structural_chamber"
 
 
 def test_unsupported_element_combination_two_drivers_fails_explicitly() -> None:
@@ -346,3 +352,4 @@ def test_accepted_gdn13_graph_compiler_behavior_is_not_weakened() -> None:
         "mouth_s3_radiation",
     }
     assert result.model_dict["meta"]["compiler_target"] == "existing_solver_model_dict"
+    assert "acoustic_chambers" not in result.model_dict
