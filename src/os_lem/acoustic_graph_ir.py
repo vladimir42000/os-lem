@@ -488,10 +488,10 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
         errors.append("compiler skeleton requires exactly one electrodynamic_driver")
 
     if metadata.get("compiler_target") == "existing_solver_model_dict" and compiled_chambers:
-        errors.append(
-            "existing_solver_model_dict target does not yet support acoustic_chamber solver emission; "
-            "acoustic_chamber compiler support is construction-only until a separately approved "
-            "chamber solver-mapping step"
+        warnings.append(
+            "existing_solver_model_dict now maps acoustic_chamber records into the "
+            "bounded solver-facing chamber representation; no solver execution or "
+            "POC3 parity claim is made by the compiler"
         )
 
     model_dict: dict[str, Any] | None = None
@@ -668,6 +668,9 @@ def _build_existing_solver_model_dict(
             }
         )
 
+    for chamber in compiled_chambers:
+        solver_elements.append(_to_solver_acoustic_chamber_element(chamber))
+
     mouth_radiator_id: str | None = None
     mouth_radiation_space = "2pi"
     for element in compiled_elements:
@@ -714,6 +717,7 @@ def _build_existing_solver_model_dict(
             "compiler_skeleton": True,
             "compiler_target": "existing_solver_model_dict",
             "graph_metadata": dict(metadata),
+            "graph_compiled_acoustic_chambers": [dict(item) for item in compiled_chambers],
             "non_claims": [
                 "graph-to-existing-model solver-equivalence smoke only",
                 "no external HornResp parity claim",
@@ -740,6 +744,19 @@ def _to_solver_driver(driver_model: Mapping[str, Any]) -> dict[str, Any]:
         "Sd": driver_model["Sd"],
         "node_front": driver_model["node_front"],
         "node_rear": driver_model["node_rear"],
+    }
+
+
+def _to_solver_acoustic_chamber_element(chamber: Mapping[str, Any]) -> dict[str, Any]:
+    # Narrow model-mapping step for an already-approved graph IR primitive.
+    # Emits only the chamber fields needed by the existing model/parser boundary.
+    # Does not add chamber losses, stuffing, end correction, radiation behavior,
+    # solver execution, or POC3 parity semantics.
+    return {
+        "id": chamber["id"],
+        "type": "acoustic_chamber",
+        "node": chamber["node"],
+        "volume": chamber["volume"],
     }
 
 

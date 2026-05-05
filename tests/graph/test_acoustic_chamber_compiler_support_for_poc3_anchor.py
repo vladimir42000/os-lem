@@ -263,17 +263,137 @@ def test_compiler_only_chamber_paths_do_not_call_solver(monkeypatch: pytest.Monk
 
 
 
-def test_chamber_graph_cannot_emit_solver_target_until_chamber_solver_mapping_is_approved() -> None:
-    graph = _poc3_style_chamber_graph()
-    graph["metadata"]["compiler_target"] = "existing_solver_model_dict"
+def test_chamber_graph_emits_solver_target_after_chamber_solver_mapping_is_approved(monkeypatch) -> None:
+    import os_lem.api as api
+    from os_lem.acoustic_graph_ir import compile_acoustic_graph_ir_to_model_dict, validate_acoustic_graph_ir
 
-    validation, result = _compile(graph)
+    def fail_if_solver_called(*args, **kwargs):  # pragma: no cover - must not execute
+        raise AssertionError("compiler support test must not run the solver")
 
-    assert validation.is_valid, validation.errors
-    assert not result.is_success
-    assert result.model_dict is None
-    assert any("does not yet support acoustic_chamber solver emission" in error for error in result.errors), result.errors
-    assert any("acoustic_chamber" in error for error in result.errors), result.errors
+    monkeypatch.setattr(api, "run_simulation", fail_if_solver_called)
+
+    graph = {
+        "metadata": {
+            "name": "poc3_style_chamber_solver_target_contract",
+            "compiler_target": "existing_solver_model_dict",
+            "emit_default_diagnostic_observations": False,
+        },
+        "nodes": [
+            {"id": "driver_front"},
+            {"id": "driver_rear"},
+            {"id": "rear_chamber_node"},
+            {"id": "throat_chamber_node"},
+            {"id": "closed_end"},
+            {"id": "mouth"},
+        ],
+        "elements": [
+            {
+                "id": "poc3_driver",
+                "type": "electrodynamic_driver",
+                "front_node": "driver_front",
+                "rear_node": "driver_rear",
+                "parameters": {
+                    "Sd_cm2": 82.0,
+                    "Bl_Tm": 6.16,
+                    "Cms_m_per_N": 1.01e-3,
+                    "Rms": 0.49,
+                    "Mmd_g": 8.50,
+                    "Re_ohm": 6.50,
+                    "Le_mH": 1.00,
+                },
+            },
+            {
+                "id": "poc3_rear_chamber",
+                "type": "acoustic_chamber",
+                "node": "rear_chamber_node",
+                "volume_l": 7.5,
+            },
+            {
+                "id": "poc3_throat_chamber",
+                "type": "acoustic_chamber",
+                "node": "throat_chamber_node",
+                "volume_m3": 0.00125,
+            },
+            {
+                "id": "rear_stub",
+                "type": "horn_or_duct_segment",
+                "node_a": "driver_rear",
+                "node_b": "closed_end",
+                "length_cm": 20.0,
+                "area_a_cm2": 80.0,
+                "area_b_cm2": 80.0,
+                "profile": "conical",
+            },
+            {"id": "closed_end_marker", "type": "closed_termination", "node": "closed_end"},
+            {
+                "id": "forward_horn",
+                "type": "horn_or_duct_segment",
+                "node_a": "driver_front",
+                "node_b": "mouth",
+                "length_cm": 40.0,
+                "area_a_cm2": 80.0,
+                "area_b_cm2": 120.0,
+                "profile": "conical",
+            },
+            {
+                "id": "mouth_radiation",
+                "type": "radiation_load",
+                "node": "mouth",
+                "area_cm2": 120.0,
+                "radiation_space": "2pi",
+            },
+        ],
+    }
+
+    validation = validate_acoustic_graph_ir(graph)
+    result = compile_acoustic_graph_ir_to_model_dict(graph)
+
+    assert validation.is_valid is True, validation.errors
+    assert result.is_success is True, result.errors
+    assert result.model_dict is not None
+
+    chamber_records = [
+        element
+        for element in result.model_dict.get("elements", [])
+        if element.get("type") == "acoustic_chamber"
+    ]
+    chambers_by_id = {record["id"]: record for record in chamber_records}
+
+    assert chambers_by_id["poc3_rear_chamber"]["id"] == "poc3_rear_chamber"
+    assert chambers_by_id["poc3_rear_chamber"]["node"] == "rear_chamber_node"
+    assert chambers_by_id["poc3_rear_chamber"]["volume"] == "0.0075 m3"
+    assert chambers_by_id["poc3_throat_chamber"]["id"] == "poc3_throat_chamber"
+    assert chambers_by_id["poc3_throat_chamber"]["node"] == "throat_chamber_node"
+    assert chambers_by_id["poc3_throat_chamber"]["volume"] == "0.00125 m3"
+
+    provenance = result.model_dict.get("meta", {}).get("graph_compiled_acoustic_chambers", [])
+    provenance_by_id = {record["id"]: record for record in provenance}
+    assert provenance_by_id["poc3_rear_chamber"]["id"] == "poc3_rear_chamber"
+    assert provenance_by_id["poc3_rear_chamber"]["node"] == "rear_chamber_node"
+    assert provenance_by_id["poc3_rear_chamber"]["volume_m3"] == pytest.approx(0.0075)
+    assert provenance_by_id["poc3_throat_chamber"]["id"] == "poc3_throat_chamber"
+    assert provenance_by_id["poc3_throat_chamber"]["node"] == "throat_chamber_node"
+    assert provenance_by_id["poc3_throat_chamber"]["volume_m3"] == pytest.approx(0.00125)
+
+    unsupported_extension_graph = {
+        **graph,
+        "elements": [
+            *graph["elements"][:1],
+            {
+                "id": "unsupported_chamber_extension",
+                "type": "acoustic_chamber",
+                "node": "rear_chamber_node",
+                "volume_cm3": 7500.0,
+            },
+            *graph["elements"][3:],
+        ],
+    }
+    unsupported_validation = validate_acoustic_graph_ir(unsupported_extension_graph)
+    unsupported_result = compile_acoustic_graph_ir_to_model_dict(unsupported_extension_graph)
+    assert unsupported_validation.is_valid is False
+    assert unsupported_result.is_success is False
+    unsupported_message = "\n".join([*unsupported_validation.errors, *unsupported_result.errors])
+    assert "volume" in unsupported_message
 
 
 def test_existing_gdn13_style_graph_without_chambers_remains_compilable() -> None:
