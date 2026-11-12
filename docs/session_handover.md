@@ -1,51 +1,35 @@
-# session handover
+# Session handover
 
-## Current accepted repo truth
+## Authorization and checkpoint
 
-Active current working-line reading:
-- milestone: `v0.7.0`
-- branch: `feat/v0.7.0-seed-exponential-flare-contract`
-- current accepted checkpoint: `725f3b4`
-- current accepted checkpoint title: `Add three-law named flare contract regression`
+User approved autonomous coding, testing and publishing on development branches.
+First-release scope: working simulator plus a simple Studio workflow.
 
-Accepted sequence for the current `v0.7.0` line:
-- `c25ab5e` — `Seed exponential flare contract`
-- `0fc40a3` — `Freeze v0.7.0 exponential opening meaning`
-- `6ca2c72` — `Add exponential flare reference smoke`
-- `e879d44` — `Freeze exponential reference smoke meaning`
-- `a96fab4` — `Add exponential flare Akabak reference smoke`
-- `8ec37bc` — `Seed tractrix flare contract`
-- `081fb8b` — `Add tractrix flare reference smoke`
-- `8641841` — `Add tractrix flare Akabak reference smoke`
-- `f39d5f7` — `Add two-law named flare contract regression`
-- `7156ebf` — `Freeze two-law named flare checkpoint`
-- `5dc75a4` — `Seed hyperbolic flare contract`
-- `a2a9ae6` — `Add hyperbolic flare reference smoke`
-- `742756a` — `Add hyperbolic flare Akabak reference smoke`
-- `725f3b4` — `Add three-law named flare contract regression`
+Branch `codex/poc3-kernel-alignment` starts from `9ee9017`. This checkpoint fixes
+one physical-model error: diagnostic observations duplicated an existing front
+radiation load. Five regressions cover front/mouth ordering, solver invariance,
+legacy fallback, missing mouth and ambiguous front targets. Three regressions
+failed on the original implementation before the correction; the ambiguity
+case was added with the correction.
 
-## Frozen interpretation boundary
+The compiler now returns a structured failure for invalid solver-model targets
+instead of leaking its internal exception.
 
-Current accepted interpretation boundary:
-- bounded named-flare contract only
-- exactly three accepted laws: `exponential`, `tractrix`, and `hyperbolic`
-- each accepted law has one implementation seed, one internal reference/smoke surface, and one Akabak-style external reference/smoke surface
-- one bounded shared three-law regression surface is present
-- segmented `1D` kernel discipline preserved
-- no fourth flare law yet
-- no generalized horn-law framework claim
-- no Studio / optimizer / platform implication
+## Validation
 
-## Current default control reading
+Full kernel suite: **593 passed in 19.17s**, Python 3.12, NumPy 2.5.4,
+SciPy 1.18.1. This includes the existing GDN13 and POC3 regression suites.
 
-The meaning of the three-law checkpoint is frozen first.
+## Next action
 
-Default next-action reading after this docs step lands:
-- do not open a fourth-law technical step by momentum
-- do not assume any broader flare-family growth is authorized
-- only a separately authorized bounded step may expand flare-family technical work
+Follow `docs/next_patch.md`: one bounded POC3 graph-input fidelity patch. The
+first release is not complete. Studio integration, dependencies and release
+packaging remain outstanding. No unattended/background development job is
+implied by this handover.
 
-## Historical context
+## User environment
 
-`v0.6.0` remains prior/completed historical context only on this branch.
-It is not the active current milestone reading.
+Chromebook kernel tests: 588 passed before this patch; Studio backend: 3 passed;
+frontend production build passed. Remaining disk space: 2.4 GB. Shared Python
+venv is in the sibling `os-lem` directory. Do not require another GitHub login;
+repository writes are available through the GitHub connector.

@@ -497,14 +497,17 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
     model_dict: dict[str, Any] | None = None
     if not errors:
         if metadata.get("compiler_target") == "existing_solver_model_dict":
-            model_dict = _build_existing_solver_model_dict(
-                metadata=metadata,
-                nodes=nodes,
-                driver_model=driver_model,
-                compiled_elements=compiled_elements,
-                compiled_chambers=compiled_chambers,
-                closed_terminations=closed_terminations,
-            )
+            try:
+                model_dict = _build_existing_solver_model_dict(
+                    metadata=metadata,
+                    nodes=nodes,
+                    driver_model=driver_model,
+                    compiled_elements=compiled_elements,
+                    compiled_chambers=compiled_chambers,
+                    closed_terminations=closed_terminations,
+                )
+            except _CompileError as exc:
+                errors.append(f"solver model compile error: {exc}")
         else:
             model_dict = {
                 "meta": {
@@ -656,7 +659,18 @@ def _build_existing_solver_model_dict(
     solver_elements: list[dict[str, Any]] = []
     front_radiator_id: str | None = None
 
-    if metadata.get("emit_default_diagnostic_observations"):
+    explicit_front_radiators = [
+        element for element in compiled_elements
+        if element["type"] == "radiator" and element["node"] == driver_model["node_front"]
+    ]
+    if metadata.get("emit_default_diagnostic_observations") and explicit_front_radiators:
+        if len(explicit_front_radiators) != 1:
+            raise _CompileError("default diagnostic observations require exactly one driver-front radiation target")
+        # Observations must not introduce a second physical load where the
+        # graph already specifies front radiation. Select by node, not order.
+        front_radiator_id = explicit_front_radiators[0]["id"]
+    elif metadata.get("emit_default_diagnostic_observations"):
+        # Retain the historical GDN13 fallback for graphs without a front load.
         front_radiator_id = f"{driver_model['node_front']}_radiation_diagnostic"
         solver_elements.append(
             {
@@ -679,7 +693,7 @@ def _build_existing_solver_model_dict(
         elif element["type"] == "radiator":
             solver_radiator = _to_solver_radiator_element(element)
             solver_elements.append(solver_radiator)
-            if mouth_radiator_id is None:
+            if mouth_radiator_id is None and element["node"] != driver_model["node_front"]:
                 mouth_radiator_id = solver_radiator["id"]
                 mouth_radiation_space = str(element.get("radiation_space", "2pi"))
         else:
