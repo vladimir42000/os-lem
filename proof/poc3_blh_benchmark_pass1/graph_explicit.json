@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "name": "poc3_explicit_driver_graph",
+    "case_id": "poc3_blh_benchmark_pass1",
+    "authority_path": "proof/poc3_blh_benchmark_pass1/model.yaml",
+    "construction_equivalence_only": true,
+    "compiler_target": "existing_solver_model_dict",
+    "emit_default_diagnostic_observations": true
+  },
+  "nodes": [
+    {
+      "id": "bend"
+    },
+    {
+      "id": "front"
+    },
+    {
+      "id": "mouth"
+    },
+    {
+      "id": "rear"
+    },
+    {
+      "id": "throat"
+    }
+  ],
+  "elements": [
+    {
+      "id": "drv1",
+      "type": "electrodynamic_driver",
+      "front_node": "front",
+      "rear_node": "rear",
+      "parameters": {
+        "Sd_m2": 0.0022,
+        "Bl_Tm": 1.71,
+        "Cms_m_per_N": 0.0013,
+        "Rms_Ns_per_m": 0.15,
+        "Re_ohm": 7.2,
+        "Le_H": 0.0006,
+        "Mms_kg": 0.00087,
+        "source_voltage_rms": 2.83
+      },
+      "model": "em_explicit"
+    },
+    {
+      "id": "throat_chamber",
+      "type": "horn_or_duct_segment",
+      "node_a": "rear",
+      "node_b": "throat",
+      "length_m": 0.06,
+      "area_a_m2": 0.01,
+      "area_b_m2": 0.01,
+      "profile": "conical",
+      "segments": 4
+    },
+    {
+      "id": "horn_seg1",
+      "type": "horn_or_duct_segment",
+      "node_a": "throat",
+      "node_b": "bend",
+      "length_m": 0.877,
+      "area_a_m2": 0.0024000000000000002,
+      "area_b_m2": 0.0439,
+      "profile": "conical",
+      "segments": 36
+    },
+    {
+      "id": "horn_seg2",
+      "type": "horn_or_duct_segment",
+      "node_a": "bend",
+      "node_b": "mouth",
+      "length_m": 0.309,
+      "area_a_m2": 0.0439,
+      "area_b_m2": 0.0736,
+      "profile": "conical",
+      "segments": 12
+    },
+    {
+      "id": "front_rad",
+      "type": "radiation_load",
+      "node": "front",
+      "area_m2": 0.0022,
+      "radiation_space": "2pi",
+      "model": "infinite_baffle_piston"
+    },
+    {
+      "id": "mouth_rad",
+      "type": "radiation_load",
+      "node": "mouth",
+      "area_m2": 0.0736,
+      "radiation_space": "2pi",
+      "model": "infinite_baffle_piston"
+    }
+  ]
+}

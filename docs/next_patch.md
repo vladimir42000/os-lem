@@ -1,25 +1,17 @@
 # Next patch
 
-## Readiness
+READY for one bounded Studio real-kernel workflow patch.
 
-READY for one bounded POC3 graph-input fidelity patch after the diagnostic
-radiation checkpoint passes the complete kernel suite.
+Use the accepted Studio development branch as the starting point. Inspect and
+reproduce the Closed Box reset -> simulate -> change parameters -> rerun ->
+save/load workflow. Ensure backend failure cannot silently produce dummy
+results. Add meaningful integration coverage and clear user-facing errors.
+Keep unsupported graph topologies explicitly gated until validated.
 
-## Required work
+Kernel checkpoint now has internal explicit-graph POC3 equivalence; see
+status.md and graph_explicit_driver_contract.md. Do not infer external accuracy
+or arbitrary topology support from that result.
 
-Inspect the actual source contract before choosing a mass convention. Preserve
-explicit radiation models and waveguide segment counts through the graph path;
-resolve the Mmd/Mms and source-voltage mapping without silently changing the
-accepted GDN13 behavior. Compare against the hand-mapped authority over the full
-reference frequency grid, with justified numerical tolerances.
-
-Do not invent a lumped chamber in POC3: its throat chamber is represented as a
-waveguide. Test chamber semantics with a separate fixture. Do not claim external
-HornResp/Akabak parity from internal equivalence.
-
-## Subsequent release gates
-
-- Studio real-kernel run, parameter change/rerun, save/load and clear errors.
-- Review npm audit findings and test compatible dependency updates.
-- Test supported Python/Node versions and document reproducible installation.
-- Release only when the supported workflow and known limitations are documented.
+After Studio integration: review dependency vulnerabilities, test reproducible
+installation on supported Python/Node versions, and prepare release notes with
+supported workflows and known limitations. OPT remains deferred.
