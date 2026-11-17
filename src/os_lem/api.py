@@ -30,6 +30,8 @@ from .units import parse_value
 from .solve import (
     SolvedFrequencySweep,
     radiator_spl,
+    radiator_observation_pressure,
+    summed_radiator_observation_pressure,
     solve_frequency_point,
     solve_frequency_sweep,
     summed_radiator_spl,
@@ -230,6 +232,12 @@ def run_simulation(model_dict: Mapping[str, Any], frequencies_hz: Sequence[float
         raise TypeError("model_dict must be a mapping")
 
     normalized_model, warnings = normalize_model(dict(model_dict))
+    for line in normalized_model.waveguides:
+        if line.flow_resistivity > 0:
+            warnings.append(f"{line.id}: experimental Miki equivalent-fluid stuffing; full cross-section, rigid fibres. Material density/resistivity calibration requires external validation.")
+            ratios = np.asarray(frequencies_hz, dtype=float) / line.flow_resistivity
+            if np.any((ratios < 0.01) | (ratios > 1)):
+                warnings.append(f"{line.id}: some frequencies are outside 0.01 <= f/resistivity <= 1; porous-model extrapolation is unvalidated.")
     system = assemble_system(normalized_model)
     sweep = solve_frequency_sweep(normalized_model, system, frequencies_hz)
     series, units, observation_types = _evaluate_supported_observations(normalized_model, system, sweep)
@@ -346,6 +354,23 @@ def _evaluate_observation(
             raise ValueError(f"group_delay target {target_id!r} has not been evaluated")
         if isinstance(target_series, LineProfileResult):
             raise NotImplementedError("group_delay does not support line_profile targets in os_lem.api")
+        # SPL observations are dB magnitudes: their angle contains no phase.
+        target_observation = next(o for o in model.observations if o.id == target_id)
+        td = target_observation.data
+        if target_observation.type == "spl_sum":
+            target_series = summed_radiator_observation_pressure(
+                sweep, system, td["terms"],
+                radiation_space=_resolve_radiation_space(model, td.get("radiation_space")),
+                observable_contract=_resolve_observable_contract(td.get("observable_contract")))
+        elif target_observation.type == "spl":
+            target_series = radiator_observation_pressure(
+                sweep, system, str(td["target"]), _parse_distance_m(td.get("distance", 1.0)),
+                radiation_space=_resolve_radiation_space(model, td.get("radiation_space")),
+                observable_contract=_resolve_observable_contract(td.get("observable_contract")))
+        elif not np.iscomplexobj(target_series):
+            raise ValueError("group_delay requires a complex response or an SPL observation")
+        if len(sweep.frequency_hz) < 3:
+            raise ValueError("group_delay requires at least three frequencies")
         phase = np.unwrap(np.angle(target_series))
         omega = 2.0 * np.pi * sweep.frequency_hz
         return -np.gradient(phase, omega), "s"
