@@ -29,9 +29,11 @@ from .parser import normalize_model
 from .units import parse_value
 from .solve import (
     SolvedFrequencySweep,
+    radiator_observation_pressure,
     radiator_spl,
     solve_frequency_point,
     solve_frequency_sweep,
+    summed_radiator_observation_pressure,
     summed_radiator_spl,
     waveguide_line_profile_particle_velocity,
     waveguide_line_profile_pressure,
@@ -346,6 +348,32 @@ def _evaluate_observation(
             raise ValueError(f"group_delay target {target_id!r} has not been evaluated")
         if isinstance(target_series, LineProfileResult):
             raise NotImplementedError("group_delay does not support line_profile targets in os_lem.api")
+        # SPL is a real-valued dB magnitude; its angle is not acoustic phase.
+        # Recover the SAME complex pressure that generated the target SPL,
+        # including its radiation, distance and coherent-sum conventions.
+        target_observation = next(o for o in model.observations if o.id == target_id)
+        target_data = target_observation.data
+        if target_observation.type == "spl":
+            target_series = radiator_observation_pressure(
+                sweep,
+                system,
+                str(target_data["target"]),
+                _parse_distance_m(target_data.get("distance", 1.0)),
+                radiation_space=_resolve_radiation_space(model, target_data.get("radiation_space")),
+                observable_contract=_resolve_observable_contract(target_data.get("observable_contract")),
+            )
+        elif target_observation.type == "spl_sum":
+            target_series = summed_radiator_observation_pressure(
+                sweep,
+                system,
+                target_data["terms"],
+                radiation_space=_resolve_radiation_space(model, target_data.get("radiation_space")),
+                observable_contract=_resolve_observable_contract(target_data.get("observable_contract")),
+            )
+        elif not np.iscomplexobj(target_series):
+            raise ValueError("group_delay requires a complex response or an SPL observation")
+        if len(sweep.frequency_hz) < 3:
+            raise ValueError("group_delay requires at least three frequencies")
         phase = np.unwrap(np.angle(target_series))
         omega = 2.0 * np.pi * sweep.frequency_hz
         return -np.gradient(phase, omega), "s"
