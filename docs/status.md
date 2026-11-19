@@ -1,5 +1,10 @@
 # os-lem status
 
+> Historical milestone snapshot. For current public release status, accepted
+> internal commits and cross-repository development authorization, consult
+> [`PROJECT_CONTROL.md`](PROJECT_CONTROL.md). This older status text must not
+> override the verified coordination record.
+
 ## Released baseline
 
 - latest released version: `v0.2.0`

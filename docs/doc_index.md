@@ -21,6 +21,8 @@ The repository remains the source of truth.
 
 Read these first in a new development or handover session:
 
+- `docs/PROJECT_CONTROL.md` — authoritative cross-repository control,
+  accepted commits, development scope and startup protocol
 - `docs/start_here.md`
 - `docs/status.md`
 - `docs/milestone_charter.md`
@@ -86,12 +88,6 @@ Its role is defined in:
 
 ## Current project state
 
-Latest release:
-- `v0.2.0` on `main`
-
-Completed milestone awaiting release decision:
-- `v0.3.0` — `waveguide observability and API maturity`
-- milestone branch: `milestone/v0.3.0-waveguide-observability-and-api-maturity`
-
-Recommended next patch branch:
-- `chore/v0.3.0-release-promotion-plan`
+For current release, accepted development checkpoints, experimental heads
+and the one authorized next milestone, see `docs/PROJECT_CONTROL.md`.
+Older milestone documents may be historical snapshots, not current status.
