@@ -184,7 +184,7 @@ def _validate_electrodynamic_driver(
     warnings: list[str],
     label: str,
 ) -> None:
-    _warn_unknown_element_fields(element, {"id", "type", "front_node", "rear_node", "parameters", "metadata"}, warnings, label)
+    _warn_unknown_element_fields(element, {"id", "type", "model", "front_node", "rear_node", "parameters", "metadata"}, warnings, label)
     _require_distinct_known_nodes(element, "front_node", "rear_node", node_ids, errors, label)
 
     parameters = element.get("parameters")
@@ -196,7 +196,16 @@ def _validate_electrodynamic_driver(
     _require_positive_numeric(parameters, "Bl_Tm", errors, f"{label}.parameters")
     _require_positive_numeric(parameters, "Cms_m_per_N", errors, f"{label}.parameters")
     _require_exactly_one_numeric(parameters, ("Rms_Ns_per_m", "Rms"), errors, f"{label}.parameters.Rms")
-    _require_exactly_one_numeric(parameters, ("Mmd_g", "Mmd_kg"), errors, f"{label}.parameters.Mmd")
+    driver_model = element.get("model", "ts_classic")
+    if driver_model not in {"ts_classic", "em_explicit"}:
+        errors.append(f"{label}.model must be ts_classic or em_explicit")
+    mass_keys = ("Mms_g", "Mms_kg") if driver_model == "em_explicit" else ("Mmd_g", "Mmd_kg")
+    other_mass_keys = ("Mmd_g", "Mmd_kg") if driver_model == "em_explicit" else ("Mms_g", "Mms_kg")
+    _require_exactly_one_numeric(parameters, mass_keys, errors, f"{label}.parameters.mass")
+    if any(key in parameters for key in other_mass_keys):
+        errors.append(f"{label}.parameters mass convention does not match {driver_model}")
+    if "source_voltage_rms" in parameters:
+        _require_positive_numeric(parameters, "source_voltage_rms", errors, f"{label}.parameters")
     _require_positive_numeric(parameters, "Re_ohm", errors, f"{label}.parameters")
     _require_exactly_one_numeric(parameters, ("Le_mH", "Le_H"), errors, f"{label}.parameters.Le")
 
@@ -209,6 +218,9 @@ def _validate_electrodynamic_driver(
         "Rms",
         "Mmd_g",
         "Mmd_kg",
+        "Mms_g",
+        "Mms_kg",
+        "source_voltage_rms",
         "Re_ohm",
         "Le_mH",
         "Le_H",
@@ -290,12 +302,14 @@ def _validate_radiation_load(
 ) -> None:
     _warn_unknown_element_fields(
         element,
-        {"id", "type", "node", "area_cm2", "area_m2", "radiation_space", "metadata"},
+        {"id", "type", "node", "model", "area_cm2", "area_m2", "radiation_space", "metadata"},
         warnings,
         label,
     )
     _require_known_node(element, "node", node_ids, errors, label)
     _require_exactly_one_numeric(element, ("area_cm2", "area_m2"), errors, f"{label}.area")
+    if element.get("model", "unflanged_piston") not in {"unflanged_piston", "infinite_baffle_piston"}:
+        errors.append(f"{label}.model must be unflanged_piston or infinite_baffle_piston")
 
     radiation_space = element.get("radiation_space")
     if not isinstance(radiation_space, str) or not radiation_space:
@@ -497,14 +511,17 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
     model_dict: dict[str, Any] | None = None
     if not errors:
         if metadata.get("compiler_target") == "existing_solver_model_dict":
-            model_dict = _build_existing_solver_model_dict(
-                metadata=metadata,
-                nodes=nodes,
-                driver_model=driver_model,
-                compiled_elements=compiled_elements,
-                compiled_chambers=compiled_chambers,
-                closed_terminations=closed_terminations,
-            )
+            try:
+                model_dict = _build_existing_solver_model_dict(
+                    metadata=metadata,
+                    nodes=nodes,
+                    driver_model=driver_model,
+                    compiled_elements=compiled_elements,
+                    compiled_chambers=compiled_chambers,
+                    closed_terminations=closed_terminations,
+                )
+            except _CompileError as exc:
+                errors.append(f"solver model compile error: {exc}")
         else:
             model_dict = {
                 "meta": {
@@ -542,6 +559,25 @@ def compile_acoustic_graph_ir_to_model_dict(graph: Mapping[str, Any]) -> Acousti
 
 def _compile_electrodynamic_driver(element: Mapping[str, Any]) -> dict[str, Any]:
     parameters = element["parameters"]
+    if element.get("model") == "em_explicit":
+        mass_kg = float(parameters["Mms_kg"]) if "Mms_kg" in parameters else float(parameters["Mms_g"]) * 1.0e-3
+        return {
+            "id": element["id"],
+            "type": "electrodynamic_driver",
+            "model": "em_explicit",
+            "node_front": element["front_node"],
+            "node_rear": element["rear_node"],
+            "Re": float(parameters["Re_ohm"]),
+            "Le": _canonical_inductance_value(parameters),
+            "Bl": float(parameters["Bl_Tm"]),
+            "Mms": mass_kg,
+            "Cms": float(parameters["Cms_m_per_N"]),
+            "Rms": _canonical_one_of(parameters, ("Rms_Ns_per_m", "Rms"), "Rms"),
+            "Sd": _canonical_area_value(parameters, "Sd"),
+            "source_voltage_rms": float(parameters.get("source_voltage_rms", 2.83)),
+            "parameters": {**parameters, "Sd_m2": _canonical_area_value(parameters, "Sd"), "Mms_kg": mass_kg},
+            "source_graph_element_id": element["id"],
+        }
     canonical = _canonical_driver_parameters(parameters)
     derived = _derive_ts_classic_quantities(canonical)
     return {
@@ -559,6 +595,7 @@ def _compile_electrodynamic_driver(element: Mapping[str, Any]) -> dict[str, Any]
         "Sd": _format_quantity(canonical["Sd_m2"] * 1.0e4, "cm2"),
         "parameters": canonical,
         "source_graph_element_id": element["id"],
+        **({"source_voltage_rms": float(parameters["source_voltage_rms"])} if "source_voltage_rms" in parameters else {}),
     }
 
 
@@ -624,7 +661,7 @@ def _compile_radiation_load(element: Mapping[str, Any]) -> dict[str, Any]:
         "id": element["id"],
         "type": "radiator",
         "node": element["node"],
-        "model": "unflanged_piston",
+        "model": element.get("model", "unflanged_piston"),
         "area": _format_m2(_canonical_area_value(element, "area")),
         "radiation_space": "2pi",
         "source_graph_element_id": element["id"],
@@ -656,7 +693,16 @@ def _build_existing_solver_model_dict(
     solver_elements: list[dict[str, Any]] = []
     front_radiator_id: str | None = None
 
-    if metadata.get("emit_default_diagnostic_observations"):
+    explicit_front_radiators = [
+        element for element in compiled_elements
+        if element["type"] == "radiator" and element["node"] == driver_model["node_front"]
+    ]
+    if metadata.get("emit_default_diagnostic_observations") and explicit_front_radiators:
+        if len(explicit_front_radiators) != 1:
+            raise _CompileError("diagnostic observations require exactly one explicit front radiator")
+        # Refer to the physical load already in the graph; never add a second.
+        front_radiator_id = explicit_front_radiators[0]["id"]
+    elif metadata.get("emit_default_diagnostic_observations"):
         front_radiator_id = f"{driver_model['node_front']}_radiation_diagnostic"
         solver_elements.append(
             {
@@ -679,7 +725,7 @@ def _build_existing_solver_model_dict(
         elif element["type"] == "radiator":
             solver_radiator = _to_solver_radiator_element(element)
             solver_elements.append(solver_radiator)
-            if mouth_radiator_id is None:
+            if mouth_radiator_id is None and element["node"] != driver_model["node_front"]:
                 mouth_radiator_id = solver_radiator["id"]
                 mouth_radiation_space = str(element.get("radiation_space", "2pi"))
         else:
@@ -732,6 +778,11 @@ def _build_existing_solver_model_dict(
 
 
 def _to_solver_driver(driver_model: Mapping[str, Any]) -> dict[str, Any]:
+    if driver_model["model"] == "em_explicit":
+        return {key: driver_model[key] for key in (
+            "id", "model", "node_front", "node_rear", "Re", "Le", "Bl",
+            "Mms", "Cms", "Rms", "Sd", "source_voltage_rms",
+        )}
     return {
         "id": driver_model["id"],
         "model": "ts_classic",
@@ -744,6 +795,7 @@ def _to_solver_driver(driver_model: Mapping[str, Any]) -> dict[str, Any]:
         "Sd": driver_model["Sd"],
         "node_front": driver_model["node_front"],
         "node_rear": driver_model["node_rear"],
+        **({"source_voltage_rms": driver_model["source_voltage_rms"]} if "source_voltage_rms" in driver_model else {}),
     }
 
 
