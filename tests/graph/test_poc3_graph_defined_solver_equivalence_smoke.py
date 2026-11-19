@@ -1,18 +1,12 @@
-"""POC3 graph-defined solver-execution diagnostic smoke.
+"""POC3 graph-versus-handmapped internal solver-equivalence regression.
 
-This file intentionally does not claim graph-vs-handmapped POC3 solver
-equivalence.  The first solver-execution smoke proved that both paths can run,
-but the probe showed nonzero graph-vs-handmapped numerical deltas and no
-graph-level acoustic_chamber records in the accepted POC3 construction helper.
+Both paths represent the exact same five-element accepted POC3 model and run
+through the same kernel on its existing 533-point reference frequency grid.
+This checks graph construction and compiler mapping, not HornResp/Akabak
+parity, external correctness, model replacement, or a released feature.
 
-Therefore this _07 repair creates the surface from clean base 7b0df05 as a bounded diagnostic:
-it proves graph-defined POC3 solver execution and reports internal differences
-against the accepted hand-mapped POC3 path, while explicitly leaving true
-solver-equivalence/alignment for a later Director-approved step.
-
-It does not compare against HornResp or Akabak, does not claim external parity,
-does not replace the accepted hand-mapped POC3 path, and does not open
-optimizer, Studio, importer, or topology-expansion scope.
+The accepted ``throat_chamber`` is a finite waveguide, not a distinct
+volume-only acoustic_chamber element. No volumetric chamber is invented.
 """
 
 from __future__ import annotations
@@ -30,6 +24,7 @@ from os_lem.acoustic_graph_ir import (
     validate_acoustic_graph_ir,
 )
 from os_lem.api import run_simulation
+from os_lem.solve import radiator_observation_pressure, summed_radiator_observation_pressure
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -42,9 +37,17 @@ GRAPH_VALIDATOR_CALLABLE = "os_lem.acoustic_graph_ir.validate_acoustic_graph_ir"
 GRAPH_COMPILER_CALLABLE = "os_lem.acoustic_graph_ir.compile_acoustic_graph_ir_to_model_dict"
 SOLVER_CALLABLE = "os_lem.api.run_simulation"
 
-DIAGNOSTIC_CLASSIFICATION = "graph_defined_poc3_solver_execution_diagnostic"
-SOLVER_EQUIVALENCE_STATUS = "not_established_requires_later_alignment"
-CHAMBER_BEARING_PROOF_STATUS = "not_established_by_current_poc3_graph_helper"
+DIAGNOSTIC_CLASSIFICATION = "graph_defined_poc3_internal_solver_equivalence_regression"
+SOLVER_EQUIVALENCE_STATUS = "established_for_accepted_poc3_internal_model_only"
+CHAMBER_BEARING_PROOF_STATUS = "no_volume_only_chamber_in_accepted_poc3_authority"
+POC3_NODES = ("front", "rear", "throat", "bend", "mouth")
+
+# These tolerances are roundoff allowances for identical solver inputs, not
+# limits fit to a mismatched model. The full grid includes near-cancellation
+# of complex radiated pressures at some frequencies.
+COMPLEX_RTOL = 1.0e-9
+COMPLEX_ATOL = 1.0e-10
+SPL_ATOL_DB = 1.0e-8
 
 
 def _load_construction_helper_module():
@@ -151,7 +154,12 @@ def _copy_authority_observations_if_needed(graph_model: dict[str, Any], handmapp
 
 
 def _solver_result_projection(model_dict: dict[str, Any], frequency_hz: np.ndarray) -> dict[str, np.ndarray]:
-    result = run_simulation(model_dict, frequency_hz)
+    with_pressures = deepcopy(model_dict)
+    with_pressures["observations"].extend(
+        {"id": f"p_node_{node}", "type": "node_pressure", "target": node}
+        for node in POC3_NODES
+    )
+    result = run_simulation(with_pressures, frequency_hz)
     assert result.zin_complex_ohm is not None
     projected: dict[str, np.ndarray] = {
         "frequency_hz": np.asarray(result.frequencies_hz, dtype=float),
@@ -160,6 +168,20 @@ def _solver_result_projection(model_dict: dict[str, Any], frequency_hz: np.ndarr
     for key, value in result.series.items():
         if "spl" in str(key).lower():
             projected[str(key)] = np.asarray(value, dtype=float)
+        elif str(key).startswith("p_node_"):
+            projected[str(key)] = np.asarray(value, dtype=complex)
+    for radiator_id in ("front_rad", "mouth_rad"):
+        projected[f"p_radiated_{radiator_id}"] = radiator_observation_pressure(
+            result.sweep, result.system, radiator_id, 1.0, "2pi"
+        )
+    projected["p_radiated_total"] = summed_radiator_observation_pressure(
+        result.sweep,
+        result.system,
+        [
+            {"target": "front_rad", "distance": "1 m", "radiation_space": "2pi"},
+            {"target": "mouth_rad", "distance": "1 m", "radiation_space": "2pi"},
+        ],
+    )
     return projected
 
 
@@ -183,7 +205,7 @@ def _graph_chamber_records(model_dict: Mapping[str, Any]) -> list[dict[str, Any]
 def _equivalence_diagnostic_report() -> dict[str, Any]:
     handmapped_model = _handmapped_model_dict()
     graph_model = _copy_authority_observations_if_needed(_compiled_graph_model_dict(), handmapped_model)
-    frequency_hz = _bounded_poc3_frequency_subset()
+    frequency_hz = _load_reference_frequency_grid()
 
     graph_result = _solver_result_projection(graph_model, frequency_hz)
     handmapped_result = _solver_result_projection(handmapped_model, frequency_hz)
@@ -192,10 +214,16 @@ def _equivalence_diagnostic_report() -> dict[str, Any]:
         for key in set(graph_result).intersection(handmapped_result)
         if "spl" in key.lower()
     )
-    differences: dict[str, dict[str, float]] = {
-        "zin_complex_ohm": _difference_summary(graph_result["zin_complex_ohm"], handmapped_result["zin_complex_ohm"]),
-    }
-    for field in common_spl_fields:
+    compared_fields = [
+        "zin_complex_ohm",
+        *(f"p_node_{node}" for node in POC3_NODES),
+        "p_radiated_front_rad",
+        "p_radiated_mouth_rad",
+        "p_radiated_total",
+        *common_spl_fields,
+    ]
+    differences: dict[str, dict[str, float]] = {}
+    for field in compared_fields:
         differences[field] = _difference_summary(graph_result[field], handmapped_result[field])
 
     graph_chamber_records = _graph_chamber_records(graph_model)
@@ -206,20 +234,25 @@ def _equivalence_diagnostic_report() -> dict[str, Any]:
         "chamber_bearing_proof_status": CHAMBER_BEARING_PROOF_STATUS,
         "authority_path": REQUIRED_AUTHORITY_PATH,
         "frequency_hz": frequency_hz.tolist(),
-        "compared_solver_fields": ["frequency_hz", "zin_complex_ohm", *common_spl_fields],
+        "frequency_count": int(frequency_hz.size),
+        "compared_solver_fields": ["frequency_hz", *compared_fields],
         "common_spl_fields": common_spl_fields,
         "differences": differences,
-        "thresholds_used_for_equivalence": None,
-        "threshold_rationale": "no equivalence thresholds are asserted in this diagnostic repair",
+        "thresholds_used_for_equivalence": {
+            "complex_relative": COMPLEX_RTOL,
+            "complex_absolute_ohm_or_pa": COMPLEX_ATOL,
+            "spl_absolute_db": SPL_ATOL_DB,
+        },
+        "threshold_rationale": "same accepted physical model and solver; double-precision roundoff only, including complex pressure cancellation",
         "graph_model_element_count": len(graph_model.get("elements", [])),
         "handmapped_model_element_count": len(handmapped_model.get("elements", [])) if isinstance(handmapped_model.get("elements"), list) else None,
         "graph_acoustic_chamber_count": len(graph_chamber_records),
         "graph_acoustic_chamber_records": graph_chamber_records,
         "graph_chamber_records_exposed": True,
         "numerical_differences_visible": True,
-        "later_equivalence_alignment_required": True,
+        "later_equivalence_alignment_required": False,
         "strict_bit_equivalence_claim": False,
-        "solver_equivalence_claim": False,
+        "solver_equivalence_claim": True,
         "hornresp_parity_claim": False,
         "akabak_parity_claim": False,
         "external_parity_claim": False,
@@ -233,7 +266,7 @@ def evaluate_poc3_graph_defined_solver_equivalence_smoke() -> dict[str, Any]:
     return _equivalence_diagnostic_report()
 
 
-def test_poc3_graph_validates_compiles_and_runs_as_diagnostic_payload() -> None:
+def test_poc3_graph_validates_compiles_and_preserves_five_physical_elements() -> None:
     graph = _accepted_poc3_graph_ir()
     validation = validate_acoustic_graph_ir(graph)
     compiled = compile_acoustic_graph_ir_to_model_dict(graph)
@@ -242,18 +275,69 @@ def test_poc3_graph_validates_compiles_and_runs_as_diagnostic_payload() -> None:
     assert compiled.is_success is True, compiled.errors
     assert compiled.model_dict is not None
     assert compiled.model_dict["meta"]["compiler_target"] == "existing_solver_model_dict"
-    # Diagnostic classification is intentionally a test/probe/report-layer
-    # statement.  The compiler is not required to emit diagnostic_only or
-    # solver_equivalence_status metadata.
-    assert DIAGNOSTIC_CLASSIFICATION == "graph_defined_poc3_solver_execution_diagnostic"
-    assert SOLVER_EQUIVALENCE_STATUS == "not_established_requires_later_alignment"
-    assert CHAMBER_BEARING_PROOF_STATUS == "not_established_by_current_poc3_graph_helper"
-    assert "elements" in compiled.model_dict
-    assert isinstance(_graph_chamber_records(compiled.model_dict), list)
+    authority = _handmapped_model_dict()
+    graph_model = compiled.model_dict
+    assert len(graph_model["elements"]) == len(authority["elements"]) == 5
+    assert {item["id"] for item in graph_model["elements"]} == {item["id"] for item in authority["elements"]}
+    for expected in authority["elements"]:
+        actual = next(item for item in graph_model["elements"] if item["id"] == expected["id"])
+        assert actual["type"] == expected["type"]
+        if expected["type"] == "radiator":
+            assert actual["node"] == expected["node"]
+            assert actual["model"] == expected["model"] == "infinite_baffle_piston"
+        else:
+            assert (actual["node_a"], actual["node_b"]) == (expected["node_a"], expected["node_b"])
+            assert actual["segments"] == expected["segments"]
+    assert graph_model["driver"]["model"] == authority["driver"]["model"] == "em_explicit"
+    assert graph_model["driver"]["Mms"] == authority["driver"]["Mms"]
+    assert graph_model["driver"]["source_voltage_rms"] == authority["driver"]["source_voltage_rms"]
+    assert _graph_chamber_records(graph_model) == []
+
+
+def test_native_graph_diagnostic_observations_reuse_explicit_front_and_mouth_loads() -> None:
+    graph_model = _compiled_graph_model_dict()
+    observations = {item["id"]: item for item in graph_model["observations"]}
+    assert observations["zin"] == {"id": "zin", "type": "input_impedance", "target": "drv1"}
+    assert observations["spl_mouth"]["target"] == "mouth_rad"
+    assert [term["target"] for term in observations["spl_total_diagnostic"]["terms"]] == ["front_rad", "mouth_rad"]
+    assert {item["id"] for item in graph_model["elements"] if item["type"] == "radiator"} == {"front_rad", "mouth_rad"}
+
+    frequency_hz = _load_reference_frequency_grid()
+    native_graph_result = run_simulation(graph_model, frequency_hz)
+    handmapped_result = run_simulation(_handmapped_model_dict(), frequency_hz)
+    np.testing.assert_allclose(
+        native_graph_result.series["spl_mouth"], handmapped_result.series["spl_mouth"],
+        rtol=0.0, atol=SPL_ATOL_DB,
+    )
+    np.testing.assert_allclose(
+        native_graph_result.series["spl_total_diagnostic"], handmapped_result.series["spl_total"],
+        rtol=0.0, atol=SPL_ATOL_DB,
+    )
+
+
+def test_duplicate_front_radiation_fails_compilation_as_structured_error() -> None:
+    graph = _accepted_poc3_graph_ir()
+    graph["elements"].append(
+        {
+            "id": "unwanted_second_front_radiator",
+            "type": "radiation_load",
+            "node": "front",
+            "area_m2": 0.0022,
+            "radiation_space": "2pi",
+            "model": "infinite_baffle_piston",
+        }
+    )
+    validation = validate_acoustic_graph_ir(graph)
+    assert validation.is_valid is True, validation.errors
+
+    compiled = compile_acoustic_graph_ir_to_model_dict(graph)
+    assert compiled.is_success is False
+    assert compiled.model_dict is None
+    assert any("exactly one explicit front radiator" in error for error in compiled.errors)
 
 
 def test_poc3_graph_defined_and_handmapped_models_both_run_through_solver() -> None:
-    frequency_hz = _bounded_poc3_frequency_subset()
+    frequency_hz = _load_reference_frequency_grid()
     handmapped_model = _handmapped_model_dict()
     graph_model = _copy_authority_observations_if_needed(_compiled_graph_model_dict(), handmapped_model)
 
@@ -266,37 +350,50 @@ def test_poc3_graph_defined_and_handmapped_models_both_run_through_solver() -> N
     assert handmapped_result["zin_complex_ohm"].shape == frequency_hz.shape
     assert np.all(np.isfinite(graph_result["zin_complex_ohm"]))
     assert np.all(np.isfinite(handmapped_result["zin_complex_ohm"]))
+    assert frequency_hz.size == 533
+    complex_fields = [
+        "zin_complex_ohm", *(f"p_node_{node}" for node in POC3_NODES),
+        "p_radiated_front_rad", "p_radiated_mouth_rad", "p_radiated_total",
+    ]
+    for field in complex_fields:
+        np.testing.assert_allclose(graph_result[field], handmapped_result[field], rtol=COMPLEX_RTOL, atol=COMPLEX_ATOL)
+    for field in ("spl_front", "spl_mouth", "spl_total"):
+        np.testing.assert_allclose(graph_result[field], handmapped_result[field], rtol=0.0, atol=SPL_ATOL_DB)
 
 
-def test_poc3_diagnostic_report_exposes_differences_without_equivalence_thresholds() -> None:
+def test_poc3_diagnostic_report_records_full_grid_roundoff_and_thresholds() -> None:
     report = _equivalence_diagnostic_report()
     assert report["solver_execution_status"] == "passed"
     assert report["solver_equivalence_status"] == SOLVER_EQUIVALENCE_STATUS
-    assert report["thresholds_used_for_equivalence"] is None
-    assert report["later_equivalence_alignment_required"] is True
+    assert report["frequency_count"] == 533
+    assert report["thresholds_used_for_equivalence"]["complex_relative"] == COMPLEX_RTOL
+    assert report["thresholds_used_for_equivalence"]["spl_absolute_db"] == SPL_ATOL_DB
+    assert report["later_equivalence_alignment_required"] is False
     assert report["numerical_differences_visible"] is True
     assert "zin_complex_ohm" in report["differences"]
-    assert report["differences"]["zin_complex_ohm"]["max_abs"] >= 0.0
+    assert report["differences"]["zin_complex_ohm"]["max_abs"] < COMPLEX_ATOL
     assert report["differences"]["zin_complex_ohm"]["mean_abs"] >= 0.0
     for field in report["common_spl_fields"]:
         assert field in report["differences"]
         assert report["differences"][field]["max_abs"] >= 0.0
         assert report["differences"][field]["mean_abs"] >= 0.0
+        assert report["differences"][field]["max_abs"] < SPL_ATOL_DB
 
 
-def test_poc3_diagnostic_report_exposes_chamber_status_without_inventing_chambers() -> None:
+def test_poc3_diagnostic_report_does_not_invent_volume_chambers() -> None:
     report = _equivalence_diagnostic_report()
     assert "graph_acoustic_chamber_count" in report
     assert "graph_acoustic_chamber_records" in report
-    assert isinstance(report["graph_acoustic_chamber_records"], list)
+    assert report["graph_acoustic_chamber_count"] == 0
+    assert report["graph_acoustic_chamber_records"] == []
     assert report["graph_chamber_records_exposed"] is True
     assert report["chamber_bearing_proof_status"] == CHAMBER_BEARING_PROOF_STATUS
 
 
-def test_scope_non_claims_remain_internal_diagnostic_only() -> None:
+def test_scope_non_claims_remain_internal_equivalence_only() -> None:
     report = _equivalence_diagnostic_report()
     assert report["strict_bit_equivalence_claim"] is False
-    assert report["solver_equivalence_claim"] is False
+    assert report["solver_equivalence_claim"] is True
     assert report["hornresp_parity_claim"] is False
     assert report["akabak_parity_claim"] is False
     assert report["external_parity_claim"] is False

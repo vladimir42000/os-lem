@@ -349,6 +349,19 @@ def _poc3_graph_from_authority(model: Mapping[str, Any]) -> dict[str, Any]:
     driver = _driver_block(model)
     front_node, rear_node = _driver_nodes(driver)
     driver_params = _canonical_driver_parameters(driver)
+    driver_model = str(driver.get("model", "ts_classic"))
+
+    graph_driver_parameters = {
+        key: driver_params[key]
+        for key in ("Sd_m2", "Bl_Tm", "Cms_m_per_N", "Rms_Ns_per_m", "Re_ohm", "Le_H")
+    }
+    if driver_model == "em_explicit":
+        # The accepted POC3 model uses moving mass Mms, not a derived Mmd/T-S
+        # approximation. Keep the explicit source convention as well.
+        graph_driver_parameters["Mms_kg"] = driver_params["Mmd_kg"]
+        graph_driver_parameters["source_voltage_rms"] = float(driver["source_voltage_rms"])
+    else:
+        graph_driver_parameters["Mmd_kg"] = driver_params["Mmd_kg"]
 
     segments = _segment_components(components)
     chambers = _chamber_components(components)
@@ -360,17 +373,10 @@ def _poc3_graph_from_authority(model: Mapping[str, Any]) -> dict[str, Any]:
         {
             "id": str(driver.get("id", "poc3_driver")),
             "type": "electrodynamic_driver",
+            "model": driver_model,
             "front_node": front_node,
             "rear_node": rear_node,
-            "parameters": {
-                "Sd_m2": driver_params["Sd_m2"],
-                "Bl_Tm": driver_params["Bl_Tm"],
-                "Cms_m_per_N": driver_params["Cms_m_per_N"],
-                "Rms_Ns_per_m": driver_params["Rms_Ns_per_m"],
-                "Mmd_kg": driver_params["Mmd_kg"],
-                "Re_ohm": driver_params["Re_ohm"],
-                "Le_H": driver_params["Le_H"],
-            },
+            "parameters": graph_driver_parameters,
         }
     ]
 
@@ -400,6 +406,7 @@ def _poc3_graph_from_authority(model: Mapping[str, Any]) -> dict[str, Any]:
                 "area_a_m2": _area_m2(segment, ("area_a_m2", "area_a_cm2", "area_a", "area_start")),
                 "area_b_m2": _area_m2(segment, ("area_b_m2", "area_b_cm2", "area_b", "area_end")),
                 "profile": _normalize_profile(segment.get("profile", segment.get("flare", "conical"))),
+                **({"segments": int(segment["segments"])} if "segments" in segment else {}),
             }
         )
 
@@ -440,6 +447,7 @@ def _poc3_graph_from_authority(model: Mapping[str, Any]) -> dict[str, Any]:
                 "node": node,
                 "area_m2": _area_m2(radiator, ("area_m2", "area_cm2", "area")),
                 "radiation_space": _radiation_space(radiator),
+                "model": str(radiator.get("model", "unflanged_piston")),
             }
         )
 
@@ -467,20 +475,26 @@ def _driver_projection_from_authority(model: Mapping[str, Any]) -> dict[str, Any
     driver = _driver_block(model)
     front, rear = _driver_nodes(driver)
     params = _canonical_driver_parameters(driver)
-    return {"node_front": front, "node_rear": rear, **params}
+    return {
+        "model": driver.get("model", "ts_classic"),
+        "source_voltage_rms": float(driver.get("source_voltage_rms", 2.83)),
+        "node_front": front, "node_rear": rear, **params,
+    }
 
 
 def _driver_projection_from_compiled(model: Mapping[str, Any]) -> dict[str, Any]:
     driver = model["driver"]
     params = driver["parameters"]
     return {
+        "model": driver["model"],
+        "source_voltage_rms": float(driver.get("source_voltage_rms", 2.83)),
         "node_front": driver["node_front"],
         "node_rear": driver["node_rear"],
         "Sd_m2": params["Sd_m2"],
         "Bl_Tm": params["Bl_Tm"],
         "Cms_m_per_N": params["Cms_m_per_N"],
         "Rms_Ns_per_m": params["Rms_Ns_per_m"],
-        "Mmd_kg": params["Mmd_kg"],
+        "Mmd_kg": params["Mms_kg"] if driver["model"] == "em_explicit" else params["Mmd_kg"],
         "Re_ohm": params["Re_ohm"],
         "Le_H": params["Le_H"],
     }
@@ -524,6 +538,7 @@ def _projection_from_authority(model: Mapping[str, Any]) -> dict[str, Any]:
                     "area_a_m2": _area_m2(item, ("area_a_m2", "area_a_cm2", "area_a", "area_start")),
                     "area_b_m2": _area_m2(item, ("area_b_m2", "area_b_cm2", "area_b", "area_end")),
                     "profile": _normalize_profile(item.get("profile", item.get("flare", "conical"))),
+                    "segments": int(item.get("segments", 8)),
                 }
                 for item in segments
             ],
@@ -536,6 +551,7 @@ def _projection_from_authority(model: Mapping[str, Any]) -> dict[str, Any]:
                     "node": str(item.get("node", item.get("node_a", item.get("node_b")))),
                     "area_m2": _area_m2(item, ("area_m2", "area_cm2", "area")),
                     "radiation_space": _radiation_space(item),
+                    "model": str(item.get("model", "unflanged_piston")),
                 }
                 for item in radiators
             ],
@@ -568,6 +584,7 @@ def _projection_from_compiled(model: Mapping[str, Any]) -> dict[str, Any]:
                     "area_a_m2": _quantity(item["area_start"], "m2"),
                     "area_b_m2": _quantity(item["area_end"], "m2"),
                     "profile": item["profile"],
+                    "segments": int(item.get("segments", 8)),
                 }
                 for item in model.get("elements", [])
                 if item.get("type") == "waveguide_1d"
@@ -581,6 +598,7 @@ def _projection_from_compiled(model: Mapping[str, Any]) -> dict[str, Any]:
                     "node": item["node"],
                     "area_m2": _quantity(item["area"], "m2"),
                     "radiation_space": item["radiation_space"],
+                    "model": item["model"],
                 }
                 for item in model.get("elements", [])
                 if item.get("type") == "radiator"
@@ -595,6 +613,8 @@ def _assert_close(actual: float, expected: float, *, rel: float = 1.0e-9, abs_: 
 
 
 def _assert_projection_matches(compiled: Mapping[str, Any], authority: Mapping[str, Any]) -> None:
+    assert compiled["driver"]["model"] == authority["driver"]["model"]
+    _assert_close(compiled["driver"]["source_voltage_rms"], authority["driver"]["source_voltage_rms"])
     assert compiled["driver"]["node_front"] == authority["driver"]["node_front"]
     assert compiled["driver"]["node_rear"] == authority["driver"]["node_rear"]
     assert compiled["driver"]["node_front"] != compiled["driver"]["node_rear"]
@@ -609,6 +629,7 @@ def _assert_projection_matches(compiled: Mapping[str, Any], authority: Mapping[s
         assert compiled_segment["node_a"] == authority_segment["node_a"]
         assert compiled_segment["node_b"] == authority_segment["node_b"]
         assert compiled_segment["profile"] == authority_segment["profile"]
+        assert compiled_segment["segments"] == authority_segment["segments"]
         _assert_close(compiled_segment["length_m"], authority_segment["length_m"])
         _assert_close(compiled_segment["area_a_m2"], authority_segment["area_a_m2"])
         _assert_close(compiled_segment["area_b_m2"], authority_segment["area_b_m2"])
@@ -616,6 +637,7 @@ def _assert_projection_matches(compiled: Mapping[str, Any], authority: Mapping[s
     for compiled_radiation, authority_radiation in zip(compiled["radiation"], authority["radiation"], strict=True):
         assert compiled_radiation["node"] == authority_radiation["node"]
         assert compiled_radiation["radiation_space"] == authority_radiation["radiation_space"] == "2pi"
+        assert compiled_radiation["model"] == authority_radiation["model"]
         _assert_close(compiled_radiation["area_m2"], authority_radiation["area_m2"])
 
     assert len(compiled["chambers"]) == len(authority["chambers"])
