@@ -19,6 +19,7 @@ class Driver:
     node_front: str
     node_rear: str
     source_voltage_rms: float
+    series_resistance_ohm: float = 0.0
 
 
 @dataclass(slots=True)
@@ -49,6 +50,7 @@ class Waveguide1DElement:
     profile: str
     segments: int = 8
     loss: float | None = None
+    flow_resistivity: float = 0.0
 
 
 @dataclass(slots=True)

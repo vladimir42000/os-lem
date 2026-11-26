@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 from pathlib import Path
 from typing import Any
 
@@ -51,6 +53,7 @@ _WAVEGUIDE_KEYS = {
     "area_end",
     "profile",
     "segments",
+    "flow_resistivity",
     "loss",
 }
 _RADIATOR_KEYS = {"id", "type", "node", "model", "area"}
@@ -149,6 +152,9 @@ def _normalize_element(raw: dict[str, Any]):
         if loss is not None:
             if loss < 0.0:
                 raise ValidationError(f"waveguide_1d[{raw['id']}].loss must be >= 0")
+        flow_resistivity = float(raw.get("flow_resistivity", 0.0))
+        if not math.isfinite(flow_resistivity) or flow_resistivity < 0:
+            raise ValidationError("flow_resistivity must be finite and >= 0 Pa s/m2")
         profile = raw.get("profile", "conical")
         if not isinstance(profile, str):
             raise ValidationError(f"waveguide_1d[{raw['id']}].profile must be a string")
@@ -164,6 +170,7 @@ def _normalize_element(raw: dict[str, Any]):
             area_start_m2=area_start_m2,
             area_end_m2=area_end_m2,
             profile=profile,
+            flow_resistivity=flow_resistivity,
             segments=segments,
             loss=loss,
         )
