@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
 import numpy as np
+from scipy.linalg import solve_banded
 
 from .assemble import (
     AssembledElement,
@@ -30,6 +31,7 @@ from .elements.radiator import (
 from .elements.volume import volume_admittance
 from .elements.waveguide_1d import (
     area_at_position,
+    propagation_and_impedance,
     segment_endpoint_positions,
     segment_midpoint_areas,
     uniform_segment_admittance,
@@ -142,6 +144,16 @@ class SolvedFrequencySweep:
         return self.source_voltage_rms / self.coil_current
 
 
+def _solve_tridiagonal(matrix, rhs):
+    """Pivoted O(n) banded solve for the internal chain, without dense LU."""
+    n = len(matrix)
+    bands = np.zeros((3, n), dtype=complex)
+    bands[0, 1:] = np.diag(matrix, 1)
+    bands[1] = np.diag(matrix)
+    bands[2, :-1] = np.diag(matrix, -1)
+    return solve_banded((1, 1), bands, rhs, check_finite=False)
+
+
 def _waveguide_full_admittance_matrix(
     omega: float,
     payload: Waveguide1DElement,
@@ -153,21 +165,24 @@ def _waveguide_full_admittance_matrix(
         payload.area_start_m2,
         payload.area_end_m2,
         payload.segments,
+        profile=payload.profile,
     )
     dx = payload.length_m / payload.segments
 
     n_nodes = payload.segments + 1
     Y_full = np.zeros((n_nodes, n_nodes), dtype=np.complex128)
 
-    for seg_idx, area_m2 in enumerate(areas):
-        Y_seg = uniform_segment_admittance(omega, dx, float(area_m2), loss_np_per_m=float(payload.loss or 0.0))
-        i = seg_idx
-        j = seg_idx + 1
-
-        Y_full[i, i] += Y_seg[0, 0]
-        Y_full[i, j] += Y_seg[0, 1]
-        Y_full[j, i] += Y_seg[1, 0]
-        Y_full[j, j] += Y_seg[1, 1]
+    gamma, zc = propagation_and_impedance(omega, areas, float(payload.loss or 0), payload.flow_resistivity)
+    sh = np.sinh(gamma * dx)
+    if abs(sh) < 1e-15:
+        raise ZeroDivisionError("sinh(gamma*L) too small for stable segment evaluation")
+    diagonal = np.cosh(gamma * dx) / (zc * sh)
+    off = -1 / (zc * sh)
+    indices = np.arange(payload.segments)
+    Y_full[indices, indices] += diagonal
+    Y_full[indices + 1, indices + 1] += diagonal
+    Y_full[indices, indices + 1] = off
+    Y_full[indices + 1, indices] = off
 
     return Y_full
 
@@ -192,7 +207,7 @@ def _waveguide_equivalent_admittance_matrix(
     Y_ie = Y_full[np.ix_(internal_idx, end_idx)]
     Y_ii = Y_full[np.ix_(internal_idx, internal_idx)]
 
-    return Y_ee - Y_ei @ np.linalg.solve(Y_ii, Y_ie)
+    return Y_ee - Y_ei @ _solve_tridiagonal(Y_ii, Y_ie)
 
 
 def _waveguide_internal_nodal_pressures(
@@ -217,7 +232,7 @@ def _waveguide_internal_nodal_pressures(
     Y_ie = Y_full[np.ix_(internal_idx, end_idx)]
     Y_ii = Y_full[np.ix_(internal_idx, internal_idx)]
     end_pressures = np.array([pressure_a, pressure_b], dtype=np.complex128)
-    nodal_pressures[1:-1] = -np.linalg.solve(Y_ii, Y_ie @ end_pressures)
+    nodal_pressures[1:-1] = -_solve_tridiagonal(Y_ii, Y_ie @ end_pressures)
     return nodal_pressures
 
 
@@ -235,12 +250,13 @@ def _waveguide_segment_left_flows(
         payload.area_start_m2,
         payload.area_end_m2,
         payload.segments,
+        profile=payload.profile,
     )
     dx = payload.length_m / payload.segments
     left_flows = np.empty(payload.segments, dtype=np.complex128)
 
     for seg_idx, area_m2 in enumerate(areas):
-        Y_seg = uniform_segment_admittance(omega, dx, float(area_m2), loss_np_per_m=float(payload.loss or 0.0))
+        Y_seg = uniform_segment_admittance(omega, dx, float(area_m2), loss_np_per_m=float(payload.loss or 0.0), flow_resistivity=payload.flow_resistivity)
         p_seg = np.array(
             [nodal_pressures[seg_idx], nodal_pressures[seg_idx + 1]],
             dtype=np.complex128,
@@ -286,13 +302,14 @@ def _waveguide_sample_profile_quantity(
         payload.area_start_m2,
         payload.area_end_m2,
         payload.segments,
+        profile=payload.profile,
     )
     dx = payload.length_m / payload.segments
 
     x_m = np.linspace(0.0, payload.length_m, points, dtype=float)
     values = np.empty(points, dtype=np.complex128)
 
-    gamma = complex(float(payload.loss or 0.0), point.omega_rad_s / C0)
+    gamma, _ = propagation_and_impedance(point.omega_rad_s, 1.0, float(payload.loss or 0), payload.flow_resistivity)
     gamma_dx = gamma * dx
     sinh_gamma_dx = np.sinh(gamma_dx)
 
@@ -307,7 +324,7 @@ def _waveguide_sample_profile_quantity(
 
         p_left = complex(nodal_pressures[seg_idx])
         p_right = complex(nodal_pressures[seg_idx + 1])
-        zc_a = RHO0 * C0 / float(segment_areas[seg_idx])
+        _, zc_a = propagation_and_impedance(point.omega_rad_s, float(segment_areas[seg_idx]), float(payload.loss or 0), payload.flow_resistivity)
         left_weight = np.sinh(gamma * (dx - x_local)) / sinh_gamma_dx
         right_weight = np.sinh(gamma * x_local) / sinh_gamma_dx
         pressure = left_weight * p_left + right_weight * p_right
@@ -405,7 +422,7 @@ def build_acoustic_matrix(system: AssembledSystem, frequency_hz: float) -> Acous
 
 def _electrical_impedance(model: NormalizedModel, omega: float) -> complex:
     driver = model.driver
-    return complex(driver.Re, omega * driver.Le)
+    return complex(driver.Re + driver.series_resistance_ohm, omega * driver.Le)
 
 
 def _mechanical_impedance(model: NormalizedModel, omega: float) -> complex:
@@ -1526,7 +1543,7 @@ def _waveguide_discrete_boundary_flows(point, system, waveguide_id):
     boundary_flows[0] = endpoint_flow.node_a
     boundary_flows[-1] = -endpoint_flow.node_b
     for seg_idx, area_m2 in enumerate(areas[:-1]):
-        Y_seg = _wg_uniform_segment_admittance(point.omega_rad_s, dx, float(area_m2))
+        Y_seg = _wg_uniform_segment_admittance(point.omega_rad_s, dx, float(area_m2), loss_np_per_m=float(payload.loss or 0.0), flow_resistivity=payload.flow_resistivity)
         q_seg = Y_seg @ _np.array(
             [nodal_pressures[seg_idx], nodal_pressures[seg_idx + 1]],
             dtype=_np.complex128,

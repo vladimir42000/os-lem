@@ -38,7 +38,7 @@ _EXPLICIT_REQUIRED = {
     "node_rear",
 }
 
-_ALLOWED_KEYS = _TS_REQUIRED | _EXPLICIT_REQUIRED | {"source_voltage", "source_voltage_rms"}
+_ALLOWED_KEYS = _TS_REQUIRED | _EXPLICIT_REQUIRED | {"source_voltage", "source_voltage_rms", "series_resistance_ohm"}
 
 
 def _close_enough(a: float, b: float) -> bool:
@@ -48,6 +48,13 @@ def _close_enough(a: float, b: float) -> bool:
 def _require_positive(name: str, value: float) -> None:
     if value <= 0.0:
         raise ValidationError(f"Driver parameter {name!r} must be > 0, got {value!r}")
+
+
+def _series_resistance(raw: dict) -> float:
+    value = parse_value(raw.get("series_resistance_ohm", 0.0))
+    if not math.isfinite(value) or value < 0:
+        raise ValidationError("series_resistance_ohm must be finite and >= 0")
+    return value
 
 
 def canonical_from_ts_classic(raw: dict) -> Driver:
@@ -91,6 +98,7 @@ def canonical_from_ts_classic(raw: dict) -> Driver:
         Sd=Sd,
         node_front=str(raw["node_front"]),
         node_rear=str(raw["node_rear"]),
+        series_resistance_ohm=_series_resistance(raw),
         source_voltage_rms=parse_value(raw.get("source_voltage_rms", raw.get("source_voltage", 2.83))),
     )
 
@@ -111,11 +119,12 @@ def canonical_from_explicit(raw: dict) -> Driver:
         Sd=parse_value(raw["Sd"]),
         node_front=str(raw["node_front"]),
         node_rear=str(raw["node_rear"]),
+        series_resistance_ohm=_series_resistance(raw),
         source_voltage_rms=parse_value(raw.get("source_voltage_rms", raw.get("source_voltage", 2.83))),
     )
 
     for key, value in asdict(driver).items():
-        if key in {"id", "node_front", "node_rear"}:
+        if key in {"id", "node_front", "node_rear", "series_resistance_ohm"}:
             continue
         _require_positive(key, float(value))
     return driver

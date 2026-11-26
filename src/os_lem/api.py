@@ -232,6 +232,12 @@ def run_simulation(model_dict: Mapping[str, Any], frequencies_hz: Sequence[float
         raise TypeError("model_dict must be a mapping")
 
     normalized_model, warnings = normalize_model(dict(model_dict))
+    for line in normalized_model.waveguides:
+        if line.flow_resistivity > 0:
+            warnings.append(f"{line.id}: experimental Miki equivalent-fluid stuffing; full cross-section, rigid fibres. Material density/resistivity calibration requires external validation.")
+            ratios = np.asarray(frequencies_hz, dtype=float) / line.flow_resistivity
+            if np.any((ratios < 0.01) | (ratios > 1)):
+                warnings.append(f"{line.id}: some frequencies are outside 0.01 <= f/resistivity <= 1; porous-model extrapolation is unvalidated.")
     system = assemble_system(normalized_model)
     sweep = solve_frequency_sweep(normalized_model, system, frequencies_hz)
     series, units, observation_types = _evaluate_supported_observations(normalized_model, system, sweep)

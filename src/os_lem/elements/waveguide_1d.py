@@ -17,6 +17,21 @@ def _characteristic_impedance_acoustic(area_m2: float) -> float:
     return RHO0 * C0 / area_m2
 
 
+def propagation_and_impedance(omega, area_m2, loss_np_per_m=0.0, flow_resistivity=0.0):
+    """Miki (1990), Eqs 30–34, SI units, exp(+j omega t).
+
+    DOI 10.1250/ast.11.19. Density is not a universal substitute for resistivity.
+    sigma=0 preserves the unfilled air model exactly.
+    """
+    gamma = _propagation_constant(omega, loss_np_per_m)
+    zc = _characteristic_impedance_acoustic(area_m2)
+    if flow_resistivity > 0:
+        ratio = (omega / (2 * math.pi)) / flow_resistivity
+        zc = zc * (1 + (0.070 - 0.107j) * ratio**-0.632)
+        gamma += (omega / C0) * (0.160 + 0.109j) * ratio**-0.618
+    return gamma, zc
+
+
 def segment_midpoint_areas(length_m: float, area_start_m2: float, area_end_m2: float, segments: int) -> np.ndarray:
     if segments <= 0:
         raise ValueError("segments must be > 0")
@@ -54,9 +69,9 @@ def uniform_segment_transfer(
     length_m: float,
     area_m2: float,
     loss_np_per_m: float = 0.0,
+    flow_resistivity: float = 0.0,
 ) -> np.ndarray:
-    gamma = _propagation_constant(omega, loss_np_per_m)
-    zc_a = _characteristic_impedance_acoustic(area_m2)
+    gamma, zc_a = propagation_and_impedance(omega, area_m2, loss_np_per_m, flow_resistivity)
     gl = gamma * length_m
     c = np.cosh(gl)
     s = np.sinh(gl)
@@ -74,9 +89,9 @@ def uniform_segment_admittance(
     length_m: float,
     area_m2: float,
     loss_np_per_m: float = 0.0,
+    flow_resistivity: float = 0.0,
 ) -> np.ndarray:
-    gamma = _propagation_constant(omega, loss_np_per_m)
-    zc_a = _characteristic_impedance_acoustic(area_m2)
+    gamma, zc_a = propagation_and_impedance(omega, area_m2, loss_np_per_m, flow_resistivity)
     gl = gamma * length_m
     s = np.sinh(gl)
     c = np.cosh(gl)
@@ -100,10 +115,11 @@ def segment_sample_state(
     pressure_left: complex,
     flow_left: complex,
     loss_np_per_m: float = 0.0,
+    flow_resistivity: float = 0.0,
 ) -> np.ndarray:
     if x_m < 0.0:
         raise ValueError("x_m must be >= 0")
-    transfer = uniform_segment_transfer(omega, x_m, area_m2, loss_np_per_m=loss_np_per_m)
+    transfer = uniform_segment_transfer(omega, x_m, area_m2, loss_np_per_m=loss_np_per_m, flow_resistivity=flow_resistivity)
     return transfer @ np.array([pressure_left, flow_left], dtype=complex)
 
 
